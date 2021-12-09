@@ -1,0 +1,26 @@
+{
+    "Mistswap": {
+        "Wrapped BCH": {
+            "Initial": 4,
+            "Current": 7.33,
+            "Difference": 3.33
+        },
+        "SmartIndex": {
+            "Initial": 18711.1,
+            "Current": 10369.46,
+            "Difference": -8341.64
+        }
+    },
+    "Tangoswap": {
+        "Wrapped BCH": {
+            "Initial": 1,
+            "Current": 1.89,
+            "Difference": 0.89
+        },
+        "SmartIndex": {
+            "Initial": 5000,
+            "Current": 2691.29,
+            "Difference": -2308.71
+        }
+    }
+}

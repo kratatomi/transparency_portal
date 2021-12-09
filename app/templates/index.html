@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div style="float:left; width:50%;">
+        <div>
+            <H2>SEP20 tokens balance in the portfolio:</H2>
+            <ul id="SEP20_tokens">
+                {% for key, value in sep20_balances.items() %}
+                {% if key != "Total value" %}
+                <li>{{ key }} : {{ value["Current"] }}
+                {% if value["Current value"] is defined %}
+                    (Value: {{ value["Current"] }} USD)
+                {% else %}
+                    (USD value not available)</li>
+                {% endif %}
+                {% endif %}
+                {% endfor %}
+            </ul>
+            <b>Total value: {{ sep20_balances["Total value"] }}</b>
+    </div>
+    <br>
+    <div>
+        <H2>Stacked tokens balance in the portfolio:</H2>
+        <ul id="stacked_tokens">
+            {% for key, value in stacked_assets.items() %}
+            {% if key != "Total value" %}
+            <li>{{ key }}
+                <ul>
+                    <li>Initial amount: {{ value["Initial"] }}</li>
+                    <li>Current amount: {{ value["Current"] }}
+                    {% if value["Current value"] is defined %}
+                        (Value: {{ value["Current"] }} USD)
+                    {% else %}
+                        (USD value not available)</li>
+                    {% endif %}
+                    <li>Yield: {{ value["Yield"] }}</li>
+                    {% endif %}
+                </ul>
+            </li>
+            {% endfor %}
+        </ul>
+        <b>Total value: {{  stacked_assets["Total value"] }}</b>
+    </div>
+</div>
+<div style="float:right; width:50%;">
+        <div>
+        <H2>SIDX initial liquidity pools:</H2>
+        <ul id="SIDX_liquidity_pools">
+            {% for key, value in lp_balances.items() %}
+            <li>{{ key }}
+                <ul>
+                    {% for key, value in value.items() %}
+                    <li>{{ key }}</li>
+                    <ul>
+                        <li>Initial amount: {{ value["Initial"] }}</li>
+                        <li>Current amount: {{ value["Current"] }}</li>
+                        <li>Difference: {{ value["Difference"] }}</li>
+                    </ul>
+                    {% endfor %}
+                </ul>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div>
+        <H2>LAW Punks:</H2>
+        <ul id="law_punks">
+            {% for key, value in punks["Wallets"].items() %}
+            <li>Wallet: <a href="https://www.smartscan.cash/address/{{key}}">{{key}}</a> LAW earned: {{ value["LAW rewards"] }}</li>
+                Punks:
+                {% for id in value["Punks"] %}
+                    <a href="https://blockng.money/#/detail/{{id}}">Punk #{{id}}</a>
+                {% endfor %}
+            {% endfor %}
+            <br>
+            <b>Total LAW earned:  {{ punks["Total LAW pending"] }} LAW - {{ punks["LAW pending in USD"] }} USD</b>
+        </ul>
+    </div>
+</div>
+{% endblock %}

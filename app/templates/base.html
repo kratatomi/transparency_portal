@@ -1,0 +1,27 @@
+<html>
+    <head>
+        <center><img src="static/logo.svg" alt="SmartIndex logo" width="200" height="80"></center>
+        {% if title %}
+        <title>{{ title }} - SmartIndex transparency portal</title>
+        {% else %}
+        <title>SmartIndex transparency portal</title>
+        {% endif %}
+    </head>
+    <body>
+    <div>
+        <center>
+            <h1>SmartIndex transparency portal:
+            <a href="{{ url_for('index') }}">Portfolio tracker</a>
+            <a href="{{ url_for('proposals') }}">Proposals</a></h1>
+        </center>
+    </div>
+        <div>
+        <H2><center>[SIDX token stats]
+            {% for key, value in sidx_stats.items() %}
+            {{ key }} : {{ value }} -
+            {% endfor %} USD</center></H2>
+    </div>
+        <hr>
+        {% block content %}{% endblock %}
+    </body>
+</html>

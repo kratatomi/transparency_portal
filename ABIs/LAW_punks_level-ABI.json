@@ -1,0 +1,53 @@
+[
+	{
+		"inputs": [
+			{
+				"internalType": "uint256[]",
+				"name": "punkIds",
+				"type": "uint256[]"
+			}
+		],
+		"name": "tokensOfMetaByIds",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "uint256",
+						"name": "punkId",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "level",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "baseScore",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "wanderScore",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "outlawScore",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "totalScore",
+						"type": "uint256"
+					}
+				],
+				"internalType": "struct LawPunkLevel.PunkMeta[]",
+				"name": "rets",
+				"type": "tuple[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+]

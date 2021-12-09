@@ -1,0 +1,430 @@
+[
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "payee",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "drawer",
+				"type": "address"
+			}
+		],
+		"name": "AcceptCheque",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "payee",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "drawer",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "coinTypeAndAmount",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "startAndEndTime",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "passphraseOrHashtag",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "bytes",
+				"name": "memo",
+				"type": "bytes"
+			}
+		],
+		"name": "NewCheque",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "payee",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "drawer",
+				"type": "address"
+			}
+		],
+		"name": "RefuseCheque",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "payee",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "drawer",
+				"type": "address"
+			}
+		],
+		"name": "RevokeCheque",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "payee",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "referee",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "key",
+				"type": "uint256"
+			}
+		],
+		"name": "SetEncryptionPubkey",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "payee",
+				"type": "address"
+			}
+		],
+		"name": "UnsetEncryptionPubkey",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bytes",
+				"name": "passphrase",
+				"type": "bytes"
+			}
+		],
+		"name": "acceptCheque",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256[]",
+				"name": "idList",
+				"type": "uint256[]"
+			},
+			{
+				"internalType": "bytes",
+				"name": "passphrase",
+				"type": "bytes"
+			}
+		],
+		"name": "acceptCheques",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address[]",
+				"name": "addrList",
+				"type": "address[]"
+			}
+		],
+		"name": "batchReadEncryptionPubkeys",
+		"outputs": [
+			{
+				"internalType": "uint256[]",
+				"name": "",
+				"type": "uint256[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "encryptionPubkeys",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
+			}
+		],
+		"name": "getChequeContent",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "coinType",
+				"type": "address"
+			},
+			{
+				"internalType": "uint96",
+				"name": "amount",
+				"type": "uint96"
+			},
+			{
+				"internalType": "address",
+				"name": "drawer",
+				"type": "address"
+			},
+			{
+				"internalType": "uint64",
+				"name": "deadline",
+				"type": "uint64"
+			},
+			{
+				"internalType": "uint256",
+				"name": "passphraseOrHashtag",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
+			}
+		],
+		"name": "refuseCheque",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256[]",
+				"name": "idList",
+				"type": "uint256[]"
+			}
+		],
+		"name": "refuseCheques",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
+			}
+		],
+		"name": "revokeCheque",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256[]",
+				"name": "idList",
+				"type": "uint256[]"
+			}
+		],
+		"name": "revokeCheques",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "key",
+				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "referee",
+				"type": "address"
+			}
+		],
+		"name": "setEncryptionPubkey",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "unsetEncryptionPubkey",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "payee",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "coinType",
+				"type": "address"
+			},
+			{
+				"internalType": "uint96",
+				"name": "amount",
+				"type": "uint96"
+			},
+			{
+				"internalType": "uint64",
+				"name": "deadline",
+				"type": "uint64"
+			},
+			{
+				"internalType": "uint256",
+				"name": "passphraseOrHashtag",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bytes",
+				"name": "memo",
+				"type": "bytes"
+			}
+		],
+		"name": "writeCheque",
+		"outputs": [],
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address[]",
+				"name": "payeeList",
+				"type": "address[]"
+			},
+			{
+				"internalType": "address",
+				"name": "coinType",
+				"type": "address"
+			},
+			{
+				"internalType": "uint96",
+				"name": "amount",
+				"type": "uint96"
+			},
+			{
+				"internalType": "uint64",
+				"name": "deadline",
+				"type": "uint64"
+			},
+			{
+				"internalType": "uint256[]",
+				"name": "passphraseHashList",
+				"type": "uint256[]"
+			},
+			{
+				"internalType": "bytes[]",
+				"name": "memoList",
+				"type": "bytes[]"
+			}
+		],
+		"name": "writeCheques",
+		"outputs": [],
+		"stateMutability": "payable",
+		"type": "function"
+	}
+]
