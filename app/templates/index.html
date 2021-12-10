@@ -9,7 +9,7 @@
                 {% if key != "Total value" %}
                 <li>{{ key }} : {{ value["Current"] }}
                 {% if value["Current value"] is defined %}
-                    (Value: {{ value["Current"] }} USD)
+                    (Value: {{ value["Current value"] }} USD)
                 {% else %}
                     (USD value not available)</li>
                 {% endif %}
@@ -29,7 +29,7 @@
                     <li>Initial amount: {{ value["Initial"] }}</li>
                     <li>Current amount: {{ value["Current"] }}
                     {% if value["Current value"] is defined %}
-                        (Value: {{ value["Current"] }} USD)
+                        (Value: {{ value["Current value"] }} USD)
                     {% else %}
                         (USD value not available)</li>
                     {% endif %}

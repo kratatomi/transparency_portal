@@ -1,27 +1,27 @@
 {
     "MistToken": {
         "Initial": 282334.49,
-        "Current": 282361.61,
-        "Yield": 27.12,
-        "Current value": 5735.96
+        "Current": 282418.15,
+        "Yield": 83.66,
+        "Current value": 5819.85
     },
     "FlexUSD": {
         "Initial": 3968.68,
-        "Current": 3981.3,
-        "Yield": 12.62,
-        "Current value": 3963.46
+        "Current": 3981.98,
+        "Yield": 13.3,
+        "Current value": 3970.35
     },
     "Green Ben": {
         "Initial": 2122.74,
-        "Yield": 9.54,
-        "Current": 2132.28,
-        "Current value": 1703.69
+        "Yield": 11.29,
+        "Current": 2134.03,
+        "Current value": 1784.05
     },
     "Celery": {
         "Initial": 582908.53,
         "Current": 587218.27,
         "Yield": 4309.74,
-        "Current value": 567.17
+        "Current value": 561.6
     },
-    "Total value": 11970.28
+    "Total value": 12135.85
 }

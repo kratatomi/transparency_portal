@@ -8,7 +8,7 @@
                 7571,
                 8571
             ],
-            "LAW rewards": 247.6
+            "LAW rewards": 253.01
         },
         "0x3484f575A3d3b4026B4708997317797925A236ae": {
             "Punks": [
@@ -18,15 +18,15 @@
                 9581,
                 9668
             ],
-            "LAW rewards": 66.45
+            "LAW rewards": 72.79
         },
         "0x57BB80fdab3ca9FDBC690F4b133010d8615e77b3": {
             "Punks": [
                 963
             ],
-            "LAW rewards": 7.91
+            "LAW rewards": 9.39
         }
     },
-    "Total LAW pending": 321.96,
-    "LAW pending in USD": 111.52
+    "Total LAW pending": 335.19,
+    "LAW pending in USD": 120.05
 }
