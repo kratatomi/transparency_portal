@@ -36,7 +36,8 @@ assets_balances = {
     "Celery": {"Initial": 582908.533, "Stacked": True, "CA": "0x7642Df81b5BEAeEb331cc5A104bd13Ba68c34B91"},
     "BCHPAD": {"Initial": 48649.48, "Stacked": False, "CA": "0x9192940099fDB2338B928DE2cad9Cd1525fEa881", "BCH pair": "0x8221D04A71FcD0Dd3d096cB3B49E22918095933F"},
     "FLEX Coin": {"Initial": 142.804, "Stacked": False, "CA": "0x98Dd7eC28FB43b3C4c770AE532417015fa939Dd3"},
-    "LAW": {"Stacked": True, "CA": "0x0b00366fBF7037E9d75E4A569ab27dAB84759302", "BCH pair": "0xd55a9A41666108d10d31BAeEea5D6CdF3be6C5DD"}}
+    "LAW": {"Stacked": True, "CA": "0x0b00366fBF7037E9d75E4A569ab27dAB84759302", "BCH pair": "0xd55a9A41666108d10d31BAeEea5D6CdF3be6C5DD"},
+    "FIRE": {"Stacked": False, "CA": "0x225FCa2A940cd5B18DFb168cD9B7f921C63d7B6E", "BCH pair": "0x1F354956DE4A7Ed71308225De94a27b35A84EA57"}}
 
 initial_pool_balances = {
     "Mistswap": {"CA": "0x7E1B9F1e286160A80ab9B04D228C02583AeF90B5", "token0": 4, "token1": 18711.1},
