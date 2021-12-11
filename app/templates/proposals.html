@@ -9,7 +9,8 @@
             {% if value["Open"] %}
                 <p style="color:rgb(0,180,0);">Open</p></H3>
             {% else %}
-                <p style="color:rgb(250,0,0);">Closed</p></H3>
+                <p style="color:rgb(250,0,0);">Closed</p>
+            Result: {{ value["Result"] }}</H3>
             {% endif %}
             <ul>
                 <li>Proposal description: {{ value["Proposal text"] }}</li>

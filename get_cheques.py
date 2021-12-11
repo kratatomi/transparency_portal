@@ -115,7 +115,7 @@ def main():
             total_votes = 0
             for choice in votes["proposals"][proposal]["Choices"]:
                 total_votes += votes["proposals"][proposal]["Choices"][choice]["Votes"]
-            if (total_votes / 10 ** 18) < quorum:
+            if total_votes < quorum:
                 votes["proposals"][proposal]["Result"] = f"REJECTED: Required quorum of {quorum} SIDX not reached"
             else:
                 result_dict = {}
