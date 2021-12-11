@@ -1,34 +1,42 @@
 {% extends "base.html" %}
 
-{% block content %}
-        <div>
-        <H2>SmartIndex proposals:</H2>
-        <ul id="SmartIndex_proposals">
-            {% for key, value in proposals.items() %}
-            <H3>Proposal {{ key }}
-            {% if value["Open"] %}
-                <p style="color:rgb(0,180,0);">Open</p></H3>
-            {% else %}
-                <p style="color:rgb(250,0,0);">Closed</p>
-            Result: {{ value["Result"] }}</H3>
-            {% endif %}
-            <ul>
-                <li>Proposal description: {{ value["Proposal text"] }}</li>
-                <li>Author: {{ value["Author"] }}</li>
-                <li>Start date: {{ value["Start time"] }} - Deadline: {{ value["End time"] }} UTC Time</li>
-                {% if value["Choices"]|length == 2 %}
-                    {% for choice, votes in value["Choices"].items() %}
-                        <ul><li>{{ votes["TAG"] }}: {{ votes["Votes"] }}</li></ul>
-                    {% endfor %}
-                {% else %}
-                    {% for choice, votes in value["Choices"].items() %}
-                        <ul><li>{{ votes["TAG"] }}: {{ votes["Votes"] }} [OPTION: {{ choice }}]</li></ul>
-                    {% endfor %}
-                {% endif %}
-
-            </ul>
-            <br>
-            {% endfor %}
-        </ul>
+{% block app_content %}
+<H2>SmartIndex proposals:</H2>
+{% for key, value in proposals.items() %}
+<div class="list-group">
+  <a href="#" class="list-group-item list-group-item-action flex-column align-items-start active">
+    <div class="d-flex w-100 justify-content-between">
+      <h5 class="mb-1">Proposal {{ key }}</h5>
+        {% if value["Open"] %}
+        <b><p style="color:rgb(0,200,0);">Open</p></b>
+        {% else %}
+            <b><p style="color:rgb(250,0,0);">Closed</p></b>
+            <H3><p class="text-right">Final result: {{ value["Result"] }}</p></H3>
+        {% endif %}
     </div>
+      <p class="mb-1"><b>Proposal description:</b> {{ value["Proposal text"] }}</p>
+      <small><b>Author:</b> {{ value["Author"] }}</small>
+      <small><b>Start date:</b> {{ value["Start time"] }} - <b>Deadline:</b> {{ value["End time"] }} UTC Time</small>
+  </a>
+    {% if value["Choices"]|length == 2 %}
+        {% for choice, votes in value["Choices"].items() %}
+  <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
+    <div class="d-flex w-100 justify-content-between">
+      <h5 class="mb-1">{{ votes["TAG"] }}</h5>
+    </div>
+    <p class="mb-1">{{ votes["Votes"] }}</p>
+  </a>
+        {% endfor %}
+      {% else %}
+        {% for choice, votes in value["Choices"].items() %}
+          <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
+            <div class="d-flex w-100 justify-content-between">
+              <h5 class="mb-1">{{ votes["TAG"] }}</h5>
+            </div>
+            <p class="mb-1">{{ votes["Votes"] }} [OPTION: {{ choice }}]</p>
+          </a>
+        {% endfor %}
+    {% endif %}
+</div>
+{% endfor %}
 {% endblock %}
