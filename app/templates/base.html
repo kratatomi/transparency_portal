@@ -20,7 +20,7 @@
                     <span class="icon-bar"></span>
                 </button>
                 <a class="navbar-brand" href="#">
-                    <img src="static/logo.svg" width="50" height="50" alt="">
+                    <img class="mr-3" src="static/logo.svg" width="50" height="50" alt="">
                 </a>
                 <a class="navbar-brand" href="{{ url_for('index') }}">SmartIndex transparency portal</a>
             </div>
@@ -31,10 +31,12 @@
                     <li><a href="{{ url_for('proposals') }}">Proposals</a></li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
-                    [SIDX token stats]
+                <table align="right">
+                    <tr><th>SIDX token stats</th></tr>
                     {% for key, value in sidx_stats.items() %}
-                        {{ key }} : {{ value }}
-                    {% endfor %} USD
+                    <tr><td>{{ key }} : {{ value }}</td></tr>
+                    {% endfor %}
+                </table>
                 </ul>
             </div>
         </div>

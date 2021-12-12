@@ -1,6 +1,8 @@
 from app import app
 from flask import render_template, url_for
 import json
+from os import listdir, getcwd
+from os.path import isfile, join, abspath
 
 @app.route('/')
 @app.route('/index')
@@ -24,3 +26,11 @@ def proposals():
     with open('data/SIDX_STATS.json') as sidx_stats_file:
         sidx_stats = json.load(sidx_stats_file)
     return render_template("proposals.html", title="Proposals", proposals=votes["proposals"], sidx_stats=sidx_stats)
+
+@app.route('/yield')
+def yield_page():
+    snapshots_dir = abspath(getcwd()) + "/data/snapshots"
+    snapshot_files = [f for f in listdir(snapshots_dir) if isfile(join(snapshots_dir, f))]
+    snapshots_dict = {}
+    for file in snapshot_files:
+        snapshots_dict[file] = file.split(".")[0]
