@@ -50,6 +50,7 @@ def get_balances(ben_tokens, bch_price):
     SEP20_tokens = {}
     total_value_SEP20_tokens = 0
     total_value_stacked_assets = 0
+    total_value_yield = 0
     for asset in assets_balances:
         if not assets_balances[asset]["Stacked"]:
             ABI = open("ABIs/ERC20-ABI.json", "r")  # Standard ABI for ERC20 tokens
@@ -85,6 +86,7 @@ def get_balances(ben_tokens, bch_price):
                 stacked_assets[asset]["Current value"] = round(stacked_assets[asset]["Current"] * asset_price, 2)
                 total_value_stacked_assets += stacked_assets[asset]["Current value"]
                 stacked_assets[asset]["Yield value"] = round(stacked_assets[asset]["Yield"] * asset_price, 2)
+                total_value_yield += stacked_assets[asset]["Yield value"]
         if asset == "Green Ben":
             ABI = open("ABIs/EBEN_Masterbreeder.json", "r")
             abi = json.loads(ABI.read())
@@ -100,6 +102,7 @@ def get_balances(ben_tokens, bch_price):
                 stacked_assets[asset]["Current value"] = round(stacked_assets[asset]["Current"] * asset_price, 2)
                 stacked_assets[asset]["Yield value"] = round(stacked_assets[asset]["Yield"] * asset_price, 2)
                 total_value_stacked_assets += stacked_assets[asset]["Current value"]
+                total_value_yield += stacked_assets[asset]["Yield value"]
         if asset == "MistToken":
             ABI = open("ABIs/ERC20-ABI.json", "r")  # Standard ABI for ERC20 tokens
             abi = json.loads(ABI.read())
@@ -117,6 +120,7 @@ def get_balances(ben_tokens, bch_price):
                 stacked_assets[asset]["Current value"] = round(stacked_assets[asset]["Current"] * asset_price, 2)
                 stacked_assets[asset]["Yield value"] = round(stacked_assets[asset]["Yield"] * asset_price, 2)
                 total_value_stacked_assets += stacked_assets[asset]["Current value"]
+                total_value_yield += stacked_assets[asset]["Yield value"]
         # if asset == "1BCH":
             # ABI = open("ABIs/PCK-Master-ABI.json", "r")
             # abi = json.loads(ABI.read())
@@ -137,8 +141,10 @@ def get_balances(ben_tokens, bch_price):
             stacked_assets[asset]["Current value"] = round(stacked_assets[asset]["Current"] * asset_price, 2)
             stacked_assets[asset]["Yield value"] = round(stacked_assets[asset]["Yield"] * asset_price, 2)
             total_value_stacked_assets += stacked_assets[asset]["Current value"]
+            total_value_yield += stacked_assets[asset]["Yield value"]
     SEP20_tokens["Total value"] = round(total_value_SEP20_tokens, 2)
     stacked_assets["Total value"] = round(total_value_stacked_assets, 2)
+    stacked_assets["Total yield value"] = round(total_value_yield, 2)
     return SEP20_tokens, stacked_assets
 
 
