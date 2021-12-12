@@ -2,7 +2,7 @@
 
 {% block app_content %}
 <div style="float:left; width:50%;">
-        <div>
+        <div class="container">
             <H2>SEP20 tokens balance in the portfolio:</H2>
             <ul id="SEP20_tokens">
                 {% for key, value in sep20_balances.items() %}
@@ -19,12 +19,11 @@
             <b>Total value: {{ sep20_balances["Total value"] }} USD</b>
     </div>
     <br>
-    <div>
+    <div class="container">
         <H2>Stacked tokens balance in the portfolio:</H2>
         <ul id="stacked_tokens">
             {% for key, value in stacked_assets.items() %}
-            {% if key != "Total value" %}
-            {% if key != "Total yield value" %}
+            {% if (key != "Total value") and (key != "Total yield value") %}
             <li>{{ key }}
                 <ul>
                     <li>Initial amount: {{ value["Initial"] }}</li>
@@ -36,7 +35,6 @@
                     {% endif %}
                     <li>Yield: {{ value["Yield"] }} ({{ value["Yield value"] }} USD)</li>
                     {% endif %}
-                    {% endif %}
                 </ul>
             </li>
             {% endfor %}
@@ -46,7 +44,7 @@
     </div>
 </div>
 <div style="float:right; width:50%;">
-        <div>
+        <div class="container">
         <H2>SIDX initial liquidity pools:</H2>
         <ul id="SIDX_liquidity_pools">
             {% for key, value in lp_balances.items() %}
@@ -65,7 +63,7 @@
             {% endfor %}
         </ul>
     </div>
-    <div>
+    <div class="container">
         <H2>LAW Punks:</H2>
         <ul id="law_punks">
             {% for key, value in punks["Wallets"].items() %}
