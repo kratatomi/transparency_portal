@@ -123,7 +123,13 @@ def get_balances(ben_tokens, bch_price):
                 (bar_balance * ratio) / 10 ** bar_contract.functions.decimals().call(), 2)
             stacked_assets[asset]["Yield"] = round(stacked_assets[asset]["Current"] - stacked_assets[asset]["Initial"],
                                                    2)
-            if asset in ben_tokens:
+            if "BCH pair" in assets_balances[asset]:
+                asset_price = get_price_from_pool(asset, bch_price)
+                stacked_assets[asset]["Current value"] = round(stacked_assets[asset]["Current"] * asset_price, 2)
+                total_value_stacked_assets += stacked_assets[asset]["Current value"]
+                stacked_assets[asset]["Yield value"] = round(stacked_assets[asset]["Yield"] * asset_price, 2)
+                pie_chart_data[asset] = stacked_assets[asset]["Current value"]
+            elif asset in ben_tokens:
                 asset_price = get_price(assets_balances[asset]["CA"])
                 stacked_assets[asset]["Current value"] = round(stacked_assets[asset]["Current"] * asset_price, 2)
                 stacked_assets[asset]["Yield value"] = round(stacked_assets[asset]["Yield"] * asset_price, 2)
