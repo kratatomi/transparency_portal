@@ -43,8 +43,9 @@ def weekly_report(name):
     if file in snapshot_files:
         with open(f'data/snapshots/{file}') as weekly_report_file:
             weekly_report = json.load(weekly_report_file)
+        date = weekly_report["snapshot date"]
         sep20_balances = weekly_report["SEP20_BALANCES"]
         stacked_assets = weekly_report["STACKED_ASSETS"]
         lp_balances = weekly_report["LP_BALANCES"]
         punks = weekly_report["PUNKS_BALANCES"]
-        return render_template("index.html", title=f"Earnings report at {name}", sidx_stats=sidx_stats,  sep20_balances=sep20_balances, stacked_assets=stacked_assets, lp_balances=lp_balances, punks=punks)
+        return render_template("index.html", title=f"Earnings report at {name}", sidx_stats=sidx_stats,  date=date,sep20_balances=sep20_balances, stacked_assets=stacked_assets, lp_balances=lp_balances, punks=punks)

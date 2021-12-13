@@ -1,6 +1,8 @@
 import json
 from web3 import Web3
 import requests
+import matplotlib.pyplot as plt
+import numpy as np
 
 w3 = Web3(Web3.HTTPProvider('https://smartbch.squidswap.cash/'))
 if not w3.isConnected():
@@ -20,6 +22,7 @@ punk_wallets= [portfolio_address, #Punks wallet 1
 voting_wallets = ["0xa3533751171786035fC440bFeF3F535093EAd686",
                   "0xe26B069480c24b195Cd48c8d61857B5Aaf610569",
                   "0x711CA8Da9bE7a3Ee698dD76C632A19cFB6F768Cb"]
+
 
 with open("data/PUNKS_BALANCES.json", "r") as file:
     punks_owned = json.load(file)
@@ -44,6 +47,7 @@ initial_pool_balances = {
     "Tangoswap": {"CA": "0x4509Ff66a56cB1b80a6184DB268AD9dFBB79DD53", "token0": 1,
                   "token1": 5000}}  # Token0 is WBCH, Token1 is SIDX
 
+pie_chart_data = {}
 
 def get_balances(ben_tokens, bch_price):
     stacked_assets = {}
@@ -63,10 +67,12 @@ def get_balances(ben_tokens, bch_price):
                 asset_price = get_price(assets_balances[asset]["CA"])
                 SEP20_tokens[asset]["Current value"] = round(SEP20_tokens[asset]["Current"] * asset_price, 2)
                 total_value_SEP20_tokens += SEP20_tokens[asset]["Current value"]
+                pie_chart_data[asset] = SEP20_tokens[asset]["Current value"]
             elif "BCH pair" in assets_balances[asset]:
                 asset_price = get_price_from_pool(asset, bch_price)
                 SEP20_tokens[asset]["Current value"] = round(SEP20_tokens[asset]["Current"] * asset_price, 2)
                 total_value_SEP20_tokens += SEP20_tokens[asset]["Current value"]
+                pie_chart_data[asset] = SEP20_tokens[asset]["Current value"]
         if asset == "Celery":
             ABI = open("ABIs/CLY-ABI.json", "r")  # ABI for CLY token
             abi = json.loads(ABI.read())
@@ -87,6 +93,7 @@ def get_balances(ben_tokens, bch_price):
                 total_value_stacked_assets += stacked_assets[asset]["Current value"]
                 stacked_assets[asset]["Yield value"] = round(stacked_assets[asset]["Yield"] * asset_price, 2)
                 total_value_yield += stacked_assets[asset]["Yield value"]
+                pie_chart_data[asset] = stacked_assets[asset]["Current value"]
         if asset == "Green Ben":
             ABI = open("ABIs/EBEN_Masterbreeder.json", "r")
             abi = json.loads(ABI.read())
@@ -101,6 +108,7 @@ def get_balances(ben_tokens, bch_price):
                 asset_price = get_price(assets_balances[asset]["CA"])
                 stacked_assets[asset]["Current value"] = round(stacked_assets[asset]["Current"] * asset_price, 2)
                 stacked_assets[asset]["Yield value"] = round(stacked_assets[asset]["Yield"] * asset_price, 2)
+                pie_chart_data[asset] = stacked_assets[asset]["Current value"]
                 total_value_stacked_assets += stacked_assets[asset]["Current value"]
                 total_value_yield += stacked_assets[asset]["Yield value"]
         if asset == "MistToken":
@@ -119,6 +127,7 @@ def get_balances(ben_tokens, bch_price):
                 asset_price = get_price(assets_balances[asset]["CA"])
                 stacked_assets[asset]["Current value"] = round(stacked_assets[asset]["Current"] * asset_price, 2)
                 stacked_assets[asset]["Yield value"] = round(stacked_assets[asset]["Yield"] * asset_price, 2)
+                pie_chart_data[asset] = stacked_assets[asset]["Current value"]
                 total_value_stacked_assets += stacked_assets[asset]["Current value"]
                 total_value_yield += stacked_assets[asset]["Yield value"]
         # if asset == "1BCH":
@@ -140,6 +149,7 @@ def get_balances(ben_tokens, bch_price):
                                                    2)
             stacked_assets[asset]["Current value"] = round(stacked_assets[asset]["Current"] * asset_price, 2)
             stacked_assets[asset]["Yield value"] = round(stacked_assets[asset]["Yield"] * asset_price, 2)
+            pie_chart_data[asset] = stacked_assets[asset]["Current value"]
             total_value_stacked_assets += stacked_assets[asset]["Current value"]
             total_value_yield += stacked_assets[asset]["Yield value"]
     SEP20_tokens["Total value"] = round(total_value_SEP20_tokens, 2)
@@ -280,6 +290,17 @@ def get_law_rewards(bch_price):
     law_price = get_price_from_pool("LAW", bch_price)
     punks_owned["LAW pending in USD"] = round(punks_owned["Total LAW pending"] * law_price, 2)
 
+def make_pie_chart():
+    labels = []
+    values = []
+    for asset in pie_chart_data:
+        labels.append(asset)
+        values.append(pie_chart_data[asset])
+
+    y = np.array(values)
+
+    plt.pie(y, labels=labels)
+    plt.savefig("app/static/pie_chart.png")
 
 def main():
     bch_price = get_BCH_price()
@@ -288,6 +309,7 @@ def main():
     LP_balances = get_LP_balances()
     SIDX_stats = get_SIDX_stats(LP_balances, bch_price)
     get_law_rewards(bch_price)
+    make_pie_chart()
     with open('data/SIDX_STATS.json', 'w') as file:
         json.dump(SIDX_stats, file, indent=4)
     with open('data/SEP20_BALANCES.json', 'w') as file:

@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 
 {% block app_content %}
+{% if date%}
+<div class="container"><center><H2>Yields report taken at {{ date }}</H2></center></div>
+{% endif %}
 <div style="float:left; width:50%;">
         <div class="container">
             <H2>SEP20 tokens balance in the portfolio:</H2>
@@ -42,6 +45,7 @@
         <b>Total value: {{  stacked_assets["Total value"] }} USD</b>
         <b>Total yield: {{ stacked_assets["Total yield value"] }} USD</b>
     </div>
+    <img src="{{ url_for('static', filename='pie_chart.png') }}" class="img-fluid" alt="Assets distribution in the portfolio by value">
 </div>
 <div style="float:right; width:50%;">
         <div class="container">
