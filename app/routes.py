@@ -18,7 +18,9 @@ def index():
         lp_balances = json.load(lp_balances_file)
     with open('data/PUNKS_BALANCES.json') as punks_balances_file:
         punks = json.load(punks_balances_file)
-    return render_template("index.html", title="Portfolio tracker", sidx_stats=sidx_stats, sep20_balances=sep20_balances, stacked_assets=stacked_assets, lp_balances=lp_balances,punks=punks)
+    with open('data/FARMS.json') as farms_file:
+        farms = json.load(farms_file)
+    return render_template("index.html", title="Portfolio tracker", sidx_stats=sidx_stats, sep20_balances=sep20_balances, stacked_assets=stacked_assets, lp_balances=lp_balances, punks=punks, farms=farms)
 
 @app.route('/proposals')
 def proposals():

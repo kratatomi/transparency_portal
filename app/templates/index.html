@@ -67,6 +67,28 @@
             {% endfor %}
         </ul>
     </div>
+            <div class="container">
+        <H2>Farms:</H2>
+        <ul id="farms">
+            {% for key, value in farms.items() %}
+            <li>{{ key }}
+                <ul>
+                    {% for farm in value["farms"] %}
+                        {% for key, value in farm["Coins"].items() %}
+                    <li>{{ key }}</li>
+                    <ul>
+                        <li>Initial amount: {{ value["Initial amount"] }}</li>
+                        <li>Current amount: {{ value["Current"] }}</li>
+                        <li>Difference: {{ value["Difference"] }}</li>
+                    </ul>
+                    {% endfor %}
+                    <li>Reward: {{ farm["reward"] }} ({{ farm["reward value"] }} USD)</li>
+                    {% endfor %}
+                </ul>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
     <div class="container">
         <H2>LAW Punks:</H2>
         <ul id="law_punks">

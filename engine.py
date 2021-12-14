@@ -32,12 +32,12 @@ cheque_CA = w3.toChecksumAddress("0xa36C479eEAa25C0CFC7e099D3bEbF7A7F1303F40")
 assets_balances = {
     "MistToken": {"Initial": 282334.493, "Stacked": True, "CA": "0x5fA664f69c2A4A3ec94FaC3cBf7049BD9CA73129",
                   "BAR_CA": "0xC41C680c60309d4646379eD62020c534eB67b6f4", "BCH pair": "0x674A71E69fe8D5cCff6fdcF9F1Fa4262Aa14b154"},
-    "FlexUSD": {"Initial": 3968.683, "Stacked": True, "CA": "0x7b2B3C5308ab5b2a1d9a94d20D35CCDf61e05b72", "BCH pair": "0x24f011f12Ea45AfaDb1D4245bA15dCAB38B43D13"},
+    "FlexUSD": {"Initial": 3086.095, "Stacked": True, "CA": "0x7b2B3C5308ab5b2a1d9a94d20D35CCDf61e05b72", "BCH pair": "0x24f011f12Ea45AfaDb1D4245bA15dCAB38B43D13"},
     "Green Ben": {"Initial": 2122.74, "Stacked": True, "CA": "0xDEa721EFe7cBC0fCAb7C8d65c598b21B6373A2b6"},
     "AxieBCH": {"Initial": 167752.146, "Stacked": False, "CA": "0x3d13DaFcCA3a188DB340c81414239Bc2be312Ec9", "BCH pair": "0xD6EcaDB40b35D17f739Ec27285759d0ca119e3A1"},
     "Celery": {"Initial": 1459636.533, "Stacked": True, "CA": "0x7642Df81b5BEAeEb331cc5A104bd13Ba68c34B91"},
     "BCHPAD": {"Initial": 48649.48, "Stacked": False, "CA": "0x9192940099fDB2338B928DE2cad9Cd1525fEa881", "BCH pair": "0x8221D04A71FcD0Dd3d096cB3B49E22918095933F"},
-    "FLEX Coin": {"Initial": 142.804, "Stacked": False, "CA": "0x98Dd7eC28FB43b3C4c770AE532417015fa939Dd3"},
+    "FLEX Coin": {"Initial": 142.804, "Stacked": True, "CA": "0x98Dd7eC28FB43b3C4c770AE532417015fa939Dd3"},
     "LAW": {"Stacked": True, "CA": "0x0b00366fBF7037E9d75E4A569ab27dAB84759302", "BCH pair": "0xd55a9A41666108d10d31BAeEea5D6CdF3be6C5DD"},
     "FIRE": {"Stacked": False, "CA": "0x225FCa2A940cd5B18DFb168cD9B7f921C63d7B6E", "BCH pair": "0x1F354956DE4A7Ed71308225De94a27b35A84EA57"}}
 
@@ -47,6 +47,15 @@ initial_pool_balances = {
     "Tangoswap": {"CA": "0x4509Ff66a56cB1b80a6184DB268AD9dFBB79DD53", "token0": 1,
                   "token1": 5000}}  # Token0 is WBCH, Token1 is SIDX
 
+farms = {"Mistswap": {"factory": "0x3A7B9D0ed49a90712da4E087b17eE4Ac1375a5D4",
+                      "factory_ABI": "MIST-Master-ABI.json",
+                      "farms": [{"lp_CA": "0x4fF52e9D7824EC9b4e0189F11B5aA0F02b459b03",
+                      "pool_id": 2,
+                      "lp_token_amount": 344.686876049931219858 * 10 ** 18,
+                      "initial_token0_amount": 882.588, #FlexUSD
+                      "initial_token1_amount": 142.8045,
+                      "reward coin": "MistToken"}]} #FLEX
+}
 pie_chart_data = {}
 
 def get_balances(ben_tokens, bch_price):
@@ -78,7 +87,7 @@ def get_balances(ben_tokens, bch_price):
             abi = json.loads(ABI.read())
             contract = w3.eth.contract(address=assets_balances[asset]["CA"], abi=abi)
             wallet_balance = contract.functions.balanceOf(
-                portfolio_address).call()  # CLY Neither in stacking or payout mode
+                portfolio_address).call()  # CLY Neither in stacking nor payout mode
             account_balance = contract.functions.getAccountBalance(
                 portfolio_address).call()  # CLY Either in staking or payout mode
             stacked_assets[asset] = {}
@@ -296,6 +305,42 @@ def get_law_rewards(bch_price):
     law_price = get_price_from_pool("LAW", bch_price)
     punks_owned["LAW pending in USD"] = round(punks_owned["Total LAW pending"] * law_price, 2)
 
+def get_farms(bch_price):
+    for DEX in farms:
+        for i in range(len(farms[DEX]["farms"])):
+            # First, get LP balances
+            ABI = open("ABIs/UniswapV2Pair.json", "r")  # Standard ABI for LP tokens
+            abi = json.loads(ABI.read())
+            contract = w3.eth.contract(address=farms[DEX]["farms"][i]["lp_CA"], abi=abi)
+            token0_CA = contract.functions.token0().call()
+            token1_CA = contract.functions.token1().call()
+            token0_ticker, token0_decimals = get_token_info(token0_CA)
+            token1_ticker, token1_decimals = get_token_info(token1_CA)
+            token0_reserves = contract.functions.getReserves().call()[0]
+            token1_reserves = contract.functions.getReserves().call()[1]
+            LP_total_supply = contract.functions.totalSupply().call()
+            farms[DEX]["farms"][i]["Coins"] = {}
+            farms[DEX]["farms"][i]["Coins"][token0_ticker] = {"Initial amount": round(farms[DEX]["farms"][i]["initial_token0_amount"], 2)}
+            farms[DEX]["farms"][i]["Coins"][token1_ticker] = {"Initial amount": round(farms[DEX]["farms"][i]["initial_token1_amount"], 2)}
+            farms[DEX]["farms"][i]["Coins"][token0_ticker]["Current"] = round(
+                ((farms[DEX]["farms"][i]["lp_token_amount"] / LP_total_supply) * token0_reserves) / 10 ** token0_decimals, 2)
+            farms[DEX]["farms"][i]["Coins"][token1_ticker]["Current"] = round(
+                ((farms[DEX]["farms"][i]["lp_token_amount"] / LP_total_supply) * token1_reserves) / 10 ** token1_decimals, 2)
+            farms[DEX]["farms"][i]["Coins"][token0_ticker]["Difference"] = round(
+                farms[DEX]["farms"][i]["Coins"][token0_ticker]["Current"] - farms[DEX]["farms"][i]["Coins"][token0_ticker]["Initial amount"], 2)
+            farms[DEX]["farms"][i]["Coins"][token1_ticker]["Difference"] = round(farms[DEX]["farms"][i]["Coins"][token1_ticker]["Current"] - \
+                                                                  farms[DEX]["farms"][i]["Coins"][token1_ticker]["Initial amount"], 2)
+            #Now, it's time to get the rewards
+            ABI_path = "ABIs/" + farms[DEX]["factory_ABI"]
+            ABI = open(ABI_path, "r")  # Factory contract ABI
+            abi = json.loads(ABI.read())
+            contract = w3.eth.contract(address=farms[DEX]["factory"], abi=abi)
+            reward = contract.functions.pendingSushi(farms[DEX]["farms"][i]["pool_id"], portfolio_address).call()
+            farms[DEX]["farms"][i]["reward"] = round((reward / 10 ** 18), 2)
+            if farms[DEX]["farms"][i]["reward coin"] in assets_balances:
+                asset_price = get_price_from_pool(farms[DEX]["farms"][i]["reward coin"], bch_price)
+                farms[DEX]["farms"][i]["reward value"] = round((farms[DEX]["farms"][i]["reward"] * asset_price) ,2)
+
 def make_pie_chart():
     labels = []
     values = []
@@ -316,6 +361,7 @@ def main():
     SIDX_stats = get_SIDX_stats(LP_balances, bch_price)
     get_law_rewards(bch_price)
     make_pie_chart()
+    get_farms(bch_price)
     with open('data/SIDX_STATS.json', 'w') as file:
         json.dump(SIDX_stats, file, indent=4)
     with open('data/SEP20_BALANCES.json', 'w') as file:
@@ -326,7 +372,8 @@ def main():
         json.dump(LP_balances, file, indent=4)
     with open('data/PUNKS_BALANCES.json', 'w') as file:
         json.dump(punks_owned, file, indent=4)
-
+    with open('data/FARMS.json', 'w') as file:
+        json.dump(farms, file, indent=4)
 
 if __name__ == "__main__":
     main()
