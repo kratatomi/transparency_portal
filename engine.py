@@ -339,7 +339,7 @@ def get_farms(bch_price):
             farms[DEX]["farms"][i]["reward"] = round((reward / 10 ** 18), 2)
             if farms[DEX]["farms"][i]["reward coin"] in assets_balances:
                 asset_price = get_price_from_pool(farms[DEX]["farms"][i]["reward coin"], bch_price)
-                farms[DEX]["farms"][i]["reward value"] = round((farms[DEX]["farms"][i]["reward"] * asset_price) ,2)
+                farms[DEX]["farms"][i]["reward value"] = round((farms[DEX]["farms"][i]["reward"] * asset_price), 2)
 
 def make_pie_chart():
     labels = []
