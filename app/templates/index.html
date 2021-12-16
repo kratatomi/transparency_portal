@@ -45,8 +45,11 @@
         <b>Total value: {{  stacked_assets["Total value"] }} USD</b>
         <b>Total yield: {{ stacked_assets["Total yield value"] }} USD</b>
     </div>
+    {% if title == "Portfolio tracker" %}
     <div class="container"><img src="{{ url_for('static', filename='pie_chart.png') }}" class="img-fluid" alt="Assets distribution in the portfolio by value"></div>
+    {% endif %}
 </div>
+
 <div style="float:right; width:50%;">
         <div class="container">
         <H2>SIDX initial liquidity pools:</H2>
@@ -67,7 +70,8 @@
             {% endfor %}
         </ul>
     </div>
-            <div class="container">
+    {% if farms %}
+        <div class="container">
         <H2>Farms:</H2>
         <ul id="farms">
             {% for key, value in farms.items() %}
@@ -89,6 +93,7 @@
             {% endfor %}
         </ul>
     </div>
+    {% endif %}
     <div class="container">
         <H2>LAW Punks:</H2>
         <ul id="law_punks">

@@ -55,4 +55,8 @@ def weekly_report(name):
         stacked_assets = weekly_report["STACKED_ASSETS"]
         lp_balances = weekly_report["LP_BALANCES"]
         punks = weekly_report["PUNKS_BALANCES"]
-        return render_template("index.html", title=f"Earnings report at {name}", sidx_stats=sidx_stats,  date=date,sep20_balances=sep20_balances, stacked_assets=stacked_assets, lp_balances=lp_balances, punks=punks)
+        if "FARMS" in weekly_report:
+            farms = weekly_report["FARMS"]
+        else:
+            farms = None
+        return render_template("index.html", title=f"Earnings report at {name}", sidx_stats=sidx_stats,  date=date, sep20_balances=sep20_balances, stacked_assets=stacked_assets, lp_balances=lp_balances, punks=punks, farms=farms)

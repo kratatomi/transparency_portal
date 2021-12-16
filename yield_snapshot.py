@@ -12,7 +12,8 @@ def main():
         lp_balances = json.load(lp_balances_file)
     with open('data/PUNKS_BALANCES.json') as punks_balances_file:
         punks = json.load(punks_balances_file)
-
+    with open('data/FARMS.json') as farms_file:
+        farms = json.load(farms_file)
 
     today = date.today()
     d1 = today.strftime("%d-%m-%Y")
@@ -22,7 +23,8 @@ def main():
                     "SEP20_BALANCES": sep20_balances,
                     "STACKED_ASSETS": stacked_assets,
                     "LP_BALANCES": lp_balances,
-                    "PUNKS_BALANCES": punks}
+                    "PUNKS_BALANCES": punks,
+                    "FARMS": farms}
 
     with open(f'data/snapshots/{d1}.json', 'x') as file:
         json.dump(weekly_stats, file, indent=4)
