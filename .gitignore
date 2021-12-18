@@ -3,4 +3,6 @@
 /data/
 .flaskenv
 /app/static/pie_chart.png
+/app.db
+/migrations/
 /migrations/
