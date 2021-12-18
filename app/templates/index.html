@@ -67,7 +67,8 @@
             {% endfor %}
         </ul>
     </div>
-            <div class="container">
+    <div class="container">
+        {% if farms %}
         <H2>Farms:</H2>
         <ul id="farms">
             {% for key, value in farms.items() %}
@@ -88,6 +89,7 @@
             </li>
             {% endfor %}
         </ul>
+        {% endif %}
     </div>
     <div class="container">
         <H2>LAW Punks:</H2>

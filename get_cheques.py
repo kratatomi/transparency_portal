@@ -3,6 +3,8 @@ from web3 import Web3
 import requests
 from datetime import datetime
 import calendar
+from app import db
+from app.models import Proposal, User
 
 w3 = Web3(Web3.HTTPProvider('https://smartbch.squidswap.cash/'))
 if not w3.isConnected():
@@ -50,6 +52,67 @@ class SBCH:
         SBCH.ID += 1
         self.payload["id"] = self.ID
 
+def migrate_proposals():
+    # Migrates proposals from dict to SQL
+    with open("data/VOTES.json", "r") as file:
+        votes = json.load(file)
+    for proposal in votes["proposals"]:
+        proposal_id = proposal[1:]
+        proposal_text = votes["proposals"][proposal]["Proposal text"]
+        author = votes["proposals"][proposal]["Author"]
+        unixtime_start = votes["proposals"][proposal]["UNIX Start time"]
+        start_time = votes["proposals"][proposal]["Start time"]
+        unixtime_end = votes["proposals"][proposal]["UNIX End time"]
+        end_time = votes["proposals"][proposal]["End time"]
+        status = votes["proposals"][proposal]["Open"]
+        voting_period = (unixtime_end - unixtime_start) / 24*60*60
+        option_b_tag = None
+        option_b_votes = None
+        option_c_tag = None
+        option_c_votes = None
+        if "Result" in votes["proposals"][proposal]:
+            result = votes["proposals"][proposal]["Result"]
+        else:
+            result = None
+        if "ACCEPT" in votes["proposals"][proposal]["Choices"]:
+            option_a_tag = "ACCEPT"
+            option_a_votes = votes["proposals"][proposal]["Choices"]["ACCEPT"]["Votes"]
+            reject_votes = votes["proposals"][proposal]["Choices"]["REJECT"]["Votes"]
+            reject_option = "B"
+        else:
+            for choice in votes["proposals"][proposal]["Choices"]:
+                if votes["proposals"][proposal]["Choices"][choice]["TAG"] == "REJECT":
+                    reject_votes = votes["proposals"][proposal]["Choices"][choice]["Votes"]
+                    reject_option = choice
+                else:
+                    if choice == "A":
+                        option_a_tag = votes["proposals"][proposal]["Choices"][choice]["TAG"]
+                        option_a_votes = votes["proposals"][proposal]["Choices"][choice]["Votes"]
+                    if choice == "B":
+                        option_b_tag = votes["proposals"][proposal]["Choices"][choice]["TAG"]
+                        option_b_votes = votes["proposals"][proposal]["Choices"][choice]["Votes"]
+                    if choice == "C":
+                        option_c_tag = votes["proposals"][proposal]["Choices"][choice]["TAG"]
+                        option_c_votes = votes["proposals"][proposal]["Choices"][choice]["Votes"]
+        if db.session.query(User).filter(User.public_address == author).first() is None:
+            u = User(public_address=author)
+            db.session.add(u)
+        else:
+            u = db.session.query(User).filter(User.public_address == author).first()
+        p = Proposal(id=proposal_id, proposal=proposal_text, author=u.public_address, voting_period=voting_period, unixtime_start=unixtime_start, start_time=start_time, unixtime_end=unixtime_end, end_time=end_time, open=status, option_a_tag=option_a_tag, option_a_votes=option_a_votes, reject_votes=reject_votes, reject_option=reject_option, result=result)
+        db.session.add(p)
+        if option_b_tag is not None:
+            p = db.session.query(Proposal).filter(Proposal.id == proposal_id).first()
+            p.option_b_tag = option_b_tag
+            p.option_b_votes = option_b_votes
+            db.session.add(p)
+        if option_c_tag is not None:
+            p = db.session.query(Proposal).filter(Proposal.id == proposal_id).first()
+            p.option_c_tag = option_c_tag
+            p.option_c_votes = option_c_votes
+            db.session.add(p)
+        db.session.commit()
+
 def submit_proposal(proposal_id, proposal_text, author, start="now", choices="simple", voting_period=7):
     # Start time always in UNIX timestamp
     with open("data/VOTES.json", "r") as file:
@@ -84,6 +147,62 @@ def submit_proposal(proposal_id, proposal_text, author, start="now", choices="si
     with open('data/VOTES.json', 'w') as file:
         json.dump(votes, file, indent=4, default=str)
 
+def submit_sql_proposal(proposal_id, proposal_text, author, start="now", choices="simple", voting_period=7):
+    # Start time always in UNIX timestamp
+    # This function stores the proposal in a SQL table instead of a dictionary
+    # proposal_id is a number
+    if db.session.query(Proposal).filter(Proposal.id == proposal_id).first() is not None:
+        return "Proposal ID already exists"
+    if not type(proposal_id) == int:
+        return "Incorrect proposal ID format"
+
+    if db.session.query(User).filter(User.public_address == author).first() is None:
+        u = User(public_address=author)
+        db.session.add(u)
+    else:
+        u = db.session.query(User).filter(User.public_address == author).first()
+    proposal = Proposal(id=proposal_id, proposal=proposal_text, author=u.public_address, voting_period=voting_period)
+
+    if start == "now":
+        d = datetime.utcnow()
+        proposal.unixtime_start = calendar.timegm(d.utctimetuple())
+        proposal.start_time = datetime.utcfromtimestamp(int(calendar.timegm(d.utctimetuple()))).strftime('%Y-%m-%d %H:%M:%S')
+    else:
+        proposal.unixtime_start = start
+        proposal.start_time = datetime.utcfromtimestamp(proposal.unixtime_start).strftime('%Y-%m-%d %H:%M:%S')
+
+    if choices == "simple":
+        proposal.option_a_tag = "ACCEPT"
+        proposal.option_a_votes = 0
+        proposal.reject_option = "B"
+        proposal.reject_votes = 0
+    else:
+        # In this case, choices are input as a dict {"A": {"TAG": "foo", "Votes": 0}...}
+        for choice in choices:
+            if choices[choice]["TAG"] == "REJECT":
+                proposal.reject_option = choice
+                proposal.reject_votes = choices[choice]["Votes"]
+            elif choice == "A":
+                proposal.option_a_tag = choices[choice]["A"]["TAG"]
+                proposal.option_a_votes = choices[choice]["A"]["Choices"]
+            elif choice == "B":
+                proposal.option_b_tag = choices[choice]["B"]["TAG"]
+                proposal.option_b_votes = choices[choice]["B"]["Choices"]
+            elif choice == "C":
+                proposal.option_c_tag = choices[choice]["C"]["TAG"]
+                proposal.option_c_votes = choices[choice]["C"]["Choices"]
+    proposal.unixtime_end = proposal.unixtime_start + voting_period * 24 * 60 * 60
+    proposal.end_time = datetime.utcfromtimestamp(proposal.unixtime_end).strftime('%Y-%m-%d %H:%M:%S')
+
+    d = datetime.utcnow()
+    if calendar.timegm(d.utctimetuple()) > proposal.unixtime_end:
+        proposal.open = False
+    else:
+        proposal.open = True
+
+    db.session.add(proposal)
+    db.session.commit()
+
 def main():
     with open("data/VOTES.json", "r") as file:
         votes = json.load(file)
@@ -101,9 +220,24 @@ def main():
         if "payee" in cheque[1]:
             if cheque[1]["payee"] in voting_wallets and cheque[1]["coinType"] == SIDX_CA and len(cheque[1]["memo"].decode("utf-8")[2:].split(":")) == 2:
                 vote_ID, choice = cheque[1]["memo"].decode("utf-8")[2:].split(":")
-                if vote_ID in votes["proposals"]:
-                    if cheque[1]["deadline"] >= votes["proposals"][vote_ID]["UNIX End time"] and transaction_timestamp >= votes["proposals"][vote_ID]["UNIX Start time"] and choice in votes["proposals"][vote_ID]["Choices"]:
-                        votes["proposals"][vote_ID]["Choices"][choice]["Votes"] += (cheque[1]["amount"] / 10 ** 18)
+                vote_ID = vote_ID[1:] # Remove the hashtag
+                if db.session.query(Proposal).filter(Proposal.id == vote_ID).first() != None:
+                    proposal = Proposal.query.get(vote_ID)
+                    if cheque[1]["deadline"] >= proposal.unixtime_end and transaction_timestamp >= proposal.unixtime_start:
+                        if choice == "A":
+                            proposal.option_a_votes += (cheque[1]["amount"] / 10 ** 18)
+                        if choice == "B":
+                            if proposal.option_b_tag == "REJECT":
+                                proposal.reject_votes += (cheque[1]["amount"] / 10 ** 18)
+                            else:
+                                proposal.option_b_votes += (cheque[1]["amount"] / 10 ** 18)
+                        if choice == "C":
+                            if proposal.option_c_tag == "REJECT":
+                                proposal.reject_votes += (cheque[1]["amount"] / 10 ** 18)
+                            else:
+                                proposal.option_c_votes += (cheque[1]["amount"] / 10 ** 18)
+                        if choice == "D":
+                            proposal.reject_votes += (cheque[1]["amount"] / 10 ** 18)
     votes["last scanned block"] = last_block
 
     #Now it's time to check if any proposal has closed:
