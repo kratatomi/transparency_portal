@@ -5,41 +5,63 @@
   <H2>SmartIndex proposals:</H2>
   <H3>Proposals along the information for voting can be found in the <a href="https://smartindex.cash/news-proposals/">News & Proposals</a> section of SmartIndex website.</H3>
 </div>
-{% for key, value in proposals.items() %}
+{% for proposal in proposals %}
 <div class="list-group">
   <a href="#" class="list-group-item list-group-item-action flex-column align-items-start active">
     <div class="d-flex w-100 justify-content-between">
-      <h5 class="mb-1">Proposal {{ key }}</h5>
-        {% if value["Open"] %}
+      <h5 class="mb-1">Proposal #{{ proposal.id }}</h5>
+        {% if proposal.open %}
         <b><p style="color:rgb(0,200,0);">Open</p></b>
         {% else %}
             <b><p style="color:rgb(250,0,0);">Closed</p></b>
-            <H3><p class="text-right">Final result: {{ value["Result"] }}</p></H3>
+            <H3><p class="text-right">Final result:</p></H3>
+            <H3><p class="text-right">{{ proposal.result }}</p></H3>
         {% endif %}
     </div>
-      <p class="mb-1"><b>Proposal description:</b> {{ value["Proposal text"] }}</p>
-      <small><b>Author:</b> {{ value["Author"] }}</small>
-      <small><b>Start date:</b> {{ value["Start time"] }} - <b>Deadline:</b> {{ value["End time"] }} UTC Time</small>
+      <p class="mb-1"><b>Proposal description:</b> {{ proposal.proposal }}</p>
+      <small><b>Author:</b> {{ proposal.author }}</small>
+      <small><b>Start date:</b> {{ proposal.start_time }} - <b>Deadline:</b> {{ proposal.end_time }} UTC Time</small>
   </a>
-    {% if value["Choices"]|length == 2 %}
-        {% for choice, votes in value["Choices"].items() %}
-  <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
-    <div class="d-flex w-100 justify-content-between">
-      <h5 class="mb-1">{{ votes["TAG"] }}</h5>
-    </div>
-    <p class="mb-1">{{ votes["Votes"] }}</p>
-  </a>
-        {% endfor %}
-      {% else %}
-        {% for choice, votes in value["Choices"].items() %}
+  {% if proposal.option_a_tag %}
           <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
             <div class="d-flex w-100 justify-content-between">
-              <h5 class="mb-1">{{ votes["TAG"] }}</h5>
+              <h5 class="mb-1">{{ proposal.option_a_tag }}</h5>
             </div>
-            <p class="mb-1">{{ votes["Votes"] }} [OPTION: {{ choice }}]</p>
+            <p class="mb-1">{{ proposal.option_a_votes }} [OPTION: A]</p>
           </a>
-        {% endfor %}
-    {% endif %}
+  {% endif %}
+  {% if proposal.option_b_tag %}
+          <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
+            <div class="d-flex w-100 justify-content-between">
+              <h5 class="mb-1">{{ proposal.option_b_tag }}</h5>
+            </div>
+            <p class="mb-1">{{ proposal.option_b_votes }} [OPTION: B]</p>
+          </a>
+  {% endif %}
+    {% if proposal.option_c_tag %}
+          <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
+            <div class="d-flex w-100 justify-content-between">
+              <h5 class="mb-1">{{ proposal.option_c_tag }}</h5>
+            </div>
+            <p class="mb-1">{{ proposal.option_c_votes }} [OPTION: C]</p>
+          </a>
+  {% endif %}
+            <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
+            <div class="d-flex w-100 justify-content-between">
+              <h5 class="mb-1">REJECT</h5>
+            </div>
+            <p class="mb-1">{{ proposal.reject_votes }} [OPTION: {{ proposal.reject_option }}]</p>
+          </a>
 </div>
 {% endfor %}
+<hr>
+<div class="container" align="center">
+    {% if prev_url %}
+        <div style="display: inline-block"><a href="{{ prev_url }}" class="badge"><h5>Newer proposals</h5></a></div>
+    {% endif %}
+    {% if next_url %}
+        <div style="display: inline-block"><a href="{{ next_url }}" class="badge"><h5>Older proposals</h5></a></div>
+    {% endif %}
+</div>
+<br>
 {% endblock %}

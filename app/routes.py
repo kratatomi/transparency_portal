@@ -3,6 +3,8 @@ from flask import render_template, url_for, request, send_from_directory
 import json
 from os import listdir, getcwd
 from os.path import isfile, join, abspath
+from app.models import Proposal
+from sqlalchemy import desc
 
 with open('data/SIDX_STATS.json') as sidx_stats_file:
     sidx_stats = json.load(sidx_stats_file)
@@ -29,9 +31,14 @@ def index():
 
 @app.route('/proposals')
 def proposals():
-    with open('data/VOTES.json') as votes_file:
-        votes = json.load(votes_file)
-    return render_template("proposals.html", title="Proposals", proposals=votes["proposals"], sidx_stats=sidx_stats)
+    page = request.args.get('page', 1, type=int)
+    proposals = Proposal.query.order_by(desc(Proposal.id)).paginate(page, app.config['PROPOSALS_PER_PAGE'], False)
+    next_url = url_for('proposals', page=proposals.next_num) \
+        if proposals.has_next else None
+    prev_url = url_for('proposals', page=proposals.prev_num) \
+        if proposals.has_prev else None
+    return render_template("proposals.html", title="Proposals", proposals=proposals.items, sidx_stats=sidx_stats, next_url=next_url,
+                           prev_url=prev_url)
 
 @app.route('/yields', methods=['GET'])
 def yields():
