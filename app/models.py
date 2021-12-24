@@ -13,10 +13,11 @@ def generate_nonce(length=8):
     return ''.join([str(randint(0, 9)) for i in range(length)])
 
 @login.user_loader
-def load_user(public_address):
-    return User.query.get(public_address)
+def load_user(id):
+    return User.query.get(int(id))
 
-class User(UserMixin, db.Model):
+
+class User(db.Model):
     public_address = db.Column(db.String(80), primary_key=True, nullable=False, unique=True)
     nonce = db.Column(db.Integer(), nullable=False, default=generate_nonce)
 
@@ -32,6 +33,7 @@ class Proposal(db.Model):
     end_time = db.Column(db.String(64))
     voting_period = db.Column(db.Integer, nullable=False)
     author = db.Column(db.String, db.ForeignKey('user.public_address'))
+    proposal_author = db.Column(db.String(80))
     option_a_votes = db.Column(db.Float, default=0, nullable=False)
     option_a_tag = db.Column(db.String(128), default="ACCEPT", nullable=False)
     option_b_votes = db.Column(db.Float)
