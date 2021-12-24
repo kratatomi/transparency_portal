@@ -4,7 +4,7 @@ import requests
 import matplotlib.pyplot as plt
 import numpy as np
 
-w3 = Web3(Web3.HTTPProvider('https://smartbch.squidswap.cash/'))
+w3 = Web3(Web3.HTTPProvider('https://smartbch.greyh.at'))
 if not w3.isConnected():
     w3 = Web3(Web3.HTTPProvider('https://smartbch.fountainhead.cash/mainnet'))
 

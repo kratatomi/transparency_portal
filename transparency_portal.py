@@ -2,7 +2,7 @@ from app import app, db
 import engine
 import get_cheques
 import yield_snapshot
-from app.models import User, Proposal
+from app.models import User, Proposal, Users
 
 
 @app.cli.command()
@@ -17,4 +17,4 @@ def make_yield_snapshot():
 
 @app.shell_context_processor
 def make_shell_context():
-    return {'db': db, 'User': User, 'Proposal': Proposal}
+    return {'db': db, 'User': User, 'Proposal': Proposal, 'Users': Users}

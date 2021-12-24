@@ -1,15 +1,22 @@
-from app import db
+from app import db, login
 from random import randint
+from flask_login import UserMixin
 
+# Steps to initialize the SQL database:
 # flask db init
 # flask db migrate -m "user and proposal tables"
 # flask db upgrade
-# db.create_all()
+# flask db migrate -m "add user id"
+
 
 def generate_nonce(length=8):
     return ''.join([str(randint(0, 9)) for i in range(length)])
 
-class User(db.Model):
+@login.user_loader
+def load_user(public_address):
+    return User.query.get(public_address)
+
+class User(UserMixin, db.Model):
     public_address = db.Column(db.String(80), primary_key=True, nullable=False, unique=True)
     nonce = db.Column(db.Integer(), nullable=False, default=generate_nonce)
 
@@ -39,3 +46,11 @@ class Proposal(db.Model):
 
     def __repr__(self):
         return '<Proposal {}>'.format(self.id)
+
+class Users(UserMixin, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    public_address = db.Column(db.String(80), nullable=False, unique=True)
+    nonce = db.Column(db.Integer(), nullable=False, default=generate_nonce)
+
+    def __repr__(self):
+        return '<User {}>'.format(self.public_address)
