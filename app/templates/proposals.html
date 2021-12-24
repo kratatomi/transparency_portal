@@ -1,10 +1,30 @@
 {% extends "base.html" %}
 
 {% block app_content %}
+<script src="static/ethers-v4.min.js"
+        type="application/javascript"></script>
+<script src="static/app.js" type="application/javascript"></script>
 <div class="container">
   <H2>SmartIndex proposals:</H2>
   <H3>Proposals along the information for voting can be found in the <a href="https://smartindex.cash/news-proposals/">News & Proposals</a> section of SmartIndex website.</H3>
+    <H4>To vote, read carefully <a href="https://smartindex.cash/blog/2021/12/04/how-to-vote-using-checkbook-cash/">the voting guide</a></H4>
 </div>
+
+<div class="container" align="right">
+    <div id="msg" class="alert alert-primary"></div>
+  <br><button class="btn btn-primary" id="submit_proposal" disabled onclick='submit_proposal()'>Submit a proposal</button>
+</div>
+
+<br>
+
+{% with messages=get_flashed_messages() %}
+    {% if messages %}
+            {% for message in messages %}
+             <div class="alert alert-error">{{ message|safe }}</div>
+            {% endfor %}
+    {% endif %}
+{% endwith %}
+
 {% for proposal in proposals %}
 <div class="list-group">
   <a href="#" class="list-group-item list-group-item-action flex-column align-items-start active">
@@ -19,7 +39,7 @@
         {% endif %}
     </div>
       <p class="mb-1"><b>Proposal description:</b> {{ proposal.proposal }}</p>
-      <small><b>Author:</b> {{ proposal.author }}</small>
+      <small><b>Author:</b> {{ proposal.proposal_author }}</small>
       <small><b>Start date:</b> {{ proposal.start_time }} - <b>Deadline:</b> {{ proposal.end_time }} UTC Time</small>
   </a>
   {% if proposal.option_a_tag %}

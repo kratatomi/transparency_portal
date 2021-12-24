@@ -35,7 +35,7 @@ assets_balances = {
     "FlexUSD": {"Initial": 3086.095, "Stacked": True, "CA": "0x7b2B3C5308ab5b2a1d9a94d20D35CCDf61e05b72", "BCH pair": "0x24f011f12Ea45AfaDb1D4245bA15dCAB38B43D13"},
     "Green Ben": {"Initial": 2122.74, "Stacked": True, "CA": "0xDEa721EFe7cBC0fCAb7C8d65c598b21B6373A2b6"},
     "AxieBCH": {"Initial": 167752.146, "Stacked": False, "CA": "0x3d13DaFcCA3a188DB340c81414239Bc2be312Ec9", "BCH pair": "0xD6EcaDB40b35D17f739Ec27285759d0ca119e3A1"},
-    "Celery": {"Initial": 1459636.533, "Stacked": True, "CA": "0x7642Df81b5BEAeEb331cc5A104bd13Ba68c34B91"},
+    "Celery": {"Initial": 1459636.533, "Stacked": True, "CA": "0x7642Df81b5BEAeEb331cc5A104bd13Ba68c34B91", "BCH pair": "0x5775D98022590dc60E9c4Ae0a1c56bF1fD8fcaDC"},
     "BCHPAD": {"Initial": 48649.48, "Stacked": False, "CA": "0x9192940099fDB2338B928DE2cad9Cd1525fEa881", "BCH pair": "0x8221D04A71FcD0Dd3d096cB3B49E22918095933F"},
     "FLEX Coin": {"Initial": 142.804, "Stacked": True, "CA": "0x98Dd7eC28FB43b3C4c770AE532417015fa939Dd3"},
     "LAW": {"Stacked": True, "CA": "0x0b00366fBF7037E9d75E4A569ab27dAB84759302", "BCH pair": "0xd55a9A41666108d10d31BAeEea5D6CdF3be6C5DD"},
@@ -96,7 +96,13 @@ def get_balances(ben_tokens, bch_price):
                 (wallet_balance + account_balance) / 10 ** contract.functions.decimals().call(), 2)
             stacked_assets[asset]["Yield"] = round(stacked_assets[asset]["Current"] - stacked_assets[asset]["Initial"],
                                                    2)
-            if asset in ben_tokens:
+            if "BCH pair" in assets_balances[asset]:
+                asset_price = get_price_from_pool(asset, bch_price)
+                stacked_assets[asset]["Current value"] = round(stacked_assets[asset]["Current"] * asset_price, 2)
+                total_value_stacked_assets += stacked_assets[asset]["Current value"]
+                stacked_assets[asset]["Yield value"] = round(stacked_assets[asset]["Yield"] * asset_price, 2)
+                pie_chart_data[asset] = stacked_assets[asset]["Current value"]
+            elif asset in ben_tokens:
                 asset_price = get_price(assets_balances[asset]["CA"])
                 stacked_assets[asset]["Current value"] = round(stacked_assets[asset]["Current"] * asset_price, 2)
                 total_value_stacked_assets += stacked_assets[asset]["Current value"]

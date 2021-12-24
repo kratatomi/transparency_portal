@@ -156,12 +156,7 @@ def submit_sql_proposal(proposal_id, proposal_text, author, start="now", choices
     if not type(proposal_id) == int:
         return "Incorrect proposal ID format"
 
-    if db.session.query(User).filter(User.public_address == author).first() is None:
-        u = User(public_address=author)
-        db.session.add(u)
-    else:
-        u = db.session.query(User).filter(User.public_address == author).first()
-    proposal = Proposal(id=proposal_id, proposal=proposal_text, author=u.public_address, voting_period=voting_period)
+    proposal = Proposal(id=proposal_id, proposal=proposal_text, proposal_author=author, voting_period=voting_period)
 
     if start == "now":
         d = datetime.utcnow()
