@@ -252,6 +252,29 @@ def main():
                     result_dict[votes["proposals"][proposal]["Choices"][choice]["TAG"]] = votes["proposals"][proposal]["Choices"][choice]["Votes"]
                 votes["proposals"][proposal]["Result"] = sorted(result_dict.items(), key=lambda x: x[1], reverse=True)[0][0]
 
+    proposals = Proposal.query.filter_by(open = True).all()
+    for proposal in proposals:
+        if proposal.unixtime_end < current_time:
+            proposal.open = False
+            total_votes = 0
+            result_dict = {}
+            if type(proposal.option_a_votes) == float:
+                result_dict[proposal.option_a_tag] = proposal.option_a_votes
+                total_votes += proposal.option_a_votes
+            if type(proposal.option_b_votes) == float:
+                result_dict[proposal.option_b_tag] = proposal.option_b_votes
+                total_votes += proposal.option_b_votes
+            if type(proposal.option_c_votes) == float:
+                result_dict[proposal.option_c_tag] = proposal.option_c_votes
+                total_votes += proposal.option_c_votes
+            result_dict["REJECT"] = proposal.reject_votes
+            total_votes += proposal.reject_votes
+            if total_votes < quorum:
+                proposal.result = f"REJECTED: Required quorum of {quorum} SIDX not reached"
+            else:
+                proposal.result = sorted(result_dict.items(), key=lambda x: x[1], reverse=True)[0][0]
+
+
     with open('data/VOTES.json', 'w') as file:
         json.dump(votes, file, indent=4, default=str)
         file.close()
