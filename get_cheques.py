@@ -238,21 +238,7 @@ def main():
     #Now it's time to check if any proposal has closed:
     d = datetime.utcnow()
     current_time = calendar.timegm(d.utctimetuple())
-    for proposal in votes["proposals"]:
-        if votes["proposals"][proposal]["UNIX End time"] < current_time and votes["proposals"][proposal]["Open"] == True:
-            votes["proposals"][proposal]["Open"] = False
-            total_votes = 0
-            for choice in votes["proposals"][proposal]["Choices"]:
-                total_votes += votes["proposals"][proposal]["Choices"][choice]["Votes"]
-            if total_votes < quorum:
-                votes["proposals"][proposal]["Result"] = f"REJECTED: Required quorum of {quorum} SIDX not reached"
-            else:
-                result_dict = {}
-                for choice in votes["proposals"][proposal]["Choices"]:
-                    result_dict[votes["proposals"][proposal]["Choices"][choice]["TAG"]] = votes["proposals"][proposal]["Choices"][choice]["Votes"]
-                votes["proposals"][proposal]["Result"] = sorted(result_dict.items(), key=lambda x: x[1], reverse=True)[0][0]
-
-    proposals = Proposal.query.filter_by(open = True).all()
+    proposals = Proposal.query.filter_by(open=True).all()
     for proposal in proposals:
         if proposal.unixtime_end < current_time:
             proposal.open = False
@@ -274,7 +260,6 @@ def main():
             else:
                 proposal.result = sorted(result_dict.items(), key=lambda x: x[1], reverse=True)[0][0]
     db.session.commit()
-
 
     with open('data/VOTES.json', 'w') as file:
         json.dump(votes, file, indent=4, default=str)

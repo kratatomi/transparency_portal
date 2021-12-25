@@ -4,9 +4,9 @@ from flask_login import UserMixin
 
 # Steps to initialize the SQL database:
 # flask db init
-# flask db migrate -m "user and proposal tables"
+# flask db migrate -m "users and proposal tables"
 # flask db upgrade
-# flask db migrate -m "add user id"
+
 
 
 def generate_nonce(length=8):
