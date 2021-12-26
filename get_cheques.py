@@ -219,6 +219,10 @@ def main():
                 if db.session.query(Proposal).filter(Proposal.id == vote_ID).first() != None:
                     proposal = Proposal.query.get(vote_ID)
                     if cheque[1]["deadline"] >= proposal.unixtime_end and transaction_timestamp >= proposal.unixtime_start:
+                        if choice == "ACCEPT" and proposal.option_a_tag == "ACCEPT":
+                            proposal.option_a_votes += (cheque[1]["amount"] / 10 ** 18)
+                        if choice == "REJECT":
+                            proposal.reject_votes += (cheque[1]["amount"] / 10 ** 18)
                         if choice == "A":
                             proposal.option_a_votes += (cheque[1]["amount"] / 10 ** 18)
                         if choice == "B":
@@ -233,6 +237,7 @@ def main():
                                 proposal.option_c_votes += (cheque[1]["amount"] / 10 ** 18)
                         if choice == "D":
                             proposal.reject_votes += (cheque[1]["amount"] / 10 ** 18)
+                    db.session.commit()
     votes["last scanned block"] = last_block
 
     #Now it's time to check if any proposal has closed:
