@@ -102,7 +102,7 @@ def login():
     signer = w3.eth.account.recoverHash(message_hash, signature=signature)
 
     if signer == public_address:
-        ABI = open("ERC20-ABI.json", "r")  # Standard ABI for ERC20 tokens
+        ABI = open("ABIs/ERC20-ABI.json", "r")  # Standard ABI for ERC20 tokens
         abi = json.loads(ABI.read())
         contract = w3.eth.contract(address="0xF05bD3d7709980f60CD5206BddFFA8553176dd29", abi=abi)
         SIDX_balance = contract.functions.balanceOf(signer).call() / 10 ** 18
@@ -116,7 +116,8 @@ def login():
                 db.session.commit()
             user = Users.query.filter_by(public_address=signer).first()
             login_user(user)
-            return redirect(url_for('submit_proposal'))
+            # flash('/submit_proposal')
+            return "<script>window.location.replace('/submit_proposal')</script>", 200
     else:
         abort(401, 'Could not authenticate signature')
     return redirect(url_for('submit_proposal'))
@@ -127,5 +128,4 @@ def login():
 def submit_proposal():
     with open('data/SIDX_STATS.json') as sidx_stats_file:
         sidx_stats = json.load(sidx_stats_file)
-    print(request)
     return render_template("submit_proposal.html", title="Submit a proposal", sidx_stats=sidx_stats)
