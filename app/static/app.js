@@ -6,7 +6,7 @@ let accounts;
 let accountAddress = "";
 let signer;
 
-function submit_proposal() {
+function login() {
   console.log("oh hey there");
 
   // signer.signMessage("hello");
@@ -95,7 +95,7 @@ ethereum.enable().then(function () {
         } else {
           // else allow user to submit proposal
           const submitProposalButton =
-            document.getElementById("submit_proposal");
+            document.getElementById("login");
           submitProposalButton.disabled = false;
           signer = provider.getSigner();
         }

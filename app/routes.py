@@ -11,7 +11,8 @@ from web3 import Web3
 
 from app import app, db
 from app.models import Proposal, Users
-
+from app.forms import ProposalForm
+from app.email import send_new_proposal_email
 
 @app.route('/favicon.ico')
 def favicon():
@@ -40,7 +41,7 @@ def proposals():
     with open('data/SIDX_STATS.json') as sidx_stats_file:
         sidx_stats = json.load(sidx_stats_file)
     page = request.args.get('page', 1, type=int)
-    proposals = Proposal.query.order_by(desc(Proposal.id)).paginate(page, app.config['PROPOSALS_PER_PAGE'], False)
+    proposals = Proposal.query.filter_by(admin_approved=True).order_by(desc(Proposal.id)).paginate(page, app.config['PROPOSALS_PER_PAGE'], False)
     next_url = url_for('proposals', page=proposals.next_num) \
         if proposals.has_next else None
     prev_url = url_for('proposals', page=proposals.prev_num) \
@@ -116,16 +117,24 @@ def login():
                 db.session.commit()
             user = Users.query.filter_by(public_address=signer).first()
             login_user(user)
-            # flash('/submit_proposal')
-            return "<script>window.location.replace('/submit_proposal')</script>", 200
+            return redirect(url_for('submit_proposal'))
     else:
         abort(401, 'Could not authenticate signature')
     return redirect(url_for('submit_proposal'))
 
 
-@app.route('/submit_proposal')
+@app.route('/submit_proposal', methods=['POST', 'GET'])
 @login_required
 def submit_proposal():
     with open('data/SIDX_STATS.json') as sidx_stats_file:
         sidx_stats = json.load(sidx_stats_file)
-    return render_template("submit_proposal.html", title="Submit a proposal", sidx_stats=sidx_stats)
+    form = ProposalForm()
+    if form.validate_on_submit():
+        user = Users.query.get(current_user.get_id())
+        flash(f'Your proposal has been submitted and is pending administrator approval')
+        new_proposal = Proposal(proposal=form.proposal.data, proposal_author=user.public_address, voting_period=form.voting_period.data, option_a_tag=form.choice_a.data, option_b_tag=form.choice_b.data, option_c_tag=form.choice_c.data)
+        db.session.add(new_proposal)
+        db.session.commit()
+        send_new_proposal_email(new_proposal)
+        return redirect('/proposals')
+    return render_template("submit_proposal.html", title="Submit a proposal", sidx_stats=sidx_stats, form=form)

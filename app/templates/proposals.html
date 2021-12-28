@@ -12,7 +12,9 @@
 
 <div class="container" align="right">
     <div id="msg" class="alert alert-primary"></div>
-  <br><button class="btn btn-primary" id="submit_proposal" disabled onclick='submit_proposal()'>Submit a proposal</button>
+    {% if not current_user.is_authenticated %}
+        <br><button class="btn btn-primary" id="login" disabled onclick='login()'>Log In</button>
+    {% endif %}
 </div>
 
 <br>

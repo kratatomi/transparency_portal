@@ -1,0 +1,6 @@
+New proposal submitted:
+
+Proposal ID: {{ proposal.id }}
+Proposal: {{ proposal.proposal }}
+Author: {{ proposal.proposal_author }}
+Voting period: {{ proposal.voting_period }}
