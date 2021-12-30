@@ -209,8 +209,10 @@ def approve_proposal(proposal_id):
     proposal.admin_approved = True
     if proposal.option_b_tag == None:
         proposal.option_b_tag = "REJECT"
+        proposal.reject_option = "B"
     elif proposal.option_c_tag == None:
         proposal.option_c_tag = "REJECT"
+        proposal.reject_option = "C"
     db.session.commit()
 
 def main():
