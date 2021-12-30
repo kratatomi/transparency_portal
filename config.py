@@ -13,3 +13,4 @@ class Config(object):
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
     ADMINS = ['contact@smartindex.cash']
+    SECURITY_EMAIL_SENDER = 'contact@smartindex.cash'
