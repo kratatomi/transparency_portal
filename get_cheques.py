@@ -204,7 +204,7 @@ def approve_proposal(proposal_id):
     proposal.unixtime_start = calendar.timegm(d.utctimetuple())
     proposal.start_time = datetime.utcfromtimestamp(int(calendar.timegm(d.utctimetuple()))).strftime(
         '%Y-%m-%d %H:%M:%S')
-    proposal.unixtime_end = proposal.unixtime_start + voting_period * 24 * 60 * 60
+    proposal.unixtime_end = proposal.unixtime_start + proposal.voting_period * 24 * 60 * 60
     proposal.end_time = datetime.utcfromtimestamp(proposal.unixtime_end).strftime('%Y-%m-%d %H:%M:%S')
     proposal.admin_approved = True
     if proposal.option_b_tag == None:
