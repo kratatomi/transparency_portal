@@ -211,6 +211,7 @@ def approve_proposal(proposal_id):
         proposal.option_b_tag = "REJECT"
     elif proposal.option_c_tag == None:
         proposal.option_c_tag = "REJECT"
+    db.session.commit()
 
 def main():
     with open("data/VOTES.json", "r") as file:
