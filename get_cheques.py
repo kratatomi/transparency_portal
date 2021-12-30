@@ -208,11 +208,11 @@ def approve_proposal(proposal_id):
     proposal.end_time = datetime.utcfromtimestamp(proposal.unixtime_end).strftime('%Y-%m-%d %H:%M:%S')
     proposal.admin_approved = True
     if proposal.option_b_tag == None:
-        proposal.option_b_tag = "REJECT"
         proposal.reject_option = "B"
     elif proposal.option_c_tag == None:
-        proposal.option_c_tag = "REJECT"
         proposal.reject_option = "C"
+    else:
+        proposal.reject_option = "D"
     db.session.commit()
 
 def main():
