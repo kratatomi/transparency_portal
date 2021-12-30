@@ -198,6 +198,20 @@ def submit_sql_proposal(proposal_id, proposal_text, author, start="now", choices
     db.session.add(proposal)
     db.session.commit()
 
+def approve_proposal(proposal_id):
+    proposal = Proposal.query.get(int(proposal_id))
+    d = datetime.utcnow()
+    proposal.unixtime_start = calendar.timegm(d.utctimetuple())
+    proposal.start_time = datetime.utcfromtimestamp(int(calendar.timegm(d.utctimetuple()))).strftime(
+        '%Y-%m-%d %H:%M:%S')
+    proposal.unixtime_end = proposal.unixtime_start + voting_period * 24 * 60 * 60
+    proposal.end_time = datetime.utcfromtimestamp(proposal.unixtime_end).strftime('%Y-%m-%d %H:%M:%S')
+    proposal.admin_approved = True
+    if proposal.option_b_tag == None:
+        proposal.option_b_tag = "REJECT"
+    elif proposal.option_c_tag == None:
+        proposal.option_c_tag = "REJECT"
+
 def main():
     with open("data/VOTES.json", "r") as file:
         votes = json.load(file)
