@@ -40,7 +40,8 @@ assets_balances = {
     "FLEX Coin": {"Initial": 142.804, "Stacked": True, "CA": "0x98Dd7eC28FB43b3C4c770AE532417015fa939Dd3"},
     "LAW": {"Stacked": True, "CA": "0x0b00366fBF7037E9d75E4A569ab27dAB84759302", "BCH pair": "0xd55a9A41666108d10d31BAeEea5D6CdF3be6C5DD"},
     "FIRE": {"Stacked": False, "CA": "0x225FCa2A940cd5B18DFb168cD9B7f921C63d7B6E", "BCH pair": "0x1F354956DE4A7Ed71308225De94a27b35A84EA57"},
-    "DAIQUIRI": {"Stacked": False, "CA": "0x24d8d5Cbc14FA6A740c3375733f0287188F8dF3b", "BCH pair": "0xF1Ac59acb449C8e2BA9D222cA1275b3f4f9a455C"}}
+    "DAIQUIRI": {"Stacked": False, "CA": "0x24d8d5Cbc14FA6A740c3375733f0287188F8dF3b", "BCH pair": "0xF1Ac59acb449C8e2BA9D222cA1275b3f4f9a455C"},
+    "CryptoSorted": {"Stacked": False, "CA": "0x5B75B5eb28bEceDBB0A5A3cfeE6cdb4327E1856B", "BCH pair": "0xB29E93EA0937decFAaA7cD0295c036e4738735ab"}}
 
 initial_pool_balances = {
     "Mistswap": {"CA": "0x7E1B9F1e286160A80ab9B04D228C02583AeF90B5", "token0": 4, "token1": 18711.1},
