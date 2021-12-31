@@ -3,7 +3,6 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-
 def send_new_proposal_email(proposal):
     from_addr = app.config['ADMINS'][0]
     to_addr = app.config['ADMINS'][0]
