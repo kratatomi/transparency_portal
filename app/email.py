@@ -1,21 +1,29 @@
-from threading import Thread
-from flask import render_template
-from flask_mail import Message
-from app import app, mail
+from app import app
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
-def send_async_email(app, msg):
-    with app.app_context():
-        mail.send(msg)
-
-def send_email(subject, sender, recipients, text_body, html_body):
-    msg = Message(subject, sender=sender, recipients=recipients)
-    msg.body = text_body
-    msg.html = html_body
-    Thread(target=send_async_email, args=(app, msg)).start()
 
 def send_new_proposal_email(proposal):
-    send_email('New proposal submitted',
-               sender=app.config['ADMINS'][0],
-               recipients=[app.config['ADMINS'][0]],
-               text_body=render_template('email/new_proposal.txt', proposal=proposal),
-               html_body=render_template('email/new_proposal.html', proposal=proposal))
+    from_addr = app.config['ADMINS'][0]
+    to_addr = app.config['ADMINS'][0]
+    text = f'Proposal ID {proposal.id} submitted'
+
+    username = app.config["MAIL_USERNAME"]
+    password = app.config["MAIL_PASSWORD"]
+
+    msg = MIMEMultipart()
+
+    msg['From'] = from_addr
+    msg['To'] = to_addr
+    msg['Subject'] = 'New proposal submitted'
+    msg.attach(MIMEText(text))
+
+
+    server = smtplib.SMTP(app.config['MAIL_SERVER']+":"+str(app.config['MAIL_PORT']))
+    server.ehlo()
+    server.starttls()
+    server.ehlo()
+    server.login(username, password)
+    server.sendmail(from_addr, to_addr, msg.as_string())
+    server.quit()
