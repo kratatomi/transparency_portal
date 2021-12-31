@@ -240,20 +240,16 @@ def main():
                             proposal.option_a_votes += (cheque[1]["amount"] / 10 ** 18)
                         if choice == "REJECT":
                             proposal.reject_votes += (cheque[1]["amount"] / 10 ** 18)
+                        if choice == proposal.reject_option:
+                            proposal.reject_votes += (cheque[1]["amount"] / 10 ** 18)
                         if choice == "A":
                             proposal.option_a_votes += (cheque[1]["amount"] / 10 ** 18)
                         if choice == "B":
-                            if proposal.option_b_tag == "REJECT":
-                                proposal.reject_votes += (cheque[1]["amount"] / 10 ** 18)
-                            else:
+                            if proposal.option_b_tag != "REJECT":
                                 proposal.option_b_votes += (cheque[1]["amount"] / 10 ** 18)
                         if choice == "C":
-                            if proposal.option_c_tag == "REJECT":
-                                proposal.reject_votes += (cheque[1]["amount"] / 10 ** 18)
-                            else:
+                            if proposal.option_c_tag != "REJECT":
                                 proposal.option_c_votes += (cheque[1]["amount"] / 10 ** 18)
-                        if choice == "D":
-                            proposal.reject_votes += (cheque[1]["amount"] / 10 ** 18)
                     db.session.commit()
     votes["last scanned block"] = last_block
 
@@ -285,7 +281,6 @@ def main():
 
     with open('data/VOTES.json', 'w') as file:
         json.dump(votes, file, indent=4, default=str)
-        file.close()
 
 if __name__ == "__main__":
     main()
