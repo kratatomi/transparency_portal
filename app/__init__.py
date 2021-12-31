@@ -13,7 +13,7 @@ app = Flask(__name__)
 bootstrap = Bootstrap(app)
 app.config.from_object(Config)
 # export APPLICATION_SETTINGS=/path/to/settings.cfg
-app.config.from_envvar('APPLICATION_SETTINGS')
+# app.config.from_envvar('APPLICATION_SETTINGS')
 db = SQLAlchemy(app)
 migrate = Migrate(app, db, render_as_batch=True)
 login = LoginManager(app)
