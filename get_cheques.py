@@ -256,7 +256,7 @@ def main():
     #Now it's time to check if any proposal has closed:
     d = datetime.utcnow()
     current_time = calendar.timegm(d.utctimetuple())
-    proposals = Proposal.query.filter_by(open=True).all()
+    proposals = Proposal.query.filter_by(open=True).filter_by(admin_approved=True).all()
     for proposal in proposals:
         if proposal.unixtime_end < current_time:
             proposal.open = False
