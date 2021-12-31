@@ -19,7 +19,7 @@ def send_new_proposal_email(proposal):
     msg.attach(MIMEText(text))
 
 
-    server = smtplib.SMTP(app.config['MAIL_SERVER']+":"+str(app.config['MAIL_PORT']))
+    server = smtplib.SMTP(app.config['MAIL_SERVER'], app.config['MAIL_PORT'])
     server.ehlo()
     server.starttls()
     server.ehlo()
