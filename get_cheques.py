@@ -6,7 +6,7 @@ import calendar
 from app import db
 from app.models import Proposal, User
 
-w3 = Web3(Web3.HTTPProvider('https://smartbch.squidswap.cash/'))
+w3 = Web3(Web3.HTTPProvider('https://smartbch.greyh.at'))
 if not w3.isConnected():
     w3 = Web3(Web3.HTTPProvider('https://smartbch.fountainhead.cash/mainnet'))
 
