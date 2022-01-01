@@ -5,5 +5,4 @@
 /app/static/pie_chart.png
 /app.db
 /migrations/
-/migrations/
-/settings.cfg
+/mail_settings.py
