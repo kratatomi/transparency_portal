@@ -135,5 +135,6 @@ def submit_proposal():
         new_proposal = Proposal(proposal=form.proposal.data, proposal_author=user.public_address, voting_period=form.voting_period.data, option_a_tag=form.choice_a.data, option_b_tag=form.choice_b.data, option_c_tag=form.choice_c.data)
         db.session.add(new_proposal)
         db.session.commit()
+        send_new_proposal_email(new_proposal)
         return redirect('/proposals')
     return render_template("submit_proposal.html", title="Submit a proposal", sidx_stats=sidx_stats, form=form)
