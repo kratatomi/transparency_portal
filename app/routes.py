@@ -2,6 +2,7 @@ import json
 import time
 from os import listdir, getcwd
 from os.path import isfile, join, abspath
+from datetime import datetime
 
 from eth_account.messages import defunct_hash_message
 from flask import render_template, url_for, request, send_from_directory, abort, redirect, flash
@@ -55,10 +56,12 @@ def yields():
         sidx_stats = json.load(sidx_stats_file)
     snapshots_dir = abspath(getcwd()) + "/data/snapshots"
     snapshot_files = [f for f in listdir(snapshots_dir) if isfile(join(snapshots_dir, f))]
-    snapshots_dict = {}
+    snapshots_dates = []
     for file in snapshot_files:
-        snapshots_dict[file] = str(file.split(".")[0])
-    return render_template("yield.html", title="Weekly yield", snapshots=snapshots_dict, sidx_stats=sidx_stats)
+        snapshots_dates.append(str(file.split(".")[0]))
+    snapshots_dates.sort(key=lambda date: datetime.strptime(date, "%d-%m-%Y"))
+    snapshots_dates.reverse()
+    return render_template("yield.html", title="Weekly yield", snapshots=snapshots_dates, sidx_stats=sidx_stats)
 
 @app.route('/yields/<name>', methods=['GET', 'POST'])
 def weekly_report(name):

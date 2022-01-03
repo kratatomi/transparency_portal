@@ -8,7 +8,7 @@
 </div>
 
 <div class="list-group">
-  {% for file, name in snapshots.items() %}
+  {% for name in snapshots %}
     <a href="yields/{{ name }}" class="list-group-item list-group-item-action">{{ name }}</a>
   {% endfor %}
 </div>

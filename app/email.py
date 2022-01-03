@@ -4,6 +4,17 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import mail_settings
 
+"""
+mail_settings.py structure:
+
+MAIL_PORT=587
+MAIL_USE_SSL=False
+MAIL_USE_TLS=True
+MAIL_SERVER="your_server.com"
+MAIL_PASSWORD="password"
+MAIL_USERNAME="user@your_server.com"
+"""
+
 def send_new_proposal_email(proposal):
     from_addr = app.config['ADMINS'][0]
     to_addr = app.config['ADMINS'][0]
