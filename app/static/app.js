@@ -53,7 +53,7 @@ ethereum.enable().then(function () {
 
       provider.listAccounts().then(async function (result) {
         console.log(result);
-        accountAddress = result[0]; // getting uesrs publickey
+        accountAddress = result[0]; // getting users publickey
 
         // contract address and contract abi is used to create the contract instance
         const contractAddress = "0xF05bD3d7709980f60CD5206BddFFA8553176dd29";
