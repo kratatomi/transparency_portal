@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+<div class="list-group">
+  <a href="#" class="list-group-item list-group-item-action flex-column align-items-start active">
+    <div class="d-flex w-100 justify-content-between">
+      <h5 class="mb-1">Proposal #{{ proposal.id }}</h5>
+        {% if proposal.open %}
+        <b><p style="color:rgb(0,200,0);">Open</p></b>
+        {% else %}
+            <b><p style="color:rgb(250,0,0);">Closed</p></b>
+            <H3><p class="text-right">Final result:</p></H3>
+            <H3><p class="text-right">{{ proposal.result }}</p></H3>
+        {% endif %}
+    </div>
+      <p class="mb-1"><b>Proposal description:</b> {{ proposal.proposal }}</p>
+      <small><b>Author:</b> {{ proposal.proposal_author }}</small>
+      <small><b>Start date:</b> {{ proposal.start_time }} - <b>Deadline:</b> {{ proposal.end_time }} UTC Time</small>
+  </a>
+  {% if proposal.option_a_tag %}
+          <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
+            <div class="d-flex w-100 justify-content-between">
+              <h5 class="mb-1">{{ proposal.option_a_tag }}</h5>
+            </div>
+            <p class="mb-1">{{ proposal.option_a_votes }} [OPTION: A]</p>
+          </a>
+  {% endif %}
+  {% if proposal.option_b_tag %}
+          <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
+            <div class="d-flex w-100 justify-content-between">
+              <h5 class="mb-1">{{ proposal.option_b_tag }}</h5>
+            </div>
+            <p class="mb-1">{{ proposal.option_b_votes }} [OPTION: B]</p>
+          </a>
+  {% endif %}
+    {% if proposal.option_c_tag %}
+          <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
+            <div class="d-flex w-100 justify-content-between">
+              <h5 class="mb-1">{{ proposal.option_c_tag }}</h5>
+            </div>
+            <p class="mb-1">{{ proposal.option_c_votes }} [OPTION: C]</p>
+          </a>
+  {% endif %}
+            <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
+            <div class="d-flex w-100 justify-content-between">
+              <h5 class="mb-1">REJECT</h5>
+            </div>
+            <p class="mb-1">{{ proposal.reject_votes }} [OPTION: {{ proposal.reject_option }}]</p>
+          </a>
+</div>
+<hr>
+<center><h3>Go to <a href="{{ url_for('proposals') }}">Proposals page</a>.</h3></center>
+{% endblock %}

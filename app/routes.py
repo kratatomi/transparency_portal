@@ -50,6 +50,16 @@ def proposals():
     return render_template("proposals.html", title="Proposals", proposals=proposals.items, sidx_stats=sidx_stats, next_url=next_url,
                            prev_url=prev_url)
 
+@app.route('/proposals/<int:id>', methods=['GET', 'POST'])
+def display_proposal(id):
+    with open('data/SIDX_STATS.json') as sidx_stats_file:
+        sidx_stats = json.load(sidx_stats_file)
+    if db.session.query(Proposal).filter(Proposal.id == id).first() is not None:
+        proposal = Proposal.query.get(id)
+        return render_template("proposal.html", title=f"Proposal {id}", proposal=proposal, sidx_stats=sidx_stats)
+    else:
+        abort(400, "Proposal not found")
+
 @app.route('/yields', methods=['GET'])
 def yields():
     with open('data/SIDX_STATS.json') as sidx_stats_file:
