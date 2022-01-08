@@ -12,8 +12,7 @@
 <div class="container">
   <H2>SmartIndex proposals:</H2>
   <H3>Proposals along the information for voting can be found in the <a href="https://smartindex.cash/news-proposals/">News & Proposals</a> section of SmartIndex website.</H3>
-    <H4>To vote, read carefully <a href="https://smartindex.cash/blog/2021/12/04/how-to-vote-using-checkbook-cash/">the voting guide</a>. Remember that dates are in UTC time. Current UTC hour is <div id="clock" class="inline"></div>.</H4>
-    <p>Payee's address will always be 0xa3533751171786035fC440bFeF3F535093EAd686, avoid scams!</p>
+    <H4>Click on any proposal to see its respective voting instructions. Remember that dates are in UTC time. Current UTC hour is <div id="clock" class="inline"></div>.</H4>
 </div>
 
 <div class="container" align="right">
@@ -35,7 +34,7 @@
 
 {% for proposal in proposals %}
 <div class="list-group">
-  <a href="#" class="list-group-item list-group-item-action flex-column align-items-start active">
+  <a href="proposals/{{ proposal.id }}" class="list-group-item list-group-item-action flex-column align-items-start active">
     <div class="d-flex w-100 justify-content-between">
       <h5 class="mb-1">Proposal #{{ proposal.id }}</h5>
         {% if proposal.open %}

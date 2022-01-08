@@ -48,6 +48,35 @@
             <p class="mb-1">{{ proposal.reject_votes }} [OPTION: {{ proposal.reject_option }}]</p>
           </a>
 </div>
+
+<div class="container">
+    <H2>Voting instructions</H2>
+    <ul>
+        <li>Open the "write" section of the checkbook.cash app: <a href="https://checkbook.cash/app/write">click here.</a></li>
+        <li>You will find there multiple text fields, fill them with this parameters:</li>
+        <ul>
+            <li><b>Token's Address:</b> 0xF05bD3d7709980f60CD5206BddFFA8553176dd29 (SIDX contract address)</li>
+            <li><b>Payees's Addresses:</b> 0xa3533751171786035fC440bFeF3F535093EAd686 (this is a voting wallet owned by SmartIndex admin)</li>
+            <li><b>Amount to Send to Each Payee:</b> this is the amount of SIDX tokens you want to send for voting. The more tokens you send, the more chances for your choice to be approved.
+</li>
+            <li><b>Deadline/Expiry Date:</b> the deadline must be equal or higher than the proposal's deadline, which is {{ proposal.end_time }} for this proposal. Remember that we are always working with UTC time.</li>
+            <li><b>Tag:</b> this field is optional but highly advisable. Put a random text and check the box "This is a secret tag". This way not only the admin cannot claim your tokens, but even if the frontend gets hacked, nobody can steal your tokens.</li>
+            <li><b>Memo:</b> in this field is where you provide your chosen option, and always have the format #ID:OPTION. For proposal {{ proposal.id }}, the options available are: </li>
+            <ul>
+                {% if proposal.option_a_tag %}
+                <li>{{ proposal.option_a_tag }}: write #{{ proposal.id }}:A in memo field.</li>
+                {% endif %}
+                {% if proposal.option_b_tag %}
+                <li>{{ proposal.option_b_tag }}: write #{{ proposal.id }}:B in memo field.</li>
+                {% endif %}
+                {% if proposal.option_c_tag %}
+                <li>{{ proposal.option_c_tag }}: write #{{ proposal.id }}:C in memo field.</li>
+                {% endif %}
+                <li>REJECT: write #{{ proposal.id }}:{{ proposal.reject_option }} in memo field.</li>
+            </ul>
+        </ul>
+    </ul>
+</div>
 <hr>
-<center><h3>Go to <a href="{{ url_for('proposals') }}">Proposals page</a>.</h3></center>
+<center><h3>Go back to <a href="{{ url_for('proposals') }}">Proposals page</a>.</h3></center>
 {% endblock %}
