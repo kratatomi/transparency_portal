@@ -29,13 +29,15 @@ def index():
         stacked_assets = json.load(stacked_assets_file)
     with open('data/LP_BALANCES.json') as lp_balances_file:
         lp_balances = json.load(lp_balances_file)
+    with open('data/EXTRA_LP_BALANCES.json') as extra_lp_balances_file:
+        extra_lp_balances = json.load(extra_lp_balances_file)
     with open('data/PUNKS_BALANCES.json') as punks_balances_file:
         punks = json.load(punks_balances_file)
     with open('data/FARMS.json') as farms_file:
         farms = json.load(farms_file)
     with open('data/SIDX_STATS.json') as sidx_stats_file:
         sidx_stats = json.load(sidx_stats_file)
-    return render_template("index.html", title="Portfolio tracker", sidx_stats=sidx_stats, sep20_balances=sep20_balances, stacked_assets=stacked_assets, lp_balances=lp_balances, punks=punks, farms=farms)
+    return render_template("index.html", title="Portfolio tracker", sidx_stats=sidx_stats, sep20_balances=sep20_balances, stacked_assets=stacked_assets, lp_balances=lp_balances, extra_lp_balances=extra_lp_balances, punks=punks, farms=farms)
 
 @app.route('/proposals')
 def proposals():

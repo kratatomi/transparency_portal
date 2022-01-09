@@ -10,6 +10,8 @@ def main():
         stacked_assets = json.load(stacked_assets_file)
     with open('data/LP_BALANCES.json') as lp_balances_file:
         lp_balances = json.load(lp_balances_file)
+    with open('data/EXTRA_LP_BALANCES.json') as extra_lp_balances_file:
+        extra_lp_balances = json.load(extra_lp_balances_file)
     with open('data/PUNKS_BALANCES.json') as punks_balances_file:
         punks = json.load(punks_balances_file)
     with open('data/FARMS.json') as farms_file:
@@ -23,6 +25,7 @@ def main():
                     "SEP20_BALANCES": sep20_balances,
                     "STACKED_ASSETS": stacked_assets,
                     "LP_BALANCES": lp_balances,
+                    "EXTRA_LP_BALANCES": extra_lp_balances,
                     "PUNKS_BALANCES": punks,
                     "FARMS": farms}
 

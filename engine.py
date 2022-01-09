@@ -15,7 +15,7 @@ law_punks_CA = w3.toChecksumAddress("0xff48aAbDDACdc8A6263A2eBC6C1A68d8c46b1bf7"
 law_punks_market = w3.toChecksumAddress("0xc062bf9FaBE930FF8061f72b908AB1b702b3FdD6")
 law_level_address = w3.toChecksumAddress("0x9E9eACB7E5dCc374d3108598054787ccae967544")
 law_rewards = w3.toChecksumAddress("0xbeAAe3E87Bf71C97e458e2b9C84467bdc3b871c6")
-punk_wallets= [portfolio_address, #Punks wallet 1
+punk_wallets = [portfolio_address, #Punks wallet 1
                "0x3484f575A3d3b4026B4708997317797925A236ae", #Punks wallet 2
                "0x57BB80fdab3ca9FDBC690F4b133010d8615e77b3"] #Punks wallet 3
 
@@ -48,6 +48,9 @@ initial_pool_balances = {
     # Token0 is WBCH, Token1 is SIDX
     "Tangoswap": {"CA": "0x4509Ff66a56cB1b80a6184DB268AD9dFBB79DD53", "token0": 1,
                   "token1": 5000}}  # Token0 is WBCH, Token1 is SIDX
+
+extra_pool_balances = {"Mistswap": {"CA": "0x7E1B9F1e286160A80ab9B04D228C02583AeF90B5", "token0": 0.207935, "token1": 78.291}}  # Token0 is WBCH, Token1 is SIDX
+
 
 farms = {"Mistswap": {"factory": "0x3A7B9D0ed49a90712da4E087b17eE4Ac1375a5D4",
                       "factory_ABI": "MIST-Master-ABI.json",
@@ -211,7 +214,7 @@ def get_token_info(contract_address):
     return contract.functions.name().call(), contract.functions.decimals().call()
 
 
-def get_LP_balances():
+def get_LP_balances(initial_pool_balances, wallet_address):
     LP_balances = {}
     for DEX in initial_pool_balances:
         LP_balances[DEX] = {}
@@ -228,7 +231,7 @@ def get_LP_balances():
         LP_balances[DEX][token1_ticker] = {}
         LP_balances[DEX][token0_ticker]["Initial"] = round(initial_pool_balances[DEX]["token0"], 2)
         LP_balances[DEX][token1_ticker]["Initial"] = round(initial_pool_balances[DEX]["token1"], 2)
-        portfolio_LP_balance = contract.functions.balanceOf(portfolio_address).call()
+        portfolio_LP_balance = contract.functions.balanceOf(wallet_address).call()
         LP_total_supply = contract.functions.totalSupply().call()
         LP_balances[DEX][token0_ticker]["Current"] = round(
             ((portfolio_LP_balance / LP_total_supply) * token0_reserves) / 10 ** token0_decimals, 2)
@@ -365,7 +368,8 @@ def main():
     bch_price = get_BCH_price()
     ben_tokens = ben_listed_tokens()
     SEP20_tokens, stacked_assets = get_balances(ben_tokens, bch_price)
-    LP_balances = get_LP_balances()
+    LP_balances = get_LP_balances(initial_pool_balances, portfolio_address)
+    extra_LP_balances = get_LP_balances(extra_pool_balances, punk_wallets[1])
     SIDX_stats = get_SIDX_stats(LP_balances, bch_price)
     get_law_rewards(bch_price)
     make_pie_chart()
@@ -378,6 +382,8 @@ def main():
         json.dump(stacked_assets, file, indent=4)
     with open('data/LP_BALANCES.json', 'w') as file:
         json.dump(LP_balances, file, indent=4)
+    with open('data/EXTRA_LP_BALANCES.json', 'w') as file:
+        json.dump(extra_LP_balances, file, indent=4)
     with open('data/PUNKS_BALANCES.json', 'w') as file:
         json.dump(punks_owned, file, indent=4)
     with open('data/FARMS.json', 'w') as file:

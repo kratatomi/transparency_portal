@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block app_content %}
-{% if date%}
+{% if date %}
 <div class="container"><center><H2>Yields report taken at {{ date }}</H2></center></div>
 {% endif %}
 <div style="float:left; width:50%;">
@@ -69,6 +69,28 @@
             {% endfor %}
         </ul>
     </div>
+    {% if extra_lp_balances %}
+    <div class="container">
+        <H2>Extra SIDX liquidity pools:</H2>
+        <small>See <a href="https://transparency.smartindex.cash/proposals/10">proposal #10</a></small>
+        <ul id="extra_SIDX_liquidity_pools">
+            {% for key, value in extra_lp_balances.items() %}
+            <li>{{ key }}
+                <ul>
+                    {% for key, value in value.items() %}
+                    <li>{{ key }}</li>
+                    <ul>
+                        <li>Initial amount: {{ value["Initial"] }}</li>
+                        <li>Current amount: {{ value["Current"] }}</li>
+                        <li>Difference: {{ value["Difference"] }}</li>
+                    </ul>
+                    {% endfor %}
+                </ul>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
     <div class="container">
         {% if farms %}
         <H2>Farms:</H2>
