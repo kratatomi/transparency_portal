@@ -215,6 +215,28 @@ def approve_proposal(proposal_id):
         proposal.reject_option = "D"
     db.session.commit()
 
+def generate_calendar_events():
+    from icalendar import Calendar, Event, vText
+    import pytz
+    proposals = Proposal.query.all()
+    for proposal in proposals:
+        if proposal.admin_approved == True:
+            cal = Calendar()
+            cal.add('prodid', 'SmartIndex proposal')
+            cal.add('version', '1.0')
+            event = Event()
+            event.add('summary', f'SmartIndex voting for proposal #{proposal.id}')
+            timezone = pytz.timezone("UTC")
+            date_time_obj = timezone.localize(datetime.strptime(proposal.start_time, '%Y-%m-%d %H:%M:%S'))
+            event.add('dtstart', date_time_obj)
+            date_time_obj = timezone.localize(datetime.strptime(proposal.end_time, '%Y-%m-%d %H:%M:%S'))
+            event.add('dtend', date_time_obj)
+            event['location'] = vText(f'https://transparency.smartindex.cash/proposals/{proposal.id}')
+            cal.add_component(event)
+            f = open(f'app/static/calendar/Proposal{proposal.id}.ics', 'wb')
+            f.write(cal.to_ical())
+            f.close()
+
 def main():
     with open("data/VOTES.json", "r") as file:
         votes = json.load(file)

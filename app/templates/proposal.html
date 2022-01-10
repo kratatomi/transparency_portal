@@ -15,7 +15,7 @@
     </div>
       <p class="mb-1"><b>Proposal description:</b> {{ proposal.proposal }}</p>
       <small><b>Author:</b> {{ proposal.proposal_author }}</small>
-      <small><b>Start date:</b> {{ proposal.start_time }} - <b>Deadline:</b> {{ proposal.end_time }} UTC Time</small>
+      <small><b>Start date:</b> {{ proposal.start_time }} - <b>Deadline:</b> {{ proposal.end_time }} UTC Time <a href="https://smartindex.cash/static/calendar/Proposal{{proposal.id}}.ics">Add to your calendar</a></small>
   </a>
   {% if proposal.option_a_tag %}
           <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">

@@ -6,3 +6,4 @@
 /app.db
 /migrations/
 /mail_settings.py
+/app/static/calendar/
