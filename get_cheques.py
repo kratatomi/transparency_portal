@@ -199,6 +199,8 @@ def submit_sql_proposal(proposal_id, proposal_text, author, start="now", choices
     db.session.commit()
 
 def approve_proposal(proposal_id):
+    from icalendar import Calendar, Event, vText
+    import pytz
     proposal = Proposal.query.get(int(proposal_id))
     d = datetime.utcnow()
     proposal.unixtime_start = calendar.timegm(d.utctimetuple())
@@ -210,10 +212,28 @@ def approve_proposal(proposal_id):
     if proposal.option_b_tag == None:
         proposal.reject_option = "B"
     elif proposal.option_c_tag == None:
+        proposal.option_b_votes = 0
         proposal.reject_option = "C"
     else:
+        proposal.option_b_votes = 0
+        proposal.option_c_votes = 0
         proposal.reject_option = "D"
     db.session.commit()
+    cal = Calendar()
+    cal.add('prodid', 'SmartIndex proposal')
+    cal.add('version', '1.0')
+    event = Event()
+    event.add('summary', f'SmartIndex voting for proposal #{proposal.id}')
+    timezone = pytz.timezone("UTC")
+    date_time_obj = timezone.localize(datetime.strptime(proposal.start_time, '%Y-%m-%d %H:%M:%S'))
+    event.add('dtstart', date_time_obj)
+    date_time_obj = timezone.localize(datetime.strptime(proposal.end_time, '%Y-%m-%d %H:%M:%S'))
+    event.add('dtend', date_time_obj)
+    event['location'] = vText(f'https://transparency.smartindex.cash/proposals/{proposal.id}')
+    cal.add_component(event)
+    f = open(f'app/static/calendar/Proposal{proposal.id}.ics', 'wb')
+    f.write(cal.to_ical())
+    f.close()
 
 def generate_calendar_events():
     from icalendar import Calendar, Event, vText
