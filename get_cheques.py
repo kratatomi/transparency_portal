@@ -236,6 +236,7 @@ def approve_proposal(proposal_id):
     f.close()
 
 def generate_calendar_events():
+    # Use only for the first time running the app, the rest of ICS files are generate upon proposals approval
     from icalendar import Calendar, Event, vText
     import pytz
     proposals = Proposal.query.all()
