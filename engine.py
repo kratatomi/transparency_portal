@@ -3,6 +3,7 @@ from web3 import Web3
 import requests
 import matplotlib.pyplot as plt
 import numpy as np
+from time import time
 
 w3 = Web3(Web3.HTTPProvider('https://smartbch.greyh.at'))
 if not w3.isConnected():
@@ -93,8 +94,10 @@ def get_balances(ben_tokens, bch_price):
             contract = w3.eth.contract(address=assets_balances[asset]["CA"], abi=abi)
             wallet_balance = contract.functions.balanceOf(
                 portfolio_address).call()  # CLY Neither in stacking nor payout mode
-            account_balance = contract.functions.getAccountBalance(
-                portfolio_address).call()  # CLY Either in staking or payout mode
+            last_processed_time = contract.functions.getLastProcessedTime(portfolio_address).call()
+            delta = int(time()) - last_processed_time
+            year_percentage = delta/31536000 #Seconds in a year
+            account_balance = 2 ** year_percentage * contract.functions.getAccountBalance(portfolio_address).call()
             stacked_assets[asset] = {}
             stacked_assets[asset]["Initial"] = round(assets_balances[asset]["Initial"], 2)
             stacked_assets[asset]["Current"] = round(
