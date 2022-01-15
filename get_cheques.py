@@ -275,7 +275,8 @@ def main():
         if "payee" in cheque[1]:
             if cheque[1]["payee"] in voting_wallets and cheque[1]["coinType"] == SIDX_CA and len(cheque[1]["memo"].decode("utf-8")[2:].split(":")) == 2:
                 vote_ID, choice = cheque[1]["memo"].decode("utf-8")[2:].split(":")
-                vote_ID = vote_ID[1:] # Remove the hashtag
+                vote_ID = vote_ID.strip()[1:] # Remove the hashtag
+                choice = choice.strip() # Remove all potential spaces to avoid problems
                 if db.session.query(Proposal).filter(Proposal.id == vote_ID).first() != None:
                     proposal = Proposal.query.get(vote_ID)
                     if cheque[1]["deadline"] >= proposal.unixtime_end and transaction_timestamp >= proposal.unixtime_start:
