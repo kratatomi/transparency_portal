@@ -50,7 +50,7 @@ initial_pool_balances = {
     "Tangoswap": {"CA": "0x4509Ff66a56cB1b80a6184DB268AD9dFBB79DD53", "token0": 1,
                   "token1": 5000}}  # Token0 is WBCH, Token1 is SIDX
 
-extra_pool_balances = {"Mistswap": {"CA": "0x7E1B9F1e286160A80ab9B04D228C02583AeF90B5", "token0": 0.207935, "token1": 78.291}}  # Token0 is WBCH, Token1 is SIDX
+extra_pool_balances = {"Mistswap": {"CA": "0x7E1B9F1e286160A80ab9B04D228C02583AeF90B5", "token0": 0.372935, "token1": 114.301}}  # Token0 is WBCH, Token1 is SIDX
 
 
 farms = {"Mistswap": {"factory": "0x3A7B9D0ed49a90712da4E087b17eE4Ac1375a5D4",
