@@ -198,7 +198,7 @@ def xsushi_ratio(sushi_token, sushi_bar):
     return ratio
 
 
-def get_SIDX_stats(LP_balances, bch_price):
+def get_SIDX_stats(bch_price):
     SIDX_stats = {}
     ABI = open("ABIs/ERC20-ABI.json", "r")  # Standard ABI for ERC20 tokens
     abi = json.loads(ABI.read())
@@ -206,7 +206,8 @@ def get_SIDX_stats(LP_balances, bch_price):
     SIDX_stats["Total supply"] = round(contract.functions.totalSupply().call() / 10 ** 18, 3)
     SIDX_stats["Admin balance"] = round(contract.functions.balanceOf(admin_wallet_address).call() / 10 ** 18, 3)
     SIDX_stats["Quorum"] = round((SIDX_stats["Total supply"] - SIDX_stats["Admin balance"]) * 0.1, 3)
-    SIDX_stats["Price"] = str(round((LP_balances["Mistswap"]["Wrapped BCH"]["Current"] / LP_balances["Mistswap"]["SmartIndex"]["Current"]) * bch_price, 2)) + " USD"
+    price = get_price_from_pool("0x7E1B9F1e286160A80ab9B04D228C02583AeF90B5", bch_price, assets_positions=(1,0)) #(Asset and BCH position on LP)
+    SIDX_stats["Price"] = str(round(price)) + " USD"
     return SIDX_stats
 
 
@@ -267,15 +268,19 @@ def get_price(token_CA):
     data = url.json()
     return float(data[0]["priceUsd"])
 
-def get_price_from_pool(asset, BCH_price):
-    asset_position = 0
-    BCH_position = 1
+def get_price_from_pool(asset, BCH_price, assets_positions=(0,1)):
+    # assets_positions is a tuple with the format (asset_positions, BCH_position) used when passing BCH pair address
+    asset_position, BCH_position = assets_positions
     ABI = open("ABIs/UniswapV2Pair.json", "r")  # Standard ABI for LP tokens
     abi = json.loads(ABI.read())
-    contract = w3.eth.contract(address=assets_balances[asset]["BCH pair"], abi=abi)
-    if contract.functions.token1().call() == assets_balances[asset]["CA"]:
-        asset_position = 1
-        BCH_position = 0
+    if asset in assets_balances:
+        contract = w3.eth.contract(address=assets_balances[asset]["BCH pair"], abi=abi)
+        if contract.functions.token1().call() == assets_balances[asset]["CA"]:
+            asset_position = 1
+            BCH_position = 0
+    else: #Directly pass BCH pair address
+        contract = w3.eth.contract(address=asset, abi=abi)
+        asset_position, BCH_position = assets_positions
     pool_reserves = contract.functions.getReserves().call()
     BCH_reserves = pool_reserves[BCH_position]
     asset_reserves = pool_reserves[asset_position]
@@ -373,7 +378,7 @@ def main():
     SEP20_tokens, stacked_assets = get_balances(ben_tokens, bch_price)
     LP_balances = get_LP_balances(initial_pool_balances, portfolio_address)
     extra_LP_balances = get_LP_balances(extra_pool_balances, punk_wallets[1])
-    SIDX_stats = get_SIDX_stats(LP_balances, bch_price)
+    SIDX_stats = get_SIDX_stats(bch_price)
     get_law_rewards(bch_price)
     make_pie_chart()
     get_farms(bch_price)
