@@ -280,7 +280,6 @@ def get_price_from_pool(asset, BCH_price, assets_positions=(0,1)):
             BCH_position = 0
     else: #Directly pass BCH pair address
         contract = w3.eth.contract(address=asset, abi=abi)
-        asset_position, BCH_position = assets_positions
     pool_reserves = contract.functions.getReserves().call()
     BCH_reserves = pool_reserves[BCH_position]
     asset_reserves = pool_reserves[asset_position]
