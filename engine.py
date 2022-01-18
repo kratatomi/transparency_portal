@@ -45,10 +45,9 @@ assets_balances = {
     "CryptoSorted": {"Stacked": False, "CA": "0x5B75B5eb28bEceDBB0A5A3cfeE6cdb4327E1856B", "BCH pair": "0xB29E93EA0937decFAaA7cD0295c036e4738735ab"}}
 
 initial_pool_balances = {
-    "Mistswap": {"CA": "0x7E1B9F1e286160A80ab9B04D228C02583AeF90B5", "token0": 4, "token1": 18711.1},
+    "Mistswap": {"CA": "0x7E1B9F1e286160A80ab9B04D228C02583AeF90B5", "token0": 5, "token1": 23711.1}
     # Token0 is WBCH, Token1 is SIDX
-    "Tangoswap": {"CA": "0x4509Ff66a56cB1b80a6184DB268AD9dFBB79DD53", "token0": 1,
-                  "token1": 5000}}  # Token0 is WBCH, Token1 is SIDX
+    }
 
 extra_pool_balances = {"Mistswap": {"CA": "0x7E1B9F1e286160A80ab9B04D228C02583AeF90B5", "token0": 0.372935, "token1": 114.301}}  # Token0 is WBCH, Token1 is SIDX
 
@@ -207,7 +206,7 @@ def get_SIDX_stats(bch_price):
     SIDX_stats["Admin balance"] = round(contract.functions.balanceOf(admin_wallet_address).call() / 10 ** 18, 3)
     SIDX_stats["Quorum"] = round((SIDX_stats["Total supply"] - SIDX_stats["Admin balance"]) * 0.1, 3)
     price = get_price_from_pool("0x7E1B9F1e286160A80ab9B04D228C02583AeF90B5", bch_price, assets_positions=(1,0)) #(Asset and BCH position on LP)
-    SIDX_stats["Price"] = str(round(price)) + " USD"
+    SIDX_stats["Price"] = str(round(price, 2)) + " USD"
     return SIDX_stats
 
 
@@ -218,10 +217,20 @@ def get_token_info(contract_address):
     return contract.functions.name().call(), contract.functions.decimals().call()
 
 
-def get_LP_balances(initial_pool_balances, wallet_address):
+def get_LP_balances(initial_pool_balances, wallet_address, bch_price):
+    #Modified for Mistswap farm
     LP_balances = {}
     for DEX in initial_pool_balances:
         LP_balances[DEX] = {}
+        #First, get current LP balance and rewards
+        ABI = open("ABIs/MIST-Master-ABI.json", 'r')
+        abi = json.loads(ABI.read())
+        contract = w3.eth.contract(address="0x3A7B9D0ed49a90712da4E087b17eE4Ac1375a5D4", abi=abi)
+        pool_id = 44
+        portfolio_LP_balance = contract.functions.userInfo(pool_id, wallet_address).call()[0]
+        reward = contract.functions.pendingSushi(pool_id, wallet_address).call()
+        asset_price = get_price_from_pool("MistToken", bch_price)
+        #Get assets in liquidity pools
         ABI = open("ABIs/UniswapV2Pair.json", "r")  # Standard ABI for LP tokens
         abi = json.loads(ABI.read())
         contract = w3.eth.contract(address=initial_pool_balances[DEX]["CA"], abi=abi)
@@ -235,7 +244,6 @@ def get_LP_balances(initial_pool_balances, wallet_address):
         LP_balances[DEX][token1_ticker] = {}
         LP_balances[DEX][token0_ticker]["Initial"] = round(initial_pool_balances[DEX]["token0"], 2)
         LP_balances[DEX][token1_ticker]["Initial"] = round(initial_pool_balances[DEX]["token1"], 2)
-        portfolio_LP_balance = contract.functions.balanceOf(wallet_address).call()
         LP_total_supply = contract.functions.totalSupply().call()
         LP_balances[DEX][token0_ticker]["Current"] = round(
             ((portfolio_LP_balance / LP_total_supply) * token0_reserves) / 10 ** token0_decimals, 2)
@@ -245,6 +253,8 @@ def get_LP_balances(initial_pool_balances, wallet_address):
             LP_balances[DEX][token0_ticker]["Current"] - LP_balances[DEX][token0_ticker]["Initial"], 2)
         LP_balances[DEX][token1_ticker]["Difference"] = round(LP_balances[DEX][token1_ticker]["Current"] - \
                                                               LP_balances[DEX][token1_ticker]["Initial"], 2)
+        LP_balances[DEX]["Reward"] = round(reward/10**18, 2)
+        LP_balances[DEX]["Reward value"] = round(LP_balances[DEX]["Reward"] * asset_price, 2)
     return LP_balances
 
 
@@ -375,8 +385,8 @@ def main():
     bch_price = get_BCH_price()
     ben_tokens = ben_listed_tokens()
     SEP20_tokens, stacked_assets = get_balances(ben_tokens, bch_price)
-    LP_balances = get_LP_balances(initial_pool_balances, portfolio_address)
-    extra_LP_balances = get_LP_balances(extra_pool_balances, punk_wallets[1])
+    LP_balances = get_LP_balances(initial_pool_balances, portfolio_address, bch_price)
+    extra_LP_balances = get_LP_balances(extra_pool_balances, punk_wallets[1], bch_price)
     SIDX_stats = get_SIDX_stats(bch_price)
     get_law_rewards(bch_price)
     make_pie_chart()

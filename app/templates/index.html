@@ -57,12 +57,28 @@
             <li>{{ key }}
                 <ul>
                     {% for key, value in value.items() %}
+                    {% if key == "Wrapped BCH" %}
                     <li>{{ key }}</li>
                     <ul>
                         <li>Initial amount: {{ value["Initial"] }}</li>
                         <li>Current amount: {{ value["Current"] }}</li>
                         <li>Difference: {{ value["Difference"] }}</li>
                     </ul>
+                    {% endif %}
+                    {% if key == "SmartIndex" %}
+                    <li>{{ key }}</li>
+                    <ul>
+                        <li>Initial amount: {{ value["Initial"] }}</li>
+                        <li>Current amount: {{ value["Current"] }}</li>
+                        <li>Difference: {{ value["Difference"] }}</li>
+                    </ul>
+                    {% endif %}
+                    {% if key == "Reward" %}
+                        Reward: {{ value }} MIST
+                    {% endif %}
+                    {% if key == "Reward value" %}
+                        Value: {{ value }} USD
+                    {% endif %}
                     {% endfor %}
                 </ul>
             </li>
@@ -78,12 +94,28 @@
             <li>{{ key }}
                 <ul>
                     {% for key, value in value.items() %}
+                    {% if key == "Wrapped BCH" %}
                     <li>{{ key }}</li>
                     <ul>
                         <li>Initial amount: {{ value["Initial"] }}</li>
                         <li>Current amount: {{ value["Current"] }}</li>
                         <li>Difference: {{ value["Difference"] }}</li>
                     </ul>
+                    {% endif %}
+                    {% if key == "SmartIndex" %}
+                    <li>{{ key }}</li>
+                    <ul>
+                        <li>Initial amount: {{ value["Initial"] }}</li>
+                        <li>Current amount: {{ value["Current"] }}</li>
+                        <li>Difference: {{ value["Difference"] }}</li>
+                    </ul>
+                    {% endif %}
+                    {% if key == "Reward" %}
+                        Reward: {{ value }} MIST
+                    {% endif %}
+                    {% if key == "Reward value" %}
+                        Value: {{ value }} USD
+                    {% endif %}
                     {% endfor %}
                 </ul>
             </li>
