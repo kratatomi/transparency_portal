@@ -32,17 +32,17 @@ cheque_CA = w3.toChecksumAddress("0xa36C479eEAa25C0CFC7e099D3bEbF7A7F1303F40")
 
 assets_balances = {
     "MistToken": {"Initial": 282334.493, "Stacked": True, "CA": "0x5fA664f69c2A4A3ec94FaC3cBf7049BD9CA73129",
-                  "BAR_CA": "0xC41C680c60309d4646379eD62020c534eB67b6f4", "BCH pair": "0x674A71E69fe8D5cCff6fdcF9F1Fa4262Aa14b154"},
-    "FlexUSD": {"Initial": 3086.095, "Stacked": True, "CA": "0x7b2B3C5308ab5b2a1d9a94d20D35CCDf61e05b72", "BCH pair": "0x24f011f12Ea45AfaDb1D4245bA15dCAB38B43D13"},
-    "Green Ben": {"Initial": 2122.74, "Stacked": True, "CA": "0xDEa721EFe7cBC0fCAb7C8d65c598b21B6373A2b6"},
-    "AxieBCH": {"Initial": 167752.146, "Stacked": False, "CA": "0x3d13DaFcCA3a188DB340c81414239Bc2be312Ec9", "BCH pair": "0xD6EcaDB40b35D17f739Ec27285759d0ca119e3A1"},
-    "Celery": {"Initial": 1459636.533, "Stacked": True, "CA": "0x7642Df81b5BEAeEb331cc5A104bd13Ba68c34B91", "BCH pair": "0x5775D98022590dc60E9c4Ae0a1c56bF1fD8fcaDC"},
-    "BCHPAD": {"Initial": 48649.48, "Stacked": False, "CA": "0x9192940099fDB2338B928DE2cad9Cd1525fEa881", "BCH pair": "0x8221D04A71FcD0Dd3d096cB3B49E22918095933F"},
-    "FLEX Coin": {"Initial": 142.804, "Stacked": True, "CA": "0x98Dd7eC28FB43b3C4c770AE532417015fa939Dd3"},
-    "LAW": {"Stacked": True, "CA": "0x0b00366fBF7037E9d75E4A569ab27dAB84759302", "BCH pair": "0xd55a9A41666108d10d31BAeEea5D6CdF3be6C5DD"},
-    "FIRE": {"Stacked": False, "CA": "0x225FCa2A940cd5B18DFb168cD9B7f921C63d7B6E", "BCH pair": "0x1F354956DE4A7Ed71308225De94a27b35A84EA57"},
-    "DAIQUIRI": {"Stacked": False, "CA": "0x24d8d5Cbc14FA6A740c3375733f0287188F8dF3b", "BCH pair": "0xF1Ac59acb449C8e2BA9D222cA1275b3f4f9a455C"},
-    "CryptoSorted": {"Stacked": False, "CA": "0x5B75B5eb28bEceDBB0A5A3cfeE6cdb4327E1856B", "BCH pair": "0xB29E93EA0937decFAaA7cD0295c036e4738735ab"}}
+                  "BAR_CA": "0xC41C680c60309d4646379eD62020c534eB67b6f4", "BCH pair": "0x674A71E69fe8D5cCff6fdcF9F1Fa4262Aa14b154", "Liquid": True},
+    "FlexUSD": {"Initial": 3086.095, "Stacked": True, "CA": "0x7b2B3C5308ab5b2a1d9a94d20D35CCDf61e05b72", "BCH pair": "0x24f011f12Ea45AfaDb1D4245bA15dCAB38B43D13", "Liquid": True},
+    "Green Ben": {"Initial": 2122.74, "Stacked": True, "CA": "0xDEa721EFe7cBC0fCAb7C8d65c598b21B6373A2b6", "Liquid": True},
+    "AxieBCH": {"Initial": 167752.146, "Stacked": False, "CA": "0x3d13DaFcCA3a188DB340c81414239Bc2be312Ec9", "BCH pair": "0xD6EcaDB40b35D17f739Ec27285759d0ca119e3A1", "Liquid": True},
+    "Celery": {"Initial": 1459636.533, "Stacked": True, "CA": "0x7642Df81b5BEAeEb331cc5A104bd13Ba68c34B91", "BCH pair": "0x5775D98022590dc60E9c4Ae0a1c56bF1fD8fcaDC", "Liquid": False},
+    "BCHPAD": {"Initial": 48649.48, "Stacked": True, "CA": "0xadD5B9cBeF57909Fdcda76F517A0d4AaFeCc0ECE", "BCH pair": "0x8221D04A71FcD0Dd3d096cB3B49E22918095933F", "Liquid": True},
+    "FLEX Coin": {"Initial": 142.804, "Stacked": True, "CA": "0x98Dd7eC28FB43b3C4c770AE532417015fa939Dd3", "Liquid": True},
+    "LAW": {"Stacked": True, "CA": "0x0b00366fBF7037E9d75E4A569ab27dAB84759302", "BCH pair": "0xd55a9A41666108d10d31BAeEea5D6CdF3be6C5DD", "Liquid": True},
+    "FIRE": {"Stacked": False, "CA": "0x225FCa2A940cd5B18DFb168cD9B7f921C63d7B6E", "BCH pair": "0x1F354956DE4A7Ed71308225De94a27b35A84EA57", "Liquid": True},
+    "DAIQUIRI": {"Stacked": False, "CA": "0x24d8d5Cbc14FA6A740c3375733f0287188F8dF3b", "BCH pair": "0xF1Ac59acb449C8e2BA9D222cA1275b3f4f9a455C", "Liquid": True},
+    "CryptoSorted": {"Stacked": False, "CA": "0x5B75B5eb28bEceDBB0A5A3cfeE6cdb4327E1856B", "BCH pair": "0xB29E93EA0937decFAaA7cD0295c036e4738735ab", "Liquid": True}}
 
 initial_pool_balances = {
     "Mistswap": {"CA": "0x7E1B9F1e286160A80ab9B04D228C02583AeF90B5", "token0": 5, "token1": 23711.1}
@@ -62,6 +62,7 @@ farms = {"Mistswap": {"factory": "0x3A7B9D0ed49a90712da4E087b17eE4Ac1375a5D4",
                       "reward coin": "MistToken"}]} #FLEX
 }
 pie_chart_data = {}
+total_usd_value = 0
 
 def get_balances(ben_tokens, bch_price):
     stacked_assets = {}
@@ -173,6 +174,21 @@ def get_balances(ben_tokens, bch_price):
             stacked_assets[asset]["Initial"] = round(assets_balances[asset]["Initial"], 2)
             stacked_assets[asset]["Current"] = round(
                 contract.functions.balanceOf(portfolio_address).call() / 10 ** contract.functions.decimals().call(), 2)
+            stacked_assets[asset]["Yield"] = round(stacked_assets[asset]["Current"] - stacked_assets[asset]["Initial"],
+                                                   2)
+            stacked_assets[asset]["Current value"] = round(stacked_assets[asset]["Current"] * asset_price, 2)
+            stacked_assets[asset]["Yield value"] = round(stacked_assets[asset]["Yield"] * asset_price, 2)
+            pie_chart_data[asset] = stacked_assets[asset]["Current value"]
+            total_value_stacked_assets += stacked_assets[asset]["Current value"]
+            total_value_yield += stacked_assets[asset]["Yield value"]
+        if asset == "BCHPAD":
+            asset_price = get_price_from_pool(asset, bch_price, assets_positions=(1,0))
+            ABI = open("ABIs/BPADStaking-ABI.json", "r")  # ABI for BPAD stacking
+            abi = json.loads(ABI.read())
+            contract = w3.eth.contract(address=assets_balances[asset]["CA"], abi=abi)
+            stacked_assets[asset] = {}
+            stacked_assets[asset]["Initial"] = round(assets_balances[asset]["Initial"], 2)
+            stacked_assets[asset]["Current"] = round((contract.functions.balanceOf(portfolio_address).call() + contract.functions.earned(portfolio_address).call()) / 10 ** 18,2)
             stacked_assets[asset]["Yield"] = round(stacked_assets[asset]["Current"] - stacked_assets[asset]["Initial"],
                                                    2)
             stacked_assets[asset]["Current value"] = round(stacked_assets[asset]["Current"] * asset_price, 2)
