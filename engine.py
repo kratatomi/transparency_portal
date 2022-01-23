@@ -8,6 +8,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver import FirefoxOptions
 
 w3 = Web3(Web3.HTTPProvider('https://smartbch.greyh.at'))
 if not w3.isConnected():
@@ -356,7 +357,11 @@ def get_law_rewards(bch_price):
     punks_owned["LAW pending in USD"] = round(punks_owned["Total LAW pending"] * law_price, 2)
     #Now get punk's floor price using selenium library
     url = "https://blockng.money/#/punks"
-    driver = webdriver.Firefox()
+    opts = FirefoxOptions()
+    opts.add_argument("--headless")
+    opts.add_argument("--no-sandbox")
+    opts.add_argument("--disable-gpu")
+    driver = webdriver.Firefox(options=opts)
     driver.get(url)
     wait = WebDriverWait(driver, 10)
     status = wait.until(EC.text_to_be_present_in_element((By.CLASS_NAME, "punks-market-info-item-num.BCH"), "."))
