@@ -4,6 +4,10 @@ import requests
 import matplotlib.pyplot as plt
 import numpy as np
 from time import time
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 w3 = Web3(Web3.HTTPProvider('https://smartbch.greyh.at'))
 if not w3.isConnected():
@@ -62,7 +66,6 @@ farms = {"Mistswap": {"factory": "0x3A7B9D0ed49a90712da4E087b17eE4Ac1375a5D4",
                       "reward coin": "MistToken"}]} #FLEX
 }
 pie_chart_data = {}
-total_usd_value = 0
 
 def get_balances(ben_tokens, bch_price):
     stacked_assets = {}
@@ -338,6 +341,7 @@ def update_punks_balance():
 
 def get_law_rewards(bch_price):
     law_pending = 0
+    punks_number = 0
     ABI = open("ABIs/LAW_rewards-ABI.json", "r")
     abi = json.loads(ABI.read())
     contract = w3.eth.contract(address=law_rewards, abi=abi)
@@ -345,9 +349,24 @@ def get_law_rewards(bch_price):
         pending_reward = contract.functions.earned(wallet).call() / 10 ** 18
         punks_owned["Wallets"][wallet]["LAW rewards"] = round(pending_reward, 2)
         law_pending += pending_reward
+        for punk in punks_owned["Wallets"][wallet]["Punks"]:
+            punks_number += 1
     punks_owned["Total LAW pending"] = round(law_pending, 2)
     law_price = get_price_from_pool("LAW", bch_price)
     punks_owned["LAW pending in USD"] = round(punks_owned["Total LAW pending"] * law_price, 2)
+    #Now get punk's floor price using selenium library
+    url = "https://blockng.money/#/punks"
+    try:
+        driver = webdriver.Firefox()
+        driver.get(url)
+        wait = WebDriverWait(driver, 10)
+        status = wait.until(EC.text_to_be_present_in_element((By.CLASS_NAME, "punks-market-info-item-num.BCH"), "."))
+        element = driver.find_element(By.CLASS_NAME, 'punks-market-info-item-num.BCH')
+        floor_price = float(element.text.split()[0])
+    finally:
+        driver.quit()
+    punks_owned["Floor price"] = floor_price # In BCH
+    punks_owned["Total floor value"] = round(floor_price * punks_number * bch_price, 2) # In USD
 
 def get_farms(bch_price):
     for DEX in farms:

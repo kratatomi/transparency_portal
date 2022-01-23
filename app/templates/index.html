@@ -159,6 +159,9 @@
             {% endfor %}
             <br>
             <b>Total LAW earned:  {{ punks["Total LAW pending"] }} LAW - {{ punks["LAW pending in USD"] }} USD</b>
+            {% if punks["Floor price"] %}
+            <br>Punks floor price: {{ punks["Floor price"] }} BCH - <b>Total floor value: {{ punks["Total floor value"] }} USD</b>
+            {% endif %}
         </ul>
     </div>
 </div>
