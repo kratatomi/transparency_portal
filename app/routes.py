@@ -122,24 +122,16 @@ def login():
     signer = w3.eth.account.recoverHash(message_hash, signature=signature)
 
     if signer == public_address:
-        ABI = open("ABIs/ERC20-ABI.json", "r")  # Standard ABI for ERC20 tokens
-        abi = json.loads(ABI.read())
-        contract = w3.eth.contract(address="0xF05bD3d7709980f60CD5206BddFFA8553176dd29", abi=abi)
-        SIDX_balance = contract.functions.balanceOf(signer).call() / 10 ** 18
-        if SIDX_balance < 5000:
-            flash('You need at least 5000 SIDX token to submit a proposal')
-            return url_for('proposals')
-        else:
-            if db.session.query(Users).filter(Users.public_address == signer).first() is None:
-                user = Users(public_address=signer)
-                db.session.add(user)
-                db.session.commit()
-            user = Users.query.filter_by(public_address=signer).first()
-            login_user(user)
-            return redirect(url_for('submit_proposal'))
+        if db.session.query(Users).filter(Users.public_address == signer).first() is None:
+            user = Users(public_address=signer)
+            db.session.add(user)
+            db.session.commit()
+        user = Users.query.filter_by(public_address=signer).first()
+        login_user(user)
+        return redirect(url_for('proposals'))
     else:
         abort(401, 'Could not authenticate signature')
-    return redirect(url_for('submit_proposal'))
+    return redirect(url_for('proposals'))
 
 
 @app.route('/submit_proposal', methods=['POST', 'GET'])
@@ -156,4 +148,16 @@ def submit_proposal():
         db.session.commit()
         send_new_proposal_email(new_proposal)
         return redirect('/proposals')
+    # Check if the logged user has at least 5000 SIDX tokens in his wallet
+    user = Users.query.get(current_user.get_id())
+    w3 = Web3(Web3.HTTPProvider('https://smartbch.greyh.at'))
+    if not w3.isConnected():
+        w3 = Web3(Web3.HTTPProvider('https://smartbch.fountainhead.cash/mainnet'))
+    ABI = open("ABIs/ERC20-ABI.json", "r")  # Standard ABI for ERC20 tokens
+    abi = json.loads(ABI.read())
+    contract = w3.eth.contract(address="0xF05bD3d7709980f60CD5206BddFFA8553176dd29", abi=abi)
+    SIDX_balance = contract.functions.balanceOf(user.public_address).call() / 10 ** 18
+    if SIDX_balance < 5000:
+        flash('You need at least 5000 SIDX token to submit a proposal')
+        return url_for('proposals')
     return render_template("submit_proposal.html", title="Submit a proposal", sidx_stats=sidx_stats, form=form)
