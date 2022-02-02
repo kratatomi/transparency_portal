@@ -11,7 +11,9 @@
 
 <div class="container">
   <H2>SmartIndex proposals:</H2>
-  <H3>Proposals along the information for voting can be found in the <a href="https://smartindex.cash/news-proposals/">News & Proposals</a> section of SmartIndex website.</H3>
+    {% if not current_user.is_authenticated %}
+        <H3>You need to log in to vote and submit proposals.</H3>
+    {% endif %}
     <H4>Click on any proposal to see its respective voting instructions. Remember that dates are in UTC time. Current UTC hour is <div id="clock" class="inline"></div>.</H4>
 </div>
 

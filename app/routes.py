@@ -6,7 +6,7 @@ from datetime import datetime
 
 from eth_account.messages import defunct_hash_message
 from flask import render_template, url_for, request, send_from_directory, abort, redirect, flash
-from flask_login import current_user, login_user, login_required
+from flask_login import current_user, login_user, login_required, logout_user
 from sqlalchemy import desc
 from web3 import Web3
 
@@ -70,7 +70,7 @@ def display_proposal(id):
                 return render_template("proposal.html", title=f"Proposal {id}", proposal=proposal,
                                        sidx_stats=sidx_stats)
             if user.public_address in balances:
-                user_balance = balances[user.public_address]
+                user_balance = round(balances[user.public_address], 3)
                 choices = []
                 choices.append("A")
                 if proposal.option_b_tag != None:
@@ -179,6 +179,10 @@ def login():
         abort(401, 'Could not authenticate signature')
     return redirect(url_for('proposals'))
 
+@app.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
 
 @app.route('/submit_proposal', methods=['POST', 'GET'])
 @login_required

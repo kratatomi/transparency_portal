@@ -179,7 +179,6 @@ def main(proposal_id):
     address_tracker(transfer_data)
     print("Scanning for farms...")
     LPs_in_farms = get_farms(LP_CA_list)
-    print(LPs_in_farms)
     get_LP_balances(LPs_dict, LPs_in_farms)
     print("Now getting all balances, please be patient")
     get_balances(proposal_id)

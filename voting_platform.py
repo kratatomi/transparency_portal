@@ -79,6 +79,17 @@ def submit_sql_proposal(proposal_id, proposal_text, author, start="now", choices
 def approve_proposal(proposal_id):
     from icalendar import Calendar, Event, vText
     import pytz
+    # The first step is to make the balance snapshot associated to the proposal
+    if is_tool("python3"):
+        os.system("python3 sbch_eventscanner.py https://smartbch.greyh.at")
+    elif is_tool("python"):
+        os.system("python sbch_eventscanner.py https://smartbch.greyh.at")
+    else:
+        raise "No Python command found in this environment"
+    import get_balances_snapshot
+    get_balances_snapshot.main(proposal_id)
+    print(f"Balances snapshot for proposal {proposal_id} taken")
+    # Then, approve the proposal and set the date
     proposal = Proposal.query.get(int(proposal_id))
     d = datetime.utcnow()
     proposal.unixtime_start = calendar.timegm(d.utctimetuple())
@@ -97,7 +108,7 @@ def approve_proposal(proposal_id):
         proposal.option_c_votes = 0
         proposal.reject_option = "D"
     db.session.commit()
-    # Now, make the calendar event
+    # Finally, make the calendar event
     cal = Calendar()
     cal.add('prodid', 'SmartIndex proposal')
     cal.add('version', '1.0')
@@ -113,19 +124,9 @@ def approve_proposal(proposal_id):
     f = open(f'app/static/calendar/Proposal{proposal.id}.ics', 'wb')
     f.write(cal.to_ical())
     f.close()
-    # Last step, is to make the balances snapshot associated to the proposal
-    if is_tool("python3"):
-        os.system("python3 sbch_eventscanner.py https://smartbch.greyh.at")
-    elif is_tool("python"):
-        os.system("python sbch_eventscanner.py https://smartbch.greyh.at")
-    else:
-        raise "No Python command found in this environment"
-    import get_balances_snapshot
-    get_balances_snapshot.main(proposal_id)
-    print(f"Balances snapshot for proposal {proposal_id} taken")
 
 def generate_calendar_events():
-    # Use only for the first time running the app, the rest of ICS files are generate upon proposals approval
+    # Use only for the first time running the app, the rest of ICS files are generated upon proposals approval
     from icalendar import Calendar, Event, vText
     import pytz
     proposals = Proposal.query.all()

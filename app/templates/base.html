@@ -32,6 +32,7 @@
                     <li><a href="{{ url_for('yields') }}">Weekly yield</a></li>
                     {% if current_user.is_authenticated %}
                         <li><a href="{{ url_for('submit_proposal') }}">Submit proposal</a></li>
+                        <li><a href="{{ url_for('logout') }}">Logout</a></li>
                     {% endif %}
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
