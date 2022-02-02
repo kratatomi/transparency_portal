@@ -5,7 +5,6 @@ let accountAddress = "";
 let signer;
 
 function login() {
-  console.log("oh hey there");
 
   rightnow = (Date.now() / 1000).toFixed(0);
   sortanow = rightnow - (rightnow % 600);
@@ -48,48 +47,10 @@ ethereum.request({method: 'eth_requestAccounts'}).then(async function (accounts)
   console.log(accounts);
   accountAddress = ethers.utils.getAddress(accounts[0]); // getting users publickey
 
-  // contract address and contract abi is used to create the contract instance
-  const contractAddress = "0xF05bD3d7709980f60CD5206BddFFA8553176dd29";
-  const contractABI = [
-    // balanceOf
-    {
-      constant: true,
-      inputs: [{ name: "_owner", type: "address" }],
-      name: "balanceOf",
-      outputs: [{ name: "balance", type: "uint256" }],
-      type: "function",
-    },
-    // decimals
-    {
-      constant: true,
-      inputs: [],
-      name: "decimals",
-      outputs: [{ name: "", type: "uint8" }],
-      type: "function",
-    },
-  ];
+  // allow user to log in
+  const submitProposalButton =
+   document.getElementById("login");
+  submitProposalButton.disabled = false;
+  signer = provider.getSigner();
 
-  // creating contract instance
-  const contract = new ethers.Contract(
-    contractAddress,
-    contractABI,
-    provider
-  );
-
-  // getting the contract decimals and balance
-  const decimals = await contract.decimals();
-  let balance = await contract.balanceOf(accountAddress);
-  balance = parseFloat(ethers.utils.formatUnits(balance, decimals));
-
-  if (balance < 5000) {
-    // if SIDX  balance < 5000, insufficient balance
-    document.getElementById("msg").textContent =
-      "You need at least 5000 SIDX tokens to submit a proposal";
-  } else {
-    // else allow user to submit proposal
-    const submitProposalButton =
-      document.getElementById("login");
-    submitProposalButton.disabled = false;
-    signer = provider.getSigner();
-  }
 });

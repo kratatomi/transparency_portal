@@ -1,6 +1,6 @@
 from app import app, db
 import engine
-import get_cheques
+import voting_platform
 import yield_snapshot
 from app.models import User, Proposal, Users
 
@@ -8,7 +8,7 @@ from app.models import User, Proposal, Users
 @app.cli.command()
 def scheduled():
     engine.main()
-    get_cheques.main()
+    voting_platform.main()
 
 
 @app.cli.command("make_yield_snapshot")
