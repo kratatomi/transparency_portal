@@ -10,10 +10,14 @@ from flask_login import current_user, login_user, login_required
 from sqlalchemy import desc
 from web3 import Web3
 
+import server_settings
 from app import app, db
 from app.models import Proposal, Users
-from app.forms import ProposalForm
-from app.email import send_new_proposal_email
+from app.forms import ProposalForm, VoteForm
+from app.email import send_new_proposal_email, send_email_to_admin
+
+from voting_platform import send_memo
+from bitcash.wallet import Key
 
 @app.route('/favicon.ico')
 def favicon():
@@ -58,6 +62,48 @@ def display_proposal(id):
         sidx_stats = json.load(sidx_stats_file)
     if db.session.query(Proposal).filter(Proposal.id == id).first() is not None:
         proposal = Proposal.query.get(id)
+        if current_user.is_authenticated and proposal.open:
+            user = Users.query.get(current_user.get_id())
+            with open(f'data/balances/{proposal.id}.json') as balances_file:
+                balances = json.load(balances_file)
+            if user.has_voted(proposal):
+                return render_template("proposal.html", title=f"Proposal {id}", proposal=proposal,
+                                       sidx_stats=sidx_stats)
+            if user.public_address in balances:
+                user_balance = balances[user.public_address]
+                choices = []
+                choices.append("A")
+                if proposal.option_b_tag != None:
+                    choices.append("B")
+                if proposal.option_c_tag != None:
+                    choices.append("C")
+                choices.append("REJECT")
+                form = VoteForm()
+                form.choice.choices = choices
+                if form.validate_on_submit():
+                    if form.choice.data == "A":
+                        proposal.option_a_votes += user_balance
+                    if form.choice.data == "B":
+                        proposal.option_b_votes += user_balance
+                    if form.choice.data == "C":
+                        proposal.option_c_votes += user_balance
+                    if form.choice.data == "REJECT":
+                        proposal.reject_votes += user_balance
+                    user.votes.append(proposal)
+                    db.session.commit()
+                    flash(f'{user_balance} votes has been added to the option {form.choice.data}')
+                    BCH_key = Key(server_settings.BCH_PRIV_KEY)
+                    balance = BCH_key.get_balance()
+                    if int(balance) < 2000:
+                        text = f"Only {balance} satoshis left in the voting platform wallet"
+                        send_email_to_admin(text)
+                    vote_message = f"User {user.public_address} voted on proposal {proposal.id}: {user_balance} votes to option {form.choice.data}"
+                    app.logger.info(vote_message)
+                    send_memo(BCH_key, vote_message)
+                    return render_template("proposal.html", title=f"Proposal {id}", proposal=proposal,
+                                           sidx_stats=sidx_stats)
+                return render_template("proposal.html", title=f"Proposal {id}", proposal=proposal,
+                                       sidx_stats=sidx_stats, form=form, user_balance=user_balance)
         return render_template("proposal.html", title=f"Proposal {id}", proposal=proposal, sidx_stats=sidx_stats)
     else:
         abort(400, "Proposal not found")

@@ -5,6 +5,6 @@
 /app/static/pie_chart.png
 /app.db
 /migrations/
-/mail_settings.py
+/server_settings.py
 /app/static/calendar/
 /logs/transparency_portal.log

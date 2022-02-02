@@ -8,7 +8,7 @@ from datetime import timedelta
 import logging
 from logging.handlers import SMTPHandler, RotatingFileHandler
 import os
-import mail_settings
+import server_settings
 
 app = Flask(__name__)
 bootstrap = Bootstrap(app)
@@ -23,15 +23,15 @@ def before_request():
     app.permanent_session_lifetime = timedelta(minutes=30)
 
 if not app.debug:
-    if mail_settings.MAIL_SERVER:
+    if server_settings.MAIL_SERVER:
         auth = None
-        if mail_settings.MAIL_USERNAME or mail_settings.MAIL_PASSWORD:
-            auth = (mail_settings.MAIL_USERNAME, mail_settings.MAIL_PASSWORD)
+        if server_settings.MAIL_USERNAME or server_settings.MAIL_PASSWORD:
+            auth = (server_settings.MAIL_USERNAME, server_settings.MAIL_PASSWORD)
         secure = None
-        if mail_settings.MAIL_USE_TLS:
+        if server_settings.MAIL_USE_TLS:
             secure = ()
         mail_handler = SMTPHandler(
-            mailhost=(mail_settings.MAIL_SERVER, mail_settings.MAIL_PORT),
+            mailhost=(server_settings.MAIL_SERVER, server_settings.MAIL_PORT),
             fromaddr=app.config['ADMINS'][0],
             toaddrs=app.config['ADMINS'][0], subject='Transparency Portal Failure',
             credentials=auth, secure=secure)

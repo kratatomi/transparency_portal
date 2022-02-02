@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, IntegerField, SubmitField, TextAreaField
+from wtforms import StringField, IntegerField, SubmitField, TextAreaField, SelectField
 from wtforms.validators import DataRequired
 
 class ProposalForm(FlaskForm):
@@ -9,3 +9,6 @@ class ProposalForm(FlaskForm):
     choice_b = StringField('Choice B')
     choice_c = StringField('Choice C')
     submit = SubmitField('Submit proposal')
+
+class VoteForm(FlaskForm):
+    choice = SelectField(u'Choice')

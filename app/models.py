@@ -16,7 +16,7 @@ def generate_nonce(length=8):
 def load_user(id):
     return Users.query.get(int(id))
 
-
+#Class User is deprecated, use Users instead
 class User(db.Model):
     public_address = db.Column(db.String(80), primary_key=True, nullable=False, unique=True)
     nonce = db.Column(db.Integer(), nullable=False, default=generate_nonce)
@@ -49,10 +49,23 @@ class Proposal(db.Model):
     def __repr__(self):
         return '<Proposal {}>'.format(self.id)
 
+#Association table
+#flask db migrate -m "votes"
+#flask db upgrade
+votes = db.Table('votes', db.Model.metadata,
+    db.Column('user_id', db.Integer, db.ForeignKey('users.id')),
+    db.Column('proposal_id', db.Integer, db.ForeignKey('proposal.id'))
+)
+
 class Users(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     public_address = db.Column(db.String(80), nullable=False, unique=True)
     nonce = db.Column(db.Integer(), nullable=False, default=generate_nonce)
+    votes = db.relationship("Proposal", secondary=votes, lazy='dynamic')
 
     def __repr__(self):
         return '<User {}>'.format(self.public_address)
+
+    def has_voted(self, proposal):
+        return self.votes.filter(
+            votes.c.proposal_id == proposal.id).count() > 0

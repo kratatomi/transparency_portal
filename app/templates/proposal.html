@@ -1,6 +1,18 @@
 {% extends "base.html" %}
 
 {% block app_content %}
+<style>.inline {
+  display: inline-block;
+}</style>
+
+{% with messages=get_flashed_messages() %}
+    {% if messages %}
+            {% for message in messages %}
+             <div class="alert alert-error">{{ message|safe }}</div>
+            {% endfor %}
+    {% endif %}
+{% endwith %}
+
 <div class="list-group">
   <a href="#" class="list-group-item list-group-item-action flex-column align-items-start active">
     <div class="d-flex w-100 justify-content-between">
@@ -49,32 +61,34 @@
           </a>
 </div>
 
+<center>
 <div class="container">
-    <H2>Voting instructions</H2>
+{% if form %}
+    <div style="display: inline-block">
+    <form action="" method="post" novalidate>
+        <div class="form-group">
+            {{ form.hidden_tag() }}
+            Pick your choice: {{ form.choice }}
+            <button type="submit" class="btn btn-primary" id="submit" name="submit" value="Vote">Vote</button>
+        </div>
+    </div>
+    </form>
+{% endif %}
+
+{% if user_balance %}
+    <div style="display: inline-block"><b>You have {{ user_balance }} SIDX tokens for voting in this proposal.</b></div>
+{% endif %}
+</div>
+</center>
+
+<div class="container">
+    <H2>Considerations about voting</H2>
     <ul>
-        <li>Open the "write" section of the checkbook.cash app: <a href="https://checkbook.cash/app/write">click here.</a></li>
-        <li>You will find there multiple text fields, fill them with this parameters:</li>
-        <ul>
-            <li><b>Token's Address:</b> 0xF05bD3d7709980f60CD5206BddFFA8553176dd29 (SIDX contract address)</li>
-            <li><b>Payees's Addresses:</b> 0xa3533751171786035fC440bFeF3F535093EAd686 (this is a voting wallet owned by SmartIndex admin)</li>
-            <li><b>Amount to Send to Each Payee:</b> this is the amount of SIDX tokens you want to send for voting. The more tokens you send, the more chances for your choice to be approved.
-</li>
-            <li><b>Deadline/Expiry Date:</b> the deadline must be equal or higher than the proposal's deadline, which is {{ proposal.end_time }} for this proposal. Remember that we are always working with UTC time.</li>
-            <li><b>Tag:</b> this field is optional but highly advisable. Put a random text and check the box "This is a secret tag". This way not only the admin cannot claim your tokens, but even if the frontend gets hacked, nobody can steal your tokens.</li>
-            <li><b>Memo:</b> in this field is where you provide your chosen option, and always have the format #ID:OPTION. For proposal {{ proposal.id }}, the options available are: </li>
-            <ul>
-                {% if proposal.option_a_tag %}
-                <li>{{ proposal.option_a_tag }}: write #{{ proposal.id }}:A in memo field.</li>
-                {% endif %}
-                {% if proposal.option_b_tag %}
-                <li>{{ proposal.option_b_tag }}: write #{{ proposal.id }}:B in memo field.</li>
-                {% endif %}
-                {% if proposal.option_c_tag %}
-                <li>{{ proposal.option_c_tag }}: write #{{ proposal.id }}:C in memo field.</li>
-                {% endif %}
-                <li>REJECT: write #{{ proposal.id }}:{{ proposal.reject_option }} in memo field.</li>
-            </ul>
-        </ul>
+        <li>You can only vote if you are logged in the platform. You can log in the in the <a href="{{ url_for('proposals') }}">Proposals page</a>. If the login button is disabled, log in first in your Metamask wallet.</li>
+        <li>Votes are final: you cannot change your choice once you submit your vote.</li>
+        <li>At approval time, a snapshot of all SIDX tokens is taken, including tokens laying on liquidity pools and farms. This page will display your current balance for voting in this proposal, if any.</li>
+        <li>SIDX tokens deposited to your wallet after snapshot time cannot be used to vote.</li>
+        <li>All votes are notarized on the BCH blockchain and can be seen at <a href="https://memo.cash/profile/16F133RGB3mw9XvBsmRuE9dJ3BAxfzGEdf">SmartIndex's memo.cash profile.</a></li>
     </ul>
 </div>
 <hr>

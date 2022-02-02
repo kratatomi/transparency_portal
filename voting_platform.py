@@ -5,6 +5,11 @@ import calendar
 from app import db
 from app.models import Proposal
 import os
+#Bitcash library is used to send a memo for notarizing every vote
+from bitcash.transaction import get_op_pushdata_code, calc_txid
+from bitcash.utils import bytes_to_hex, hex_to_bytes
+from bitcash.network.services import NetworkAPI
+
 
 w3 = Web3(Web3.HTTPProvider('https://smartbch.greyh.at'))
 if not w3.isConnected():
@@ -150,40 +155,7 @@ def is_tool(name):
     return find_executable(name) is not None
 
 def main():
-    with open("data/VOTES.json", "r") as file:
-        votes = json.load(file)
-    start_block = votes["last scanned block"]
-    last_block = w3.eth.get_block("latest")["number"]
-    logs = SBCH()
-    logs.queryLogs(cheque_CA, start_block, end=last_block)
-    for log in logs.response["result"]:
-        ABI = open("ABIs/ChainCheque-ABI.json", "r")
-        abi = json.loads(ABI.read())
-        contract = w3.eth.contract(address=cheque_CA, abi=abi)
-        transaction = w3.eth.getTransaction(log["transactionHash"])
-        transaction_timestamp = w3.eth.getBlock(log["blockNumber"]).timestamp
-        cheque = contract.decode_function_input(transaction.input)
-        if "payee" in cheque[1]:
-            if cheque[1]["payee"] in voting_wallets and cheque[1]["coinType"] == SIDX_CA and len(cheque[1]["memo"].decode("utf-8")[2:].split(":")) == 2:
-                vote_ID, choice = cheque[1]["memo"].decode("utf-8")[2:].split(":")
-                vote_ID = vote_ID.strip()[1:] # Remove the hashtag
-                choice = choice.strip() # Remove all potential spaces to avoid problems
-                if db.session.query(Proposal).filter(Proposal.id == vote_ID).first() != None:
-                    proposal = Proposal.query.get(vote_ID)
-                    if cheque[1]["deadline"] >= proposal.unixtime_end and transaction_timestamp >= proposal.unixtime_start:
-                        if choice == proposal.reject_option:
-                            proposal.reject_votes += (cheque[1]["amount"] / 10 ** 18)
-                        else:
-                            if choice == "A":
-                                proposal.option_a_votes += (cheque[1]["amount"] / 10 ** 18)
-                            if choice == "B":
-                                proposal.option_b_votes += (cheque[1]["amount"] / 10 ** 18)
-                            if choice == "C":
-                                proposal.option_c_votes += (cheque[1]["amount"] / 10 ** 18)
-                    db.session.commit()
-    votes["last scanned block"] = last_block
-
-    #Now it's time to check if any proposal has closed:
+    # Time to check if any proposal has closed:
     d = datetime.utcnow()
     current_time = calendar.timegm(d.utctimetuple())
     proposals = Proposal.query.filter_by(open=True).filter_by(admin_approved=True).all()
@@ -209,8 +181,19 @@ def main():
                 proposal.result = sorted(result_dict.items(), key=lambda x: x[1], reverse=True)[0][0]
     db.session.commit()
 
-    with open('data/VOTES.json', 'w') as file:
-        json.dump(votes, file, indent=4, default=str)
+def send_memo(key, message):
+    POST_MEMO_PREFIX = "026d02"
+    PUSHDATA_CODE = bytes_to_hex(get_op_pushdata_code(message))
+    encoded_message = hex_to_bytes(POST_MEMO_PREFIX + PUSHDATA_CODE + bytes_to_hex(message.encode('utf-8')))
+
+    if len(encoded_message) <= 220:
+        memo_tx = key.create_transaction([], message=encoded_message, leftover=key.address, custom_pushdata=True)
+        NetworkAPI.broadcast_tx(memo_tx)
+        key.get_balance()
+        return(calc_txid(memo_tx))
+
+    else:
+        return "Error: message longer than 220 bytes"
 
 if __name__ == "__main__":
     main()

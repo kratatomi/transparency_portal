@@ -160,7 +160,7 @@ def get_balances(proposal_id):
 
     for address in balances:
         if balances[address] > 0:
-            balances[address] = balances[address] / decimals
+            balances[address] = balances[address] / 10 ** decimals
 
     with open(f'data/balances/{proposal_id}.json', 'w') as file:
         json.dump(balances, file)
