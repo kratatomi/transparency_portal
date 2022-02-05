@@ -5,23 +5,6 @@
 <div class="container"><center><H2>Yields report taken at {{ date }}</H2></center></div>
 {% endif %}
 <div style="float:left; width:50%;">
-        <div class="container">
-            <H2>SEP20 tokens balance in the portfolio:</H2>
-            <ul id="SEP20_tokens">
-                {% for key, value in sep20_balances.items() %}
-                {% if key != "Total value" %}
-                <li>{{ key }} : {{ value["Current"] }}
-                {% if value["Current value"] is defined %}
-                    (Value: {{ value["Current value"] }} USD)
-                {% else %}
-                    (USD value not available)</li>
-                {% endif %}
-                {% endif %}
-                {% endfor %}
-            </ul>
-            <b>Total value: {{ sep20_balances["Total value"] }} USD</b>
-    </div>
-    <br>
     <div class="container">
         <H2>Stacked tokens balance in the portfolio:</H2>
         <ul id="stacked_tokens">
