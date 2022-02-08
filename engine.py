@@ -61,8 +61,12 @@ farms = {"Mistswap": {"factory": "0x3A7B9D0ed49a90712da4E087b17eE4Ac1375a5D4",
                       "pool_id": 2,
                       "lp_token_amount": 344.686876049931219858 * 10 ** 18,
                       "initial_token0_amount": 882.588, #FlexUSD
-                      "initial_token1_amount": 142.8045,
-                      "reward coin": "MistToken"}]} #FLEX
+                      "token_0_bch_pair": "0x24f011f12Ea45AfaDb1D4245bA15dCAB38B43D13",
+                      "token_0_assets_position": (1,0),
+                      "initial_token1_amount": 142.8045, #FLEX
+                      "token_1_bch_pair": "0x8E647c88243A374E60eb644Afb13FfFd52278051",
+                      "token_1_assets_position": (1,0),
+                      "reward coin": "MistToken"}]}
 }
 pie_chart_data = {}
 
@@ -413,8 +417,11 @@ def get_farms(bch_price):
             farms[DEX]["farms"][i]["Coins"][token1_ticker] = {"Initial amount": round(farms[DEX]["farms"][i]["initial_token1_amount"], 2)}
             farms[DEX]["farms"][i]["Coins"][token0_ticker]["Current"] = round(
                 ((farms[DEX]["farms"][i]["lp_token_amount"] / LP_total_supply) * token0_reserves) / 10 ** token0_decimals, 2)
+            farms[DEX]["farms"][i]["Coins"][token0_ticker]["Current value"] = round(get_price_from_pool(farms[DEX]["farms"][i]["token_0_bch_pair"], bch_price, assets_positions=farms[DEX]["farms"][i]["token_0_assets_position"]) * farms[DEX]["farms"][i]["Coins"][token0_ticker]["Current"], 2)
             farms[DEX]["farms"][i]["Coins"][token1_ticker]["Current"] = round(
                 ((farms[DEX]["farms"][i]["lp_token_amount"] / LP_total_supply) * token1_reserves) / 10 ** token1_decimals, 2)
+            farms[DEX]["farms"][i]["Coins"][token1_ticker]["Current value"] = round(get_price_from_pool(farms[DEX]["farms"][i]["token_1_bch_pair"], bch_price, assets_positions=farms[DEX]["farms"][i]["token_1_assets_position"]) * farms[DEX]["farms"][i]["Coins"][token1_ticker]["Current"], 2)
+
             farms[DEX]["farms"][i]["Coins"][token0_ticker]["Difference"] = round(
                 farms[DEX]["farms"][i]["Coins"][token0_ticker]["Current"] - farms[DEX]["farms"][i]["Coins"][token0_ticker]["Initial amount"], 2)
             farms[DEX]["farms"][i]["Coins"][token1_ticker]["Difference"] = round(farms[DEX]["farms"][i]["Coins"][token1_ticker]["Current"] - \
