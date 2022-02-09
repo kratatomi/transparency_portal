@@ -76,6 +76,8 @@ def get_balances(ben_tokens, bch_price):
     total_value_SEP20_tokens = 0
     total_value_stacked_assets = 0
     total_value_yield = 0
+    global total_liquid_value
+    global total_illiquid_value
     for asset in assets_balances:
         if not assets_balances[asset]["Stacked"]:
             ABI = open("ABIs/ERC20-ABI.json", "r")  # Standard ABI for ERC20 tokens
@@ -94,6 +96,10 @@ def get_balances(ben_tokens, bch_price):
                 SEP20_tokens[asset]["Current value"] = round(SEP20_tokens[asset]["Current"] * asset_price, 2)
                 total_value_SEP20_tokens += SEP20_tokens[asset]["Current value"]
                 pie_chart_data[asset] = SEP20_tokens[asset]["Current value"]
+            if assets_balances[asset]["Liquid"]:
+                total_liquid_value += SEP20_tokens[asset]["Current value"]
+            else:
+                total_illiquid_value += SEP20_tokens[asset]["Current value"]
         if asset == "Celery":
             ABI = open("ABIs/CLY-ABI.json", "r")  # ABI for CLY token
             abi = json.loads(ABI.read())
@@ -123,6 +129,7 @@ def get_balances(ben_tokens, bch_price):
                 stacked_assets[asset]["Yield value"] = round(stacked_assets[asset]["Yield"] * asset_price, 2)
                 total_value_yield += stacked_assets[asset]["Yield value"]
                 pie_chart_data[asset] = stacked_assets[asset]["Current value"]
+            total_illiquid_value += stacked_assets[asset]["Current value"] + stacked_assets[asset]["Yield value"]
         if asset == "Green Ben":
             ABI = open("ABIs/EBEN_Masterbreeder.json", "r")
             abi = json.loads(ABI.read())
@@ -140,6 +147,7 @@ def get_balances(ben_tokens, bch_price):
                 pie_chart_data[asset] = stacked_assets[asset]["Current value"]
                 total_value_stacked_assets += stacked_assets[asset]["Current value"]
                 total_value_yield += stacked_assets[asset]["Yield value"]
+            total_liquid_value += stacked_assets[asset]["Current value"] + stacked_assets[asset]["Yield value"]
         if asset == "MistToken":
             ABI = open("ABIs/ERC20-ABI.json", "r")  # Standard ABI for ERC20 tokens
             abi = json.loads(ABI.read())
@@ -165,6 +173,7 @@ def get_balances(ben_tokens, bch_price):
                 pie_chart_data[asset] = stacked_assets[asset]["Current value"]
                 total_value_stacked_assets += stacked_assets[asset]["Current value"]
                 total_value_yield += stacked_assets[asset]["Yield value"]
+            total_liquid_value += stacked_assets[asset]["Current value"] + stacked_assets[asset]["Yield value"]
         if asset == "Tango":
             ABI = open("ABIs/ERC20-ABI.json", "r")  # Standard ABI for ERC20 tokens
             abi = json.loads(ABI.read())
@@ -190,6 +199,7 @@ def get_balances(ben_tokens, bch_price):
                 pie_chart_data[asset] = stacked_assets[asset]["Current value"]
                 total_value_stacked_assets += stacked_assets[asset]["Current value"]
                 total_value_yield += stacked_assets[asset]["Yield value"]
+            total_liquid_value += stacked_assets[asset]["Current value"] + stacked_assets[asset]["Yield value"]
         # if asset == "1BCH":
             # ABI = open("ABIs/PCK-Master-ABI.json", "r")
             # abi = json.loads(ABI.read())
@@ -212,6 +222,7 @@ def get_balances(ben_tokens, bch_price):
             pie_chart_data[asset] = stacked_assets[asset]["Current value"]
             total_value_stacked_assets += stacked_assets[asset]["Current value"]
             total_value_yield += stacked_assets[asset]["Yield value"]
+            total_liquid_value += stacked_assets[asset]["Current value"] + stacked_assets[asset]["Yield value"]
         if asset == "BCHPAD":
             asset_price = get_price_from_pool(asset, bch_price, assets_positions=(1,0))
             ABI = open("ABIs/BPADStaking-ABI.json", "r")  # ABI for BPAD stacking
@@ -227,6 +238,7 @@ def get_balances(ben_tokens, bch_price):
             pie_chart_data[asset] = stacked_assets[asset]["Current value"]
             total_value_stacked_assets += stacked_assets[asset]["Current value"]
             total_value_yield += stacked_assets[asset]["Yield value"]
+            total_liquid_value += stacked_assets[asset]["Current value"] + stacked_assets[asset]["Yield value"]
     SEP20_tokens["Total value"] = round(total_value_SEP20_tokens, 2)
     stacked_assets["Total value"] = round(total_value_stacked_assets, 2)
     stacked_assets["Total yield value"] = round(total_value_yield, 2)
@@ -264,7 +276,9 @@ def get_token_info(contract_address):
     return contract.functions.name().call(), contract.functions.decimals().call()
 
 
-def get_LP_balances(initial_pool_balances, wallet_address, bch_price):
+def get_LP_balances(initial_pool_balances, wallet_address, bch_price, sidx_price):
+    global total_liquid_value
+    global total_illiquid_value
     #Modified for Mistswap farm
     LP_balances = {}
     for DEX in initial_pool_balances:
@@ -294,14 +308,19 @@ def get_LP_balances(initial_pool_balances, wallet_address, bch_price):
         LP_total_supply = contract.functions.totalSupply().call()
         LP_balances[DEX][token0_ticker]["Current"] = round(
             ((portfolio_LP_balance / LP_total_supply) * token0_reserves) / 10 ** token0_decimals, 2)
+        LP_balances[DEX][token0_ticker]["Current value"] = LP_balances[DEX][token0_ticker]["Current"] * bch_price
+        total_liquid_value += LP_balances[DEX][token0_ticker]["Current value"]
         LP_balances[DEX][token1_ticker]["Current"] = round(
             ((portfolio_LP_balance / LP_total_supply) * token1_reserves) / 10 ** token1_decimals, 2)
+        LP_balances[DEX][token1_ticker]["Current value"] = LP_balances[DEX][token1_ticker]["Current"] * sidx_price
+        total_liquid_value += LP_balances[DEX][token1_ticker]["Current value"]
         LP_balances[DEX][token0_ticker]["Difference"] = round(
             LP_balances[DEX][token0_ticker]["Current"] - LP_balances[DEX][token0_ticker]["Initial"], 2)
         LP_balances[DEX][token1_ticker]["Difference"] = round(LP_balances[DEX][token1_ticker]["Current"] - \
                                                               LP_balances[DEX][token1_ticker]["Initial"], 2)
         LP_balances[DEX]["Reward"] = round(reward/10**18, 2)
         LP_balances[DEX]["Reward value"] = round(LP_balances[DEX]["Reward"] * asset_price, 2)
+        total_liquid_value += LP_balances[DEX]["Reward value"]
     return LP_balances
 
 
@@ -368,6 +387,8 @@ def update_punks_balance():
     main()
 
 def get_law_rewards(bch_price):
+    global total_liquid_value
+    global total_illiquid_value
     law_pending = 0
     punks_number = 0
     ABI = open("ABIs/LAW_rewards-ABI.json", "r")
@@ -382,6 +403,7 @@ def get_law_rewards(bch_price):
     punks_owned["Total LAW pending"] = round(law_pending, 2)
     law_price = get_price_from_pool("LAW", bch_price)
     punks_owned["LAW pending in USD"] = round(punks_owned["Total LAW pending"] * law_price, 2)
+    total_liquid_value += punks_owned["LAW pending in USD"]
     #Now get punk's floor price using selenium library
     url = "https://blockng.money/#/punks"
     opts = FirefoxOptions()
@@ -397,8 +419,11 @@ def get_law_rewards(bch_price):
     driver.quit()
     punks_owned["Floor price"] = floor_price # In BCH
     punks_owned["Total floor value"] = round(floor_price * punks_number * bch_price, 2) # In USD
+    total_illiquid_value += punks_owned["Total floor value"]
 
 def get_farms(bch_price):
+    global total_liquid_value
+    global total_illiquid_value
     for DEX in farms:
         for i in range(len(farms[DEX]["farms"])):
             # First, get LP balances
@@ -418,10 +443,11 @@ def get_farms(bch_price):
             farms[DEX]["farms"][i]["Coins"][token0_ticker]["Current"] = round(
                 ((farms[DEX]["farms"][i]["lp_token_amount"] / LP_total_supply) * token0_reserves) / 10 ** token0_decimals, 2)
             farms[DEX]["farms"][i]["Coins"][token0_ticker]["Current value"] = round(get_price_from_pool(farms[DEX]["farms"][i]["token_0_bch_pair"], bch_price, assets_positions=farms[DEX]["farms"][i]["token_0_assets_position"]) * farms[DEX]["farms"][i]["Coins"][token0_ticker]["Current"], 2)
+            total_liquid_value += farms[DEX]["farms"][i]["Coins"][token0_ticker]["Current value"]
             farms[DEX]["farms"][i]["Coins"][token1_ticker]["Current"] = round(
                 ((farms[DEX]["farms"][i]["lp_token_amount"] / LP_total_supply) * token1_reserves) / 10 ** token1_decimals, 2)
             farms[DEX]["farms"][i]["Coins"][token1_ticker]["Current value"] = round(get_price_from_pool(farms[DEX]["farms"][i]["token_1_bch_pair"], bch_price, assets_positions=farms[DEX]["farms"][i]["token_1_assets_position"]) * farms[DEX]["farms"][i]["Coins"][token1_ticker]["Current"], 2)
-
+            total_liquid_value += farms[DEX]["farms"][i]["Coins"][token1_ticker]["Current value"]
             farms[DEX]["farms"][i]["Coins"][token0_ticker]["Difference"] = round(
                 farms[DEX]["farms"][i]["Coins"][token0_ticker]["Current"] - farms[DEX]["farms"][i]["Coins"][token0_ticker]["Initial amount"], 2)
             farms[DEX]["farms"][i]["Coins"][token1_ticker]["Difference"] = round(farms[DEX]["farms"][i]["Coins"][token1_ticker]["Current"] - \
@@ -436,6 +462,7 @@ def get_farms(bch_price):
             if farms[DEX]["farms"][i]["reward coin"] in assets_balances:
                 asset_price = get_price_from_pool(farms[DEX]["farms"][i]["reward coin"], bch_price)
                 farms[DEX]["farms"][i]["reward value"] = round((farms[DEX]["farms"][i]["reward"] * asset_price), 2)
+                total_liquid_value += farms[DEX]["farms"][i]["reward value"]
 
 def make_pie_chart():
     labels = []
@@ -450,15 +477,22 @@ def make_pie_chart():
     plt.savefig("app/static/pie_chart.png")
 
 def main():
+    global total_liquid_value
+    global total_illiquid_value
+    total_liquid_value = 0
+    total_illiquid_value = 0
     bch_price = get_BCH_price()
+    SIDX_stats = get_SIDX_stats(bch_price)
+    sidx_price = float(SIDX_stats["Price"].split()[0])
     ben_tokens = ben_listed_tokens()
     SEP20_tokens, stacked_assets = get_balances(ben_tokens, bch_price)
-    LP_balances = get_LP_balances(initial_pool_balances, portfolio_address, bch_price)
-    extra_LP_balances = get_LP_balances(extra_pool_balances, punk_wallets[1], bch_price)
-    SIDX_stats = get_SIDX_stats(bch_price)
+    LP_balances = get_LP_balances(initial_pool_balances, portfolio_address, bch_price, sidx_price)
+    extra_LP_balances = get_LP_balances(extra_pool_balances, punk_wallets[1], bch_price, sidx_price)
     get_law_rewards(bch_price)
     make_pie_chart()
     get_farms(bch_price)
+    global_portfolio_stats = {"total_liquid_value": round(total_liquid_value, 2), "total_illiquid_value": round(total_illiquid_value, 2), "total_portfolio_balance": round(total_liquid_value + total_illiquid_value, 2)}
+
     with open('data/SIDX_STATS.json', 'w') as file:
         json.dump(SIDX_stats, file, indent=4)
     with open('data/SEP20_BALANCES.json', 'w') as file:
@@ -473,6 +507,8 @@ def main():
         json.dump(punks_owned, file, indent=4)
     with open('data/FARMS.json', 'w') as file:
         json.dump(farms, file, indent=4)
+    with open('data/GLOBAL_STATS.json', 'w') as file:
+        json.dump(global_portfolio_stats, file, indent=4)
 
 if __name__ == "__main__":
     main()

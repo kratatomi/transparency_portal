@@ -41,7 +41,9 @@ def index():
         farms = json.load(farms_file)
     with open('data/SIDX_STATS.json') as sidx_stats_file:
         sidx_stats = json.load(sidx_stats_file)
-    return render_template("index.html", title="Portfolio tracker", sidx_stats=sidx_stats, sep20_balances=sep20_balances, stacked_assets=stacked_assets, lp_balances=lp_balances, extra_lp_balances=extra_lp_balances, punks=punks, farms=farms)
+    with open('data/GLOBAL_STATS.json') as global_stats_file:
+        global_stats = json.load(global_stats_file)
+    return render_template("index.html", title="Portfolio tracker", sidx_stats=sidx_stats, sep20_balances=sep20_balances, stacked_assets=stacked_assets, lp_balances=lp_balances, extra_lp_balances=extra_lp_balances, punks=punks, farms=farms, global_stats=global_stats)
 
 @app.route('/proposals')
 def proposals():

@@ -149,4 +149,12 @@
         </ul>
     </div>
 </div>
+<div class="container">
+        <H2>Global portfolio statistics</H2>
+        <ul id="global_stats">
+            <li>Total value in liquid assets: {{ global_stats["total_liquid_value"] }} USD</li>
+            <li>Total value in illiquid assets: {{ global_stats["total_illiquid_value"] }} USD</li>
+            <li><b>Total value:</b> {{ global_stats["total_portfolio_balance"] }} USD</li>
+        </ul>
+    </div>
 {% endblock %}
