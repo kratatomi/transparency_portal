@@ -308,11 +308,11 @@ def get_LP_balances(initial_pool_balances, wallet_address, bch_price, sidx_price
         LP_total_supply = contract.functions.totalSupply().call()
         LP_balances[DEX][token0_ticker]["Current"] = round(
             ((portfolio_LP_balance / LP_total_supply) * token0_reserves) / 10 ** token0_decimals, 2)
-        LP_balances[DEX][token0_ticker]["Current value"] = LP_balances[DEX][token0_ticker]["Current"] * bch_price
+        LP_balances[DEX][token0_ticker]["Current value"] = round(LP_balances[DEX][token0_ticker]["Current"] * bch_price, 2)
         total_liquid_value += LP_balances[DEX][token0_ticker]["Current value"]
         LP_balances[DEX][token1_ticker]["Current"] = round(
             ((portfolio_LP_balance / LP_total_supply) * token1_reserves) / 10 ** token1_decimals, 2)
-        LP_balances[DEX][token1_ticker]["Current value"] = LP_balances[DEX][token1_ticker]["Current"] * sidx_price
+        LP_balances[DEX][token1_ticker]["Current value"] = round(LP_balances[DEX][token1_ticker]["Current"] * sidx_price, 2)
         total_liquid_value += LP_balances[DEX][token1_ticker]["Current value"]
         LP_balances[DEX][token0_ticker]["Difference"] = round(
             LP_balances[DEX][token0_ticker]["Current"] - LP_balances[DEX][token0_ticker]["Initial"], 2)
