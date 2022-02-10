@@ -153,6 +153,7 @@
         </ul>
     </div>
 </div>
+{% if global_stats %}
 <div class="container">
         <H2>Global portfolio statistics</H2>
         <ul id="global_stats">
@@ -161,4 +162,5 @@
             <li><b>Total value:</b> {{ global_stats["total_portfolio_balance"] }} USD</li>
         </ul>
     </div>
+{% endif %}
 {% endblock %}

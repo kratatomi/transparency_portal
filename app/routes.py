@@ -146,7 +146,11 @@ def weekly_report(name):
             extra_lp_balances = weekly_report["EXTRA_LP_BALANCES"]
         else:
             extra_lp_balances = None
-        return render_template("index.html", title=f"Earnings report at {name}", sidx_stats=sidx_stats,  date=date, sep20_balances=sep20_balances, stacked_assets=stacked_assets, lp_balances=lp_balances, extra_lp_balances=extra_lp_balances, punks=punks, farms=farms)
+        if "GLOBAL_STATS" in weekly_report:
+            global_stats = weekly_report["GLOBAL_STATS"]
+        else:
+            global_stats = None
+        return render_template("index.html", title=f"Earnings report at {name}", sidx_stats=sidx_stats,  date=date, sep20_balances=sep20_balances, stacked_assets=stacked_assets, lp_balances=lp_balances, extra_lp_balances=extra_lp_balances, punks=punks, farms=farms, global_stats=global_stats)
 
 
 @app.route('/login', methods=['POST', 'GET'])
