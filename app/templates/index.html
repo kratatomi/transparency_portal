@@ -29,7 +29,7 @@
         <b>Total yield: {{ stacked_assets["Total yield value"] }} USD</b>
     </div>
     {% if title == "Portfolio tracker" %}
-    <img src="{{ url_for('static', filename='pie_chart.png') }}" class="img-fluid" alt="Assets distribution in the portfolio by value">
+    <img src="{{ url_for('static', filename='pie_chart.png') }}" style="max-width: 100%;" alt="Assets distribution in the portfolio by value">
     {% endif %}
 </div>
 <div style="float:right; width:50%;">
