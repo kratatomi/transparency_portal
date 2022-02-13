@@ -45,7 +45,8 @@ assets_balances = {
     "Celery": {"Initial": 1459636.533, "Stacked": True, "CA": "0x7642Df81b5BEAeEb331cc5A104bd13Ba68c34B91", "BCH pair": "0x5775D98022590dc60E9c4Ae0a1c56bF1fD8fcaDC", "Liquid": False},
     "BCHPAD": {"Initial": 48649.48, "Stacked": True, "CA": "0xadD5B9cBeF57909Fdcda76F517A0d4AaFeCc0ECE", "BCH pair": "0x8221D04A71FcD0Dd3d096cB3B49E22918095933F", "Liquid": True},
     "FLEX Coin": {"Initial": 142.804, "Stacked": True, "CA": "0x98Dd7eC28FB43b3C4c770AE532417015fa939Dd3", "Liquid": True},
-    "LAW": {"Stacked": True, "CA": "0x0b00366fBF7037E9d75E4A569ab27dAB84759302", "BCH pair": "0xd55a9A41666108d10d31BAeEea5D6CdF3be6C5DD", "Liquid": True}}
+    "LAW": {"Stacked": True, "CA": "0x0b00366fBF7037E9d75E4A569ab27dAB84759302", "BCH pair": "0xd55a9A41666108d10d31BAeEea5D6CdF3be6C5DD", "Liquid": True},
+    "DAIQUIRI": {"Initial": 14281.791, "Stacked": True, "CA": "0xE4D74Af73114F72bD0172fc7904852Ee2E2b47B0", "BCH pair": "0xF1Ac59acb449C8e2BA9D222cA1275b3f4f9a455C", "Liquid": True}}
 
 initial_pool_balances = {
     "Mistswap": {"CA": "0x7E1B9F1e286160A80ab9B04D228C02583AeF90B5", "token0": 5, "token1": 23711.1}
@@ -232,6 +233,22 @@ def get_balances(ben_tokens, bch_price):
             stacked_assets[asset]["Current"] = round((contract.functions.balanceOf(portfolio_address).call() + contract.functions.earned(portfolio_address).call()) / 10 ** 18,2)
             stacked_assets[asset]["Yield"] = round(stacked_assets[asset]["Current"] - stacked_assets[asset]["Initial"],
                                                    2)
+            stacked_assets[asset]["Current value"] = round(stacked_assets[asset]["Current"] * asset_price, 2)
+            stacked_assets[asset]["Yield value"] = round(stacked_assets[asset]["Yield"] * asset_price, 2)
+            pie_chart_data[asset] = stacked_assets[asset]["Current value"]
+            total_value_stacked_assets += stacked_assets[asset]["Current value"]
+            total_liquid_value += stacked_assets[asset]["Current value"] + stacked_assets[asset]["Yield value"]
+        if asset == "DAIQUIRI":
+            ABI = open("ABIs/Tropical-Master-ABI.json", "r")
+            abi = json.loads(ABI.read())
+            contract = w3.eth.contract(address=assets_balances[asset]["CA"], abi=abi)
+            stacked_assets[asset] = {}
+            stacked_assets[asset]["Initial"] = round(assets_balances[asset]["Initial"], 2)
+            stacked_assets[asset]["Yield"] = round(
+                contract.functions.pendingDaiquiri(0, portfolio_address).call() / 10 ** 18, 2)
+            stacked_assets[asset]["Current"] = round(stacked_assets[asset]["Initial"] + stacked_assets[asset]["Yield"],
+                                                     2)
+            asset_price = get_price_from_pool(asset, bch_price)
             stacked_assets[asset]["Current value"] = round(stacked_assets[asset]["Current"] * asset_price, 2)
             stacked_assets[asset]["Yield value"] = round(stacked_assets[asset]["Yield"] * asset_price, 2)
             pie_chart_data[asset] = stacked_assets[asset]["Current value"]
