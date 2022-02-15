@@ -12,4 +12,8 @@
     <a href="yields/{{ name }}" class="list-group-item list-group-item-action">{{ name }}</a>
   {% endfor %}
 </div>
+
+<div class="container" align="center"><img src="{{ url_for('static', filename='yields.png') }}" style="max-width: 100%;" alt="Weekly yields of stacked assets (percentage)">
+<img src="{{ url_for('static', filename='assets_value.png') }}" style="max-width: 100%;" alt="Value evolution of stacked assets"></div>
+
 {% endblock %}

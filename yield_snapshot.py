@@ -1,5 +1,69 @@
 import json
 from datetime import date
+import matplotlib.pyplot as plt
+from os import listdir, getcwd
+from os.path import isfile, join, abspath
+from datetime import datetime
+
+def generate_graphs():
+    snapshots_dir = abspath(getcwd()) + "/data/snapshots"
+    snapshot_files = [f for f in listdir(snapshots_dir) if isfile(join(snapshots_dir, f))]
+    # Let's order snapshot files by date
+    snapshots_dates = []
+    for file in snapshot_files:
+        snapshots_dates.append(str(file.split(".")[0]))
+    snapshots_dates.sort(key=lambda date: datetime.strptime(date, "%d-%m-%Y"))
+    # Now, let's generate a list with the number of weeks and a dict with the assets available
+    weeks = []
+    assets_list = {}
+    i = 1
+    for file in snapshots_dates:
+        weeks.append(i)
+        i += 1
+        with open(f'data/snapshots/{file}.json') as weekly_report_file:
+            weekly_report = json.load(weekly_report_file)
+        stacked_assets = weekly_report["STACKED_ASSETS"]
+        for asset in stacked_assets:
+            if asset != "Total value" and asset != "Total yield value" and asset != 'Celery' and asset not in assets_list:
+                assets_list[asset] = {"Yields": [], "USD total value": []}
+    # Next, we will populate the assets_list dict with the yield % for every week and current value
+    for file in snapshots_dates:
+        with open(f'data/snapshots/{file}.json') as weekly_report_file:
+            weekly_report = json.load(weekly_report_file)
+        stacked_assets = weekly_report["STACKED_ASSETS"]
+        for asset in assets_list:
+            if asset not in stacked_assets:
+                assets_list[asset]["Yields"].append(None)
+                assets_list[asset]["USD total value"].append(None)
+            else:
+                yield_percentage = (stacked_assets[asset]['Yield value'] / stacked_assets[asset]['Current value']) * 100
+                assets_list[asset]["Yields"].append(yield_percentage)
+                assets_list[asset]["USD total value"].append(stacked_assets[asset]["Current value"])
+    # Time to plot the yields graph
+    fig, ax = plt.subplots()
+
+    ax.set(xlabel='Week',
+           ylabel='Yield percentage',
+           title='Yield percentage of stacked assets')
+
+    for asset in assets_list:
+        ax.plot(weeks, assets_list[asset]["Yields"], label=asset)
+
+    plt.legend()
+    plt.savefig("app/static/yields.png")
+
+    # Now, the total value graph
+    fig, ax = plt.subplots()
+
+    ax.set(xlabel='Week',
+           ylabel='USD value',
+           title='Value of stacked assets')
+
+    for asset in assets_list:
+        ax.plot(weeks, assets_list[asset]["USD total value"], label=asset)
+
+    plt.legend()
+    plt.savefig("app/static/assets_value.png")
 
 def main():
     with open('data/SIDX_STATS.json') as sidx_stats_file:
@@ -35,6 +99,7 @@ def main():
     with open(f'data/snapshots/{d1}.json', 'x') as file:
         json.dump(weekly_stats, file, indent=4)
     file.close()
+    generate_graphs()
 
 if __name__ == "__main__":
     main()
