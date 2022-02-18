@@ -20,6 +20,10 @@
                         (USD value not available)</li>
                     {% endif %}
                     <li>Yield: {{ value["Yield"] }} ({{ value["Yield value"] }} USD)</li>
+                    {% if key == "Celery" %}
+                    <li>Current mode: {{ value["Mode"] }}
+                    <small>See <a href="https://transparency.smartindex.cash/proposals/16">proposal #16</a></small></li>
+                    {% endif %}
                     {% endif %}
                 </ul>
             </li>

@@ -109,7 +109,6 @@ def get_balances(ben_tokens, bch_price):
                 portfolio_address).call()  # CLY Neither in stacking nor payout mode
             status = contract.functions.getStatus(portfolio_address).call()  # Get Status of account
             if status == 0:  # Account in payout mode
-                account_balance = contract.functions.getAccountBalance(portfolio_address).call()  # Get account balance when in payout
                 decimals = contract.functions.decimals().call()
                 stacked_assets[asset] = {}
                 stacked_assets[asset]["Initial"] = round((wallet_balance + contract.functions.getLastStakingBalance(portfolio_address).call()) / 10 ** decimals, 2)
@@ -120,6 +119,7 @@ def get_balances(ben_tokens, bch_price):
                 payout_amount = round(stacked_assets[asset]["Initial"] * year_percentage, 2)
                 stacked_assets[asset]["Current"] = round((stacked_assets[asset]["Initial"] + payout_amount), 2)
                 stacked_assets[asset]["Yield"] = round(payout_amount, 2)
+                stacked_assets[asset]["Mode"] = "Payout"
             else:
                 last_processed_time = contract.functions.getLastProcessedTime(portfolio_address).call()
                 delta = int(time()) - last_processed_time
@@ -131,6 +131,7 @@ def get_balances(ben_tokens, bch_price):
                     (wallet_balance + account_balance) / 10 ** contract.functions.decimals().call(), 2)
                 stacked_assets[asset]["Yield"] = round(stacked_assets[asset]["Current"] - stacked_assets[asset]["Initial"],
                                                        2)
+                stacked_assets[asset]["Mode"] = "Stacking"
             if "BCH pair" in assets_balances[asset]:
                 asset_price = get_price_from_pool(asset, bch_price)
                 stacked_assets[asset]["Current value"] = round(stacked_assets[asset]["Current"] * asset_price, 2)
