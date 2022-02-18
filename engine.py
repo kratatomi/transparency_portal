@@ -118,7 +118,7 @@ def get_balances(ben_tokens, bch_price):
                 delta = int(time()) - last_processed_time
                 year_percentage = delta/31536000 #Seconds in a year
                 payout_amount = round(stacked_assets[asset]["Initial"] * year_percentage, 2)
-                stacked_assets[asset]["Current"] = round((stacked_assets[asset]["Initial"] + payout_amount) / 10 ** decimals, 2)
+                stacked_assets[asset]["Current"] = round((stacked_assets[asset]["Initial"] + payout_amount), 2)
                 stacked_assets[asset]["Yield"] = round(payout_amount, 2)
             else:
                 last_processed_time = contract.functions.getLastProcessedTime(portfolio_address).call()
