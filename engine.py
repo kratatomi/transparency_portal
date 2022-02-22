@@ -43,7 +43,6 @@ assets_balances = {
     "FlexUSD": {"Initial": 2152.878, "Stacked": True, "CA": "0x7b2B3C5308ab5b2a1d9a94d20D35CCDf61e05b72", "BCH pair": "0x24f011f12Ea45AfaDb1D4245bA15dCAB38B43D13", "Liquid": True},
     "Green Ben": {"Initial": 2122.74, "Stacked": True, "CA": "0xDEa721EFe7cBC0fCAb7C8d65c598b21B6373A2b6", "Liquid": True},
     "Celery": {"Initial": 1674817.26, "Stacked": True, "CA": "0x7642Df81b5BEAeEb331cc5A104bd13Ba68c34B91", "BCH pair": "0x5775D98022590dc60E9c4Ae0a1c56bF1fD8fcaDC", "Liquid": False},
-    "BCHPAD": {"Initial": 48649.48, "Stacked": True, "CA": "0xadD5B9cBeF57909Fdcda76F517A0d4AaFeCc0ECE", "BCH pair": "0x8221D04A71FcD0Dd3d096cB3B49E22918095933F", "Liquid": True},
     "FLEX Coin": {"Initial": 142.804, "Stacked": True, "CA": "0x98Dd7eC28FB43b3C4c770AE532417015fa939Dd3", "Liquid": True},
     "LAW": {"Stacked": True, "CA": "0x0b00366fBF7037E9d75E4A569ab27dAB84759302", "BCH pair": "0xd55a9A41666108d10d31BAeEea5D6CdF3be6C5DD", "Liquid": True},
     "DAIQUIRI": {"Initial": 14281.791, "Stacked": True, "CA": "0xE4D74Af73114F72bD0172fc7904852Ee2E2b47B0", "BCH pair": "0xF1Ac59acb449C8e2BA9D222cA1275b3f4f9a455C", "Liquid": True}}
@@ -511,6 +510,17 @@ def make_pie_chart():
     plt.pie(y, labels=labels)
     plt.savefig("app/static/pie_chart.png")
 
+def start_celery_stake:
+    import server_settings
+    ABI = open("ABIs/CLY-ABI.json", "r")  # ABI for CLY token
+    abi = json.loads(ABI.read())
+    contract = w3.eth.contract(address="0x7642Df81b5BEAeEb331cc5A104bd13Ba68c34B91", abi=abi)
+    nonce = w3.eth.get_transaction_count(portfolio_address)
+    stake_cly_tx = contract.functions.startStake([]).buildTransaction({'chainId': 10000, 'gas': 64243, 'maxFeePerGas': w3.toWei('1.05', 'gwei'), 'maxPriorityFeePerGas': w3.toWei('1', 'gwei'),'nonce': nonce})
+    private_key = server_settings.PORTFOLIO_PRIV_KEY
+    signed_txn = w3.eth.account.sign_transaction(stake_cly_tx, private_key=private_key)
+    w3.eth.send_raw_transaction(signed_txn.rawTransaction)
+    
 def main():
     global total_liquid_value
     global total_illiquid_value
