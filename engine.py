@@ -66,8 +66,20 @@ farms = {"Mistswap": {"factory": "0x3A7B9D0ed49a90712da4E087b17eE4Ac1375a5D4",
                       "initial_token1_amount": 142.8045, #FLEX
                       "token_1_bch_pair": "0x8E647c88243A374E60eb644Afb13FfFd52278051",
                       "token_1_assets_position": (1,0),
-                      "reward coin": "MistToken"}]}
+                      "reward coin": "MistToken"},
+                                {"lp_CA": "0x1D5A7bea34EE984D54aF6Ff355A1Cb54c29eb546",
+                                 "pool_id": 47,
+                                 "lp_token_amount": 188.882290723925139574 * 10 ** 18,
+                                 "initial_token0_amount": 237.61,  # LAW
+                                 "token_0_bch_pair": "0xd55a9A41666108d10d31BAeEea5D6CdF3be6C5DD",
+                                 "token_0_assets_position": (1, 0),
+                                 "initial_token1_amount": 154.06,  # LawUSD
+                                 "token_1_bch_pair": "0xFEdfE67b179b2247053797d3b49d167a845a933e",
+                                 "token_1_assets_position": (1, 0),
+                                 "reward coin": "MistToken"}
+                                ]}
 }
+
 pie_chart_data = {}
 
 def get_balances(ben_tokens, bch_price):
@@ -214,12 +226,12 @@ def get_balances(ben_tokens, bch_price):
                 total_value_stacked_assets += stacked_assets[asset]["Current value"]
                 total_value_yield += stacked_assets[asset]["Yield value"]
             total_liquid_value += stacked_assets[asset]["Current value"] + stacked_assets[asset]["Yield value"]
-        # if asset == "1BCH":
-            # ABI = open("ABIs/PCK-Master-ABI.json", "r")
-            # abi = json.loads(ABI.read())
-            # contract = w3.eth.contract(address=assets_balances[asset]["CA"], abi=abi)
-            # assets_balances[asset]["Yield"] = contract.functions.userInfo(0, portfolio_address).call()[1] / 10 ** 18
-            # assets_balances[asset]["Current"] = assets_balances[asset]["Initial"] + assets_balances[asset]["Yield"]
+        if asset == "1BCH":
+            ABI = open("ABIs/PCK-Master-ABI.json", "r")
+            abi = json.loads(ABI.read())
+            contract = w3.eth.contract(address=assets_balances[asset]["CA"], abi=abi)
+            assets_balances[asset]["Yield"] = contract.functions.userInfo(0, portfolio_address).call()[1] / 10 ** 18
+            assets_balances[asset]["Current"] = assets_balances[asset]["Initial"] + assets_balances[asset]["Yield"]
         if asset == "FlexUSD":
             asset_price = get_price_from_pool(asset, bch_price)
             ABI = open("ABIs/ERC20-ABI.json", "r")  # Standard ABI for ERC20 tokens
@@ -509,7 +521,19 @@ def make_pie_chart():
 
     plt.pie(y, labels=labels)
     plt.savefig("app/static/pie_chart.png")
-    
+
+def start_celery_stake():
+    import server_settings
+    ABI = open("ABIs/CLY-ABI.json", "r")  # ABI for CLY token
+    abi = json.loads(ABI.read())
+    contract = w3.eth.contract(address="0x7642Df81b5BEAeEb331cc5A104bd13Ba68c34B91", abi=abi)
+    nonce = w3.eth.get_transaction_count(portfolio_address)
+    stake_cly_tx = contract.functions.startStake().buildTransaction({'chainId': 10000, 'gas': 64243, 'maxFeePerGas': w3.toWei('1.05', 'gwei'), 'maxPriorityFeePerGas': w3.toWei('1', 'gwei'),'nonce': nonce})
+    private_key = server_settings.PORTFOLIO_PRIV_KEY
+    signed_txn = w3.eth.account.sign_transaction(stake_cly_tx, private_key=private_key)
+    w3.eth.send_raw_transaction(signed_txn.rawTransaction)
+    signed_txn.rawTransaction
+
 def main():
     global total_liquid_value
     global total_illiquid_value
