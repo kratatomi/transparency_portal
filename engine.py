@@ -72,7 +72,7 @@ farms = {"Mistswap": {"factory": "0x3A7B9D0ed49a90712da4E087b17eE4Ac1375a5D4",
                                  "lp_token_amount": 188.882290723925139574 * 10 ** 18,
                                  "initial_token0_amount": 237.61,  # LAW
                                  "token_0_bch_pair": "0xd55a9A41666108d10d31BAeEea5D6CdF3be6C5DD",
-                                 "token_0_assets_position": (1, 0),
+                                 "token_0_assets_position": (0, 1),
                                  "initial_token1_amount": 154.06,  # LawUSD
                                  "token_1_bch_pair": "0xFEdfE67b179b2247053797d3b49d167a845a933e",
                                  "token_1_assets_position": (1, 0),
