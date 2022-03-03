@@ -13,10 +13,12 @@ def scheduled():
 @app.cli.command()
 def start_cly_staking():
     engine.start_celery_stake()
+    # Will be called every Sunday at 12:04 UTC from a crontab task
 
 @app.cli.command()
 def start_cly_payout():
     engine.start_celery_payout()
+    # Will be called every Friday at 12:00 UTC from a crontab task
 
 @app.cli.command("make_yield_snapshot")
 def make_yield_snapshot():

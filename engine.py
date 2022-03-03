@@ -575,7 +575,7 @@ def main():
     get_law_rewards(bch_price)
     make_pie_chart()
     get_farms(bch_price)
-    global_portfolio_stats = {"total_liquid_value": round(total_liquid_value, 2), "total_illiquid_value": round(total_illiquid_value, 2), "total_portfolio_balance": round(total_liquid_value + total_illiquid_value, 2), "total_rewards_value": round(total_rewards_value, 2)}
+    global_portfolio_stats = {"total_liquid_value": round(total_liquid_value, 2), "total_illiquid_value": round(total_illiquid_value, 2), "total_portfolio_balance": round(total_liquid_value + total_illiquid_value, 2), "total_rewards_value": round(total_rewards_value, 2), "value_per_sidx": round(round(total_liquid_value + total_illiquid_value, 2) / SIDX_stats["Total supply"], 2)}
     with open('data/SIDX_STATS.json', 'w') as file:
         json.dump(SIDX_stats, file, indent=4)
     with open('data/SEP20_BALANCES.json', 'w') as file:
