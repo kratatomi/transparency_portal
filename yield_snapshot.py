@@ -16,6 +16,7 @@ def generate_graphs():
     # Now, let's generate a list with the number of weeks and a dict with the assets available
     weeks = []
     assets_list = {}
+    value_per_sidx = []
     i = 1
     for file in snapshots_dates:
         weeks.append(i)
@@ -39,6 +40,10 @@ def generate_graphs():
                 yield_percentage = (stacked_assets[asset]['Yield value'] / stacked_assets[asset]['Current value']) * 100
                 assets_list[asset]["Yields"].append(yield_percentage)
                 assets_list[asset]["USD total value"].append(stacked_assets[asset]["Current value"])
+        if "GLOBAL_STATS" in weekly_report:
+            value_per_sidx.append(weekly_report["GLOBAL_STATS"]["value_per_sidx"])
+        else:
+            value_per_sidx.append(None)
     # Time to plot the yields graph
     fig, ax = plt.subplots()
 
@@ -64,6 +69,17 @@ def generate_graphs():
 
     plt.legend()
     plt.savefig("app/static/assets_value.png")
+
+    #Finally, the graph showing price per SIDX evolution
+    fig, ax = plt.subplots()
+
+    ax.set(xlabel='Week',
+           ylabel='USD value per SIDX token',
+           title='Value per SIDX token')
+
+    ax.plot(weeks, value_per_sidx)
+
+    plt.savefig("app/static/sidx_value.png")
 
 def main():
     with open('data/SIDX_STATS.json') as sidx_stats_file:
