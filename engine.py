@@ -523,15 +523,39 @@ def make_pie_chart():
     plt.savefig("app/static/pie_chart.png")
 
 def start_celery_stake():
-    import server_settings
+    import os
     ABI = open("ABIs/CLY-ABI.json", "r")  # ABI for CLY token
     abi = json.loads(ABI.read())
     contract = w3.eth.contract(address="0x7642Df81b5BEAeEb331cc5A104bd13Ba68c34B91", abi=abi)
     nonce = w3.eth.get_transaction_count(portfolio_address)
-    stake_cly_tx = contract.functions.startStake().buildTransaction({'chainId': 10000, 'gas': 64243, 'maxFeePerGas': w3.toWei('2', 'gwei'), 'maxPriorityFeePerGas': w3.toWei('2', 'gwei'), 'nonce': nonce})
-    private_key = server_settings.PORTFOLIO_PRIV_KEY
+    stake_cly_tx = contract.functions.startStake().buildTransaction(
+        {'chainId': 10000,
+         'gas': 108287,
+         'gasPrice': w3.toWei('1.05', 'gwei'),
+         'nonce': nonce})
+    private_key = os.environ.get('PORTFOLIO_PRIV_KEY')
+    if private_key == None:
+        import app.email as email
+        email.send_email_to_admin("Portfolio private key not loaded on shell environment")
     signed_txn = w3.eth.account.sign_transaction(stake_cly_tx, private_key=private_key)
-    signed_txn.rawTransaction
+    w3.eth.send_raw_transaction(signed_txn.rawTransaction)
+
+def start_celery_payout():
+    import os
+    ABI = open("ABIs/CLY-ABI.json", "r")  # ABI for CLY token
+    abi = json.loads(ABI.read())
+    contract = w3.eth.contract(address="0x7642Df81b5BEAeEb331cc5A104bd13Ba68c34B91", abi=abi)
+    nonce = w3.eth.get_transaction_count(portfolio_address)
+    payout_cly_tx = contract.functions.startPayout().buildTransaction(
+        {'chainId': 10000,
+         'gas': 81716,
+         'gasPrice': w3.toWei('1.05', 'gwei'),
+         'nonce': nonce})
+    private_key = os.environ.get('PORTFOLIO_PRIV_KEY')
+    if private_key == None:
+        import app.email as email
+        email.send_email_to_admin("Portfolio private key not loaded on shell environment")
+    signed_txn = w3.eth.account.sign_transaction(payout_cly_tx, private_key=private_key)
     w3.eth.send_raw_transaction(signed_txn.rawTransaction)
 
 def main():

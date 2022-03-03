@@ -10,6 +10,13 @@ def scheduled():
     engine.main()
     voting_platform.main()
 
+@app.cli.command()
+def start_cly_staking():
+    engine.start_celery_stake()
+
+@app.cli.command()
+def start_cly_payout():
+    engine.start_celery_payout()
 
 @app.cli.command("make_yield_snapshot")
 def make_yield_snapshot():
