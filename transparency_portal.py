@@ -10,12 +10,12 @@ def scheduled():
     engine.main()
     voting_platform.main()
 
-@app.cli.command()
+@app.cli.command("start_cly_staking")
 def start_cly_staking():
     engine.start_celery_stake()
     # Will be called every Sunday at 12:04 UTC from a crontab task
 
-@app.cli.command()
+@app.cli.command("start_cly_payout")
 def start_cly_payout():
     engine.start_celery_payout()
     # Will be called every Friday at 12:00 UTC from a crontab task
