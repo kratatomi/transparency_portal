@@ -79,7 +79,7 @@
     {% if extra_lp_balances %}
     <div class="container">
         <H2>Extra SIDX liquidity pools:</H2>
-        <small>See <a href="https://transparency.smartindex.cash/proposals/10">proposal #10</a></small>
+        <small>See <a href="https://transparency.smartindex.cash/proposals/10">proposal #10</a> and <a href="https://transparency.smartindex.cash/proposals/19">proposal #19</a></small>
         <ul id="extra_SIDX_liquidity_pools">
             {% for key, value in extra_lp_balances.items() %}
             <li>{{ key }}
@@ -104,7 +104,7 @@
                     </ul>
                     {% endif %}
                     {% if key == "Reward" %}
-                        Reward: {{ value }} MIST
+                        Reward: {{ value }} farm tokens
                     {% endif %}
                     {% if key == "Reward value" %}
                         Value: {{ value }} USD

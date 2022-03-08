@@ -52,7 +52,9 @@ initial_pool_balances = {
     # Token0 is WBCH, Token1 is SIDX
     }
 
-extra_pool_balances = {"Mistswap": {"CA": "0x7E1B9F1e286160A80ab9B04D228C02583AeF90B5", "token0": 4.25086, "token1": 952.5022}}  # Token0 is WBCH, Token1 is SIDX
+extra_pool_balances = {"Mistswap": {"CA": "0x7E1B9F1e286160A80ab9B04D228C02583AeF90B5", "token0": 0, "token1": 0},
+                       "Tangoswap": {"CA": "0x4509Ff66a56cB1b80a6184DB268AD9dFBB79DD53", "token0": 3.718, "token1": 1007.36}
+                       }  # Token0 is WBCH, Token1 is SIDX
 
 
 farms = {"Mistswap": {"factory": "0x3A7B9D0ed49a90712da4E087b17eE4Ac1375a5D4",
@@ -325,13 +327,22 @@ def get_LP_balances(initial_pool_balances, wallet_address, bch_price, sidx_price
     for DEX in initial_pool_balances:
         LP_balances[DEX] = {}
         #First, get current LP balance and rewards
-        ABI = open("ABIs/MIST-Master-ABI.json", 'r')
-        abi = json.loads(ABI.read())
-        contract = w3.eth.contract(address="0x3A7B9D0ed49a90712da4E087b17eE4Ac1375a5D4", abi=abi)
-        pool_id = 44
-        portfolio_LP_balance = contract.functions.userInfo(pool_id, wallet_address).call()[0]
-        reward = contract.functions.pendingSushi(pool_id, wallet_address).call()
-        asset_price = get_price_from_pool("MistToken", bch_price)
+        if DEX == "Mistswap":
+            ABI = open("ABIs/MIST-Master-ABI.json", 'r')
+            abi = json.loads(ABI.read())
+            contract = w3.eth.contract(address="0x3A7B9D0ed49a90712da4E087b17eE4Ac1375a5D4", abi=abi)
+            pool_id = 44
+            portfolio_LP_balance = contract.functions.userInfo(pool_id, wallet_address).call()[0]
+            reward = contract.functions.pendingSushi(pool_id, wallet_address).call()
+            asset_price = get_price_from_pool("MistToken", bch_price)
+        if DEX == "Tangoswap":
+            ABI = open("ABIs/MIST-Master-ABI.json", 'r')
+            abi = json.loads(ABI.read())
+            contract = w3.eth.contract(address="0x38cC060DF3a0498e978eB756e44BD43CC4958aD9", abi=abi)
+            pool_id = 32
+            portfolio_LP_balance = contract.functions.userInfo(pool_id, wallet_address).call()[0]
+            reward = contract.functions.pendingSushi(pool_id, wallet_address).call()
+            asset_price = get_price_from_pool("Tango", bch_price)
         #Get assets in liquidity pools
         ABI = open("ABIs/UniswapV2Pair.json", "r")  # Standard ABI for LP tokens
         abi = json.loads(ABI.read())
