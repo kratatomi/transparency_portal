@@ -569,6 +569,74 @@ def start_celery_payout():
     signed_txn = w3.eth.account.sign_transaction(payout_cly_tx, private_key=private_key)
     w3.eth.send_raw_transaction(signed_txn.rawTransaction)
 
+def swapBCHtoSIDX(bch_balance):
+    #Let's load Mistswap router contract
+    ABI = open("ABIs/UniswapV2Router.json", "r")
+    abi = json.loads(ABI.read())
+    contract = w3.eth.contract(address="0x5d0bF8d8c8b054080E2131D8b260a5c6959411B8", abi=abi)
+    WBCH_contract = contract.functions.WETH().call()
+    #We will swap 98% of our BCH in the wallet
+    bch_to_swap = bch_balance * 0.98
+    BCH_amount_in, SIDX_amount_out = contract.functions.getAmountsOut(int(bch_to_swap),[WBCH_contract,SIDX_CA]).call()
+    #Now let's construct the swap tx
+    import os
+    nonce = w3.eth.get_transaction_count(portfolio_address)
+    deadline = round(time()) + 60 #Added 60 sec to the current time
+    bch_sidx_swap_tx = contract.functions.swapExactETHForTokens(int(SIDX_amount_out * 0.95), [WBCH_contract,SIDX_CA], portfolio_address, deadline).buildTransaction(
+        {'value': BCH_amount_in,
+         'chainId': 10000,
+         'gas': 196524,
+         'gasPrice': w3.toWei('1.05', 'gwei'),
+         'nonce': nonce})
+    private_key = os.environ.get('PORTFOLIO_PRIV_KEY')
+    signed_txn = w3.eth.account.sign_transaction(bch_sidx_swap_tx, private_key=private_key)
+    w3.eth.send_raw_transaction(signed_txn.rawTransaction)
+
+def swapSIDXtoBCH():
+    # First let's determine SIDX balance
+    ABI = open("ABIs/ERC20-ABI.json")
+    abi = json.loads(ABI.read())
+    contract = w3.eth.contract(address=SIDX_CA, abi=abi)
+    SIDX_balance = contract.functions.balanceOf(portfolio_address).call()
+    if SIDX_balance == 0:
+        return 'No SIDX to swap'
+    # Let's load Mistswap router contract
+    ABI = open("ABIs/UniswapV2Router.json", "r")
+    abi = json.loads(ABI.read())
+    contract = w3.eth.contract(address="0x5d0bF8d8c8b054080E2131D8b260a5c6959411B8", abi=abi)
+    WBCH_contract = contract.functions.WETH().call()
+    BCH_amount_out = contract.functions.getAmountsOut(int(SIDX_balance), [SIDX_CA, WBCH_contract]).call()[1]
+    # Now let's construct the swap tx
+    import os
+    nonce = w3.eth.get_transaction_count(portfolio_address)
+    deadline = round(time()) + 60 # Added 60 sec to the current time
+    sidx_bch_swap_tx = contract.functions.swapExactTokensForETH(int(SIDX_balance), int(BCH_amount_out * 0.95),[SIDX_CA, WBCH_contract], portfolio_address, deadline).buildTransaction(
+        {'chainId': 10000,
+         'gas': 200761,
+         'gasPrice': w3.toWei('1.05', 'gwei'),
+         'nonce': nonce})
+    private_key = os.environ.get('PORTFOLIO_PRIV_KEY')
+    signed_txn = w3.eth.account.sign_transaction(sidx_bch_swap_tx, private_key=private_key)
+    w3.eth.send_raw_transaction(signed_txn.rawTransaction)
+
+def wash_trading_bot(min_usd_balance):
+    import time
+    i = 1
+    # min_usd_balance is the minimum USD balance in the account in the form of BCH required
+    # It depends on how much do you want to spend on fees
+    bch_price = get_BCH_price()
+    bch_balance = w3.eth.get_balance(portfolio_address)
+    while min_usd_balance < bch_price * (bch_balance / 10 ** 18):
+        swapBCHtoSIDX(bch_balance)
+        time.sleep(25)
+        swapSIDXtoBCH()
+        print(f"Round {i} completed")
+        i += 1
+        time.sleep(25)
+        bch_price = get_BCH_price()
+        bch_balance = w3.eth.get_balance(portfolio_address)
+    return "Threshold reached"
+
 def main():
     global total_liquid_value
     global total_illiquid_value
