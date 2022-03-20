@@ -534,6 +534,10 @@ def make_pie_chart():
     plt.savefig("app/static/pie_chart.png")
 
 def start_celery_stake():
+    if not check_bch_balance(portfolio_address):
+        import app.email as email
+        email.send_email_to_admin("Not enough BCH to start CLY stake")
+        return
     import os
     ABI = open("ABIs/CLY-ABI.json", "r")  # ABI for CLY token
     abi = json.loads(ABI.read())
@@ -544,6 +548,7 @@ def start_celery_stake():
          'gas': 108287,
          'gasPrice': w3.toWei('1.05', 'gwei'),
          'nonce': nonce})
+    # We're gonna check if there's enough BCH for the tx
     private_key = os.environ.get('PORTFOLIO_PRIV_KEY')
     if private_key == None:
         import app.email as email
@@ -552,6 +557,11 @@ def start_celery_stake():
     w3.eth.send_raw_transaction(signed_txn.rawTransaction)
 
 def start_celery_payout():
+    # We're gonna check if there's enough BCH for the tx
+    if not check_bch_balance(portfolio_address):
+        import app.email as email
+        email.send_email_to_admin("Not enough BCH to start CLY payout")
+        return
     import os
     ABI = open("ABIs/CLY-ABI.json", "r")  # ABI for CLY token
     abi = json.loads(ABI.read())
@@ -636,6 +646,13 @@ def wash_trading_bot(min_usd_balance):
         bch_price = get_BCH_price()
         bch_balance = w3.eth.get_balance(portfolio_address)
     return "Threshold reached"
+
+def check_bch_balance(account):
+    bch_balance = w3.eth.get_balance(account)
+    if bch_balance > 2000000000000000:
+        return True
+    else:
+        return False
 
 def main():
     global total_liquid_value
