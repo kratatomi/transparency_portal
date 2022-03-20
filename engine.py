@@ -649,7 +649,7 @@ def wash_trading_bot(min_usd_balance):
 
 def check_bch_balance(account):
     bch_balance = w3.eth.get_balance(account)
-    if bch_balance > 2000000000000000:
+    if bch_balance > 200000000000000:
         return True
     else:
         return False
