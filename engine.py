@@ -45,7 +45,9 @@ assets_balances = {
     "Celery": {"Initial": 1674817.26, "Stacked": True, "CA": "0x7642Df81b5BEAeEb331cc5A104bd13Ba68c34B91", "BCH pair": "0x5775D98022590dc60E9c4Ae0a1c56bF1fD8fcaDC", "Liquid": False},
     "FLEX Coin": {"Initial": 142.804, "Stacked": True, "CA": "0x98Dd7eC28FB43b3C4c770AE532417015fa939Dd3", "Liquid": True},
     "LAW": {"Stacked": True, "CA": "0x0b00366fBF7037E9d75E4A569ab27dAB84759302", "BCH pair": "0xd55a9A41666108d10d31BAeEea5D6CdF3be6C5DD", "Liquid": True},
-    "DAIQUIRI": {"Initial": 14281.791, "Stacked": True, "CA": "0xE4D74Af73114F72bD0172fc7904852Ee2E2b47B0", "BCH pair": "0xF1Ac59acb449C8e2BA9D222cA1275b3f4f9a455C", "Liquid": True}}
+    "DAIQUIRI": {"Initial": 14281.791, "Stacked": True, "CA": "0xE4D74Af73114F72bD0172fc7904852Ee2E2b47B0", "BCH pair": "0xF1Ac59acb449C8e2BA9D222cA1275b3f4f9a455C", "Liquid": True},
+    "LNS": {"Initial": 44.9947, "Stacked": True, "CA": "0x35b3Ee79E1A7775cE0c11Bd8cd416630E07B0d6f", "BAR_CA": "0xBE7E034c86AC2a302f69ef3975e3D14820cC7660", "BCH pair": "0x7f3F57C92681c9a132660c468f9cdff456fC3Fd7", "Liquid": True}
+}
 
 initial_pool_balances = {
     "Mistswap": {"CA": "0x7E1B9F1e286160A80ab9B04D228C02583AeF90B5", "token0": 5, "token1": 23711.1}
@@ -282,6 +284,24 @@ def get_balances(ben_tokens, bch_price):
             pie_chart_data[asset] = stacked_assets[asset]["Current value"]
             total_value_stacked_assets += stacked_assets[asset]["Current value"]
             total_liquid_value += stacked_assets[asset]["Current value"] + stacked_assets[asset]["Yield value"]
+        if asset == "LNS":
+            ABI = open("ABIs/ERC20-ABI.json", "r")  # Standard ABI for ERC20 tokens
+            abi = json.loads(ABI.read())
+            bar_contract = w3.eth.contract(address=assets_balances[asset]["BAR_CA"], abi=abi)
+            bar_balance = bar_contract.functions.balanceOf(portfolio_address).call()
+            ratio = xsushi_ratio(assets_balances[asset]["CA"], assets_balances[asset]["BAR_CA"])
+            stacked_assets[asset] = {}
+            stacked_assets[asset]["Initial"] = round(assets_balances[asset]["Initial"], 2)
+            stacked_assets[asset]["Current"] = round(
+                (bar_balance * ratio) / 10 ** bar_contract.functions.decimals().call(), 2)
+            stacked_assets[asset]["Yield"] = round(stacked_assets[asset]["Current"] - stacked_assets[asset]["Initial"],
+                                                   2)
+            if "BCH pair" in assets_balances[asset]:
+                asset_price = get_price_from_pool(asset, bch_price)
+                stacked_assets[asset]["Current value"] = round(stacked_assets[asset]["Current"] * asset_price, 2)
+                total_value_stacked_assets += stacked_assets[asset]["Current value"]
+                stacked_assets[asset]["Yield value"] = round(stacked_assets[asset]["Yield"] * asset_price, 2)
+                pie_chart_data[asset] = stacked_assets[asset]["Current value"]
     SEP20_tokens["Total value"] = round(total_value_SEP20_tokens, 2)
     stacked_assets["Total value"] = round(total_value_stacked_assets, 2)
     stacked_assets["Total yield value"] = round(total_value_yield, 2)
