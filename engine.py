@@ -545,7 +545,7 @@ def start_celery_stake():
     nonce = w3.eth.get_transaction_count(portfolio_address)
     stake_cly_tx = contract.functions.startStake().buildTransaction(
         {'chainId': 10000,
-         'gas': 108287,
+         'gas': 123209,
          'gasPrice': w3.toWei('1.05', 'gwei'),
          'nonce': nonce})
     # We're gonna check if there's enough BCH for the tx
