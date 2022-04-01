@@ -180,6 +180,8 @@ def main():
                 proposal.result = f"REJECTED: Required quorum of {quorum} SIDX not reached"
             else:
                 proposal.result = sorted(result_dict.items(), key=lambda x: x[1], reverse=True)[0][0]
+            import app.email as email
+            email.send_email_to_admin(f"Proposal {proposal.id} closed")
     db.session.commit()
 
 def send_memo(key, message):
