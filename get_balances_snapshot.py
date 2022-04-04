@@ -146,6 +146,7 @@ def get_LP_balances(LPs_dict, LPs_in_farms):
 
 
 def get_balances(proposal_id):
+    total_token_amount = 0
     ABI = open("ABIs/ERC20-ABI.json", "r")  # Standard ABI for ERC20 tokens
     abi = json.loads(ABI.read())
     contract = w3.eth.contract(address=target_token_address, abi=abi)
@@ -161,6 +162,12 @@ def get_balances(proposal_id):
     for address in balances:
         if balances[address] > 0:
             balances[address] = balances[address] / 10 ** decimals
+            total_token_amount += balances[address]
+
+    if total_token_amount <= 179000:
+        print(f"Total token amount available for voting is {total_token_amount}")
+    else:
+        print(f"Warning, total token amount available for voting is {total_token_amount} but it's expected to be lower.")
 
     with open(f'data/balances/{proposal_id}.json', 'w') as file:
         json.dump(balances, file)
