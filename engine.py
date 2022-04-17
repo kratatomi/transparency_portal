@@ -38,6 +38,8 @@ cheque_CA = w3.toChecksumAddress("0xa36C479eEAa25C0CFC7e099D3bEbF7A7F1303F40")
 assets_balances = {
     "MistToken": {"Initial": 282334.493, "Stacked": True, "CA": "0x5fA664f69c2A4A3ec94FaC3cBf7049BD9CA73129",
                   "BAR_CA": "0xC41C680c60309d4646379eD62020c534eB67b6f4", "BCH pair": "0x674A71E69fe8D5cCff6fdcF9F1Fa4262Aa14b154", "Liquid": True},
+    "Tango": {"Initial": 23897.252, "Stacked": True, "CA": "0x73BE9c8Edf5e951c9a0762EA2b1DE8c8F38B5e91", "BAR_CA": "0x98Ff640323C059d8C4CB846976973FEEB0E068aA",
+              "BCH pair": "0x4b773a2ea30C6A77564E4FaE60204e7Bc0a81A90", "Liquid": True},
     "FlexUSD": {"Initial": 1234.92, "Stacked": True, "CA": "0x7b2B3C5308ab5b2a1d9a94d20D35CCDf61e05b72", "BCH pair": "0x24f011f12Ea45AfaDb1D4245bA15dCAB38B43D13", "Liquid": True},
     "Green Ben": {"Initial": 2122.74, "Stacked": True, "CA": "0xDEa721EFe7cBC0fCAb7C8d65c598b21B6373A2b6", "Liquid": True},
     "Celery": {"Initial": 1674817.26, "Stacked": True, "CA": "0x7642Df81b5BEAeEb331cc5A104bd13Ba68c34B91", "BCH pair": "0x5775D98022590dc60E9c4Ae0a1c56bF1fD8fcaDC", "Liquid": False},
@@ -80,7 +82,20 @@ farms = {"Mistswap": {"factory": "0x3A7B9D0ed49a90712da4E087b17eE4Ac1375a5D4",
                                  "token_1_bch_pair": "0xFEdfE67b179b2247053797d3b49d167a845a933e",
                                  "token_1_assets_position": (1, 0),
                                  "reward coin": "MistToken"}
-                                ]}
+                                ]},
+         "Tangoswap": {"factory": "0x38cC060DF3a0498e978eB756e44BD43CC4958aD9",
+                      "factory_ABI": "MIST-Master-ABI.json",
+                      "farms": [{"lp_CA": "0xcdb6081DCb9fd2b3d48927790DF7757E8d137fF4",
+                                 "pool_id": 27,
+                                 "lp_token_amount": 2602.810500549833989903 * 10 ** 18,
+                                 "initial_token0_amount": 599.648, #FlexUSD
+                                 "token_0_bch_pair": "0x24f011f12Ea45AfaDb1D4245bA15dCAB38B43D13",
+                                 "token_0_assets_position": (1, 0),
+                                 "initial_token1_amount": 11910.1, #XTANGO
+                                 "token_1_bch_pair": "0x7FbcD4B5b7838F3C22151d492cB7E30B28dED77a",
+                                 "token_1_assets_position": (1, 0),
+                                 "reward coin": "Tango"}]
+         }
 }
 
 pie_chart_data = {}
@@ -202,32 +217,6 @@ def get_balances(ben_tokens, bch_price):
                 stacked_assets[asset]["Yield value"] = round(stacked_assets[asset]["Yield"] * asset_price, 2)
                 pie_chart_data[asset] = stacked_assets[asset]["Current value"]
                 total_value_stacked_assets += stacked_assets[asset]["Current value"]
-            total_liquid_value += stacked_assets[asset]["Current value"] + stacked_assets[asset]["Yield value"]
-        if asset == "Tango":
-            ABI = open("ABIs/ERC20-ABI.json", "r")  # Standard ABI for ERC20 tokens
-            abi = json.loads(ABI.read())
-            bar_contract = w3.eth.contract(address=assets_balances[asset]["BAR_CA"], abi=abi)
-            bar_balance = bar_contract.functions.balanceOf(portfolio_address).call()
-            ratio = xsushi_ratio(assets_balances[asset]["CA"], assets_balances[asset]["BAR_CA"])
-            stacked_assets[asset] = {}
-            stacked_assets[asset]["Initial"] = round(assets_balances[asset]["Initial"], 2)
-            stacked_assets[asset]["Current"] = round(
-                (bar_balance * ratio) / 10 ** bar_contract.functions.decimals().call(), 2)
-            stacked_assets[asset]["Yield"] = round(stacked_assets[asset]["Current"] - stacked_assets[asset]["Initial"],
-                                                   2)
-            if "BCH pair" in assets_balances[asset]:
-                asset_price = get_price_from_pool(asset, bch_price)
-                stacked_assets[asset]["Current value"] = round(stacked_assets[asset]["Current"] * asset_price, 2)
-                total_value_stacked_assets += stacked_assets[asset]["Current value"]
-                stacked_assets[asset]["Yield value"] = round(stacked_assets[asset]["Yield"] * asset_price, 2)
-                pie_chart_data[asset] = stacked_assets[asset]["Current value"]
-            elif asset in ben_tokens:
-                asset_price = get_price(assets_balances[asset]["CA"])
-                stacked_assets[asset]["Current value"] = round(stacked_assets[asset]["Current"] * asset_price, 2)
-                stacked_assets[asset]["Yield value"] = round(stacked_assets[asset]["Yield"] * asset_price, 2)
-                pie_chart_data[asset] = stacked_assets[asset]["Current value"]
-                total_value_stacked_assets += stacked_assets[asset]["Current value"]
-                total_value_yield += stacked_assets[asset]["Yield value"]
             total_liquid_value += stacked_assets[asset]["Current value"] + stacked_assets[asset]["Yield value"]
         if asset == "1BCH":
             ABI = open("ABIs/PCK-Master-ABI.json", "r")
