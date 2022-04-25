@@ -47,7 +47,8 @@ assets_balances = {
     "LAW": {"Stacked": True, "CA": "0x0b00366fBF7037E9d75E4A569ab27dAB84759302", "BCH pair": "0xd55a9A41666108d10d31BAeEea5D6CdF3be6C5DD", "Liquid": True},
     "DAIQUIRI": {"Initial": 14281.791, "Stacked": True, "CA": "0xE4D74Af73114F72bD0172fc7904852Ee2E2b47B0", "BCH pair": "0xF1Ac59acb449C8e2BA9D222cA1275b3f4f9a455C", "Liquid": True},
     "LNS": {"Initial": 44.9947, "Stacked": True, "CA": "0x35b3Ee79E1A7775cE0c11Bd8cd416630E07B0d6f", "BAR_CA": "0xBE7E034c86AC2a302f69ef3975e3D14820cC7660", "BCH pair": "0x7f3F57C92681c9a132660c468f9cdff456fC3Fd7", "Liquid": True},
-    "GOB": {"Initial": 5, "Stacked": True, "CA": "0x56381cB87C8990971f3e9d948939e1a95eA113a3", "BCH pair": "0x86B0fD64234a747681f0235B6Cc5FE04a4D95B31", "Liquid": True}
+    "GOB": {"Initial": 5, "Stacked": True, "CA": "0x56381cB87C8990971f3e9d948939e1a95eA113a3", "BCH pair": "0x86B0fD64234a747681f0235B6Cc5FE04a4D95B31", "Liquid": True},
+    "BCH": {"Stacked": False, "Liquid": True}
 }
 
 initial_pool_balances = {
@@ -110,26 +111,34 @@ def get_balances(ben_tokens, bch_price):
     global total_illiquid_value
     for asset in assets_balances:
         if not assets_balances[asset]["Stacked"]:
-            ABI = open("ABIs/ERC20-ABI.json", "r")  # Standard ABI for ERC20 tokens
-            abi = json.loads(ABI.read())
-            contract = w3.eth.contract(address=assets_balances[asset]["CA"], abi=abi)
-            SEP20_tokens[asset] = {}
-            SEP20_tokens[asset]["Current"] = round(
-                contract.functions.balanceOf(portfolio_address).call() / 10 ** contract.functions.decimals().call(), 2)
-            if asset in ben_tokens:
-                asset_price = get_price(assets_balances[asset]["CA"])
-                SEP20_tokens[asset]["Current value"] = round(SEP20_tokens[asset]["Current"] * asset_price, 2)
+            if asset == "BCH":
+                SEP20_tokens[asset] = {}
+                SEP20_tokens[asset]["Current"] = round(
+                    w3.eth.get_balance(portfolio_address) / 10 ** 18, 2)
+                SEP20_tokens[asset]["Current value"] = round(SEP20_tokens[asset]["Current"] * bch_price, 2)
                 total_value_SEP20_tokens += SEP20_tokens[asset]["Current value"]
                 pie_chart_data[asset] = SEP20_tokens[asset]["Current value"]
-            elif "BCH pair" in assets_balances[asset]:
-                asset_price = get_price_from_pool(asset, bch_price)
-                SEP20_tokens[asset]["Current value"] = round(SEP20_tokens[asset]["Current"] * asset_price, 2)
-                total_value_SEP20_tokens += SEP20_tokens[asset]["Current value"]
-                pie_chart_data[asset] = SEP20_tokens[asset]["Current value"]
-            if assets_balances[asset]["Liquid"]:
-                total_liquid_value += SEP20_tokens[asset]["Current value"]
             else:
-                total_illiquid_value += SEP20_tokens[asset]["Current value"]
+                ABI = open("ABIs/ERC20-ABI.json", "r")  # Standard ABI for ERC20 tokens
+                abi = json.loads(ABI.read())
+                contract = w3.eth.contract(address=assets_balances[asset]["CA"], abi=abi)
+                SEP20_tokens[asset] = {}
+                SEP20_tokens[asset]["Current"] = round(
+                    contract.functions.balanceOf(portfolio_address).call() / 10 ** contract.functions.decimals().call(), 2)
+                if asset in ben_tokens:
+                    asset_price = get_price(assets_balances[asset]["CA"])
+                    SEP20_tokens[asset]["Current value"] = round(SEP20_tokens[asset]["Current"] * asset_price, 2)
+                    total_value_SEP20_tokens += SEP20_tokens[asset]["Current value"]
+                    pie_chart_data[asset] = SEP20_tokens[asset]["Current value"]
+                elif "BCH pair" in assets_balances[asset]:
+                    asset_price = get_price_from_pool(asset, bch_price)
+                    SEP20_tokens[asset]["Current value"] = round(SEP20_tokens[asset]["Current"] * asset_price, 2)
+                    total_value_SEP20_tokens += SEP20_tokens[asset]["Current value"]
+                    pie_chart_data[asset] = SEP20_tokens[asset]["Current value"]
+                if assets_balances[asset]["Liquid"]:
+                    total_liquid_value += SEP20_tokens[asset]["Current value"]
+                else:
+                    total_illiquid_value += SEP20_tokens[asset]["Current value"]
         if asset == "Celery":
             ABI = open("ABIs/CLY-ABI.json", "r")  # ABI for CLY token
             abi = json.loads(ABI.read())
