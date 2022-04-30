@@ -37,16 +37,16 @@ cheque_CA = w3.toChecksumAddress("0xa36C479eEAa25C0CFC7e099D3bEbF7A7F1303F40")
 
 assets_balances = {
     "MistToken": {"Initial": 226146.43, "Stacked": True, "CA": "0x5fA664f69c2A4A3ec94FaC3cBf7049BD9CA73129",
-                  "BAR_CA": "0xC41C680c60309d4646379eD62020c534eB67b6f4", "BCH pair": "0x674A71E69fe8D5cCff6fdcF9F1Fa4262Aa14b154", "Liquid": True},
+                  "BAR_CA": "0xC41C680c60309d4646379eD62020c534eB67b6f4", "BCH pair": "0x674A71E69fe8D5cCff6fdcF9F1Fa4262Aa14b154", "Liquid": True, "harvest_ABI": "SushiBar.json"},
     "Tango": {"Initial": 23897.252, "Stacked": True, "CA": "0x73BE9c8Edf5e951c9a0762EA2b1DE8c8F38B5e91", "BAR_CA": "0x98Ff640323C059d8C4CB846976973FEEB0E068aA",
               "BCH pair": "0x4b773a2ea30C6A77564E4FaE60204e7Bc0a81A90", "Liquid": True},
     "FlexUSD": {"Initial": 761.62, "Stacked": True, "CA": "0x7b2B3C5308ab5b2a1d9a94d20D35CCDf61e05b72", "BCH pair": "0x24f011f12Ea45AfaDb1D4245bA15dCAB38B43D13", "Liquid": True},
-    "Green Ben": {"Initial": 1875.168, "Stacked": True, "CA": "0xDEa721EFe7cBC0fCAb7C8d65c598b21B6373A2b6", "Liquid": True},
+    "Green Ben": {"Initial": 1875.168, "Stacked": True, "CA": "0xDEa721EFe7cBC0fCAb7C8d65c598b21B6373A2b6", "Liquid": True, "harvest_CA": "0xDEa721EFe7cBC0fCAb7C8d65c598b21B6373A2b6", "harvest_pool_id": 1, "harvest_ABI": "BEN-Master-ABI.json"},
     "Celery": {"Initial": 1674817.26, "Stacked": True, "CA": "0x7642Df81b5BEAeEb331cc5A104bd13Ba68c34B91", "BCH pair": "0x5775D98022590dc60E9c4Ae0a1c56bF1fD8fcaDC", "Liquid": False},
     "FLEX Coin": {"Initial": 142.804, "Stacked": True, "CA": "0x98Dd7eC28FB43b3C4c770AE532417015fa939Dd3", "Liquid": True},
     "LAW": {"Stacked": True, "CA": "0x0b00366fBF7037E9d75E4A569ab27dAB84759302", "BCH pair": "0xd55a9A41666108d10d31BAeEea5D6CdF3be6C5DD", "Liquid": True},
-    "DAIQUIRI": {"Initial": 14281.791, "Stacked": True, "CA": "0xE4D74Af73114F72bD0172fc7904852Ee2E2b47B0", "BCH pair": "0xF1Ac59acb449C8e2BA9D222cA1275b3f4f9a455C", "Liquid": True},
-    "LNS": {"Initial": 44.9947, "Stacked": True, "CA": "0x35b3Ee79E1A7775cE0c11Bd8cd416630E07B0d6f", "BAR_CA": "0xBE7E034c86AC2a302f69ef3975e3D14820cC7660", "BCH pair": "0x7f3F57C92681c9a132660c468f9cdff456fC3Fd7", "Liquid": True},
+    "DAIQUIRI": {"Initial": 14281.791, "Stacked": True, "CA": "0xE4D74Af73114F72bD0172fc7904852Ee2E2b47B0", "BCH pair": "0xF1Ac59acb449C8e2BA9D222cA1275b3f4f9a455C", "Liquid": True, "harvest_CA": "0xE4D74Af73114F72bD0172fc7904852Ee2E2b47B0", "harvest_pool_id": 0, "harvest_ABI": "Tropical-Master-ABI.json"},
+    "LNS": {"Initial": 44.9947, "Stacked": True, "CA": "0x35b3Ee79E1A7775cE0c11Bd8cd416630E07B0d6f", "BAR_CA": "0xBE7E034c86AC2a302f69ef3975e3D14820cC7660", "BCH pair": "0x7f3F57C92681c9a132660c468f9cdff456fC3Fd7", "Liquid": True, "harvest_ABI": "SushiBar.json"},
     "GOB": {"Initial": 4.468543 , "Stacked": True, "CA": "0x56381cB87C8990971f3e9d948939e1a95eA113a3", "BCH pair": "0x86B0fD64234a747681f0235B6Cc5FE04a4D95B31", "Liquid": True},
     "BCH": {"Stacked": False, "Liquid": True}
 }
@@ -689,6 +689,62 @@ def check_bch_balance(account):
         return True
     else:
         return False
+
+def harvest_pools_rewards(pool_name, amount=0):
+    if pool_name == ("Green Ben" or "DAIQUIRI"):
+        # We're gonna check if there's enough BCH for the tx
+        if not check_bch_balance(portfolio_address):
+            import app.email as email
+            email.send_email_to_admin("Not enough BCH to harvest EBEN")
+            return
+        import os
+        ABI = open(f"ABIs/{assets_balances[pool_name]['harvest_ABI']}", "r")
+        abi = json.loads(ABI.read())
+        contract = w3.eth.contract(address=assets_balances[pool_name]["harvest_CA"], abi=abi)
+        nonce = w3.eth.get_transaction_count(portfolio_address)
+        harvest_tx = contract.functions.withdraw(assets_balances[pool_name]["harvest_pool_id"], 0).buildTransaction(
+            {'chainId': 10000,
+             'gasPrice': w3.toWei('1.05', 'gwei'),
+             'nonce': nonce})
+        gas = w3.eth.estimateGas(harvest_tx, w3.eth.blockNumber)
+        harvest_tx["gas"] = gas + 10000 #Add some extra gas to be safe
+        private_key = os.environ.get('PORTFOLIO_PRIV_KEY')
+        if private_key == None:
+            import app.email as email
+            email.send_email_to_admin("Portfolio private key not loaded on shell environment")
+        signed_txn = w3.eth.account.sign_transaction(harvest_tx, private_key=private_key)
+        TXID = w3.eth.send_raw_transaction(signed_txn.rawTransaction)
+        time.sleep(25)
+        if w3.eth.getTransactionReceipt(TXID).status == 0:
+            import app.email as email
+            email.send_email_to_admin(f"Harvesting failed for {pool_name}, TXID is {TXID}")
+    if pool_name == ("MistToken" or "LNS"):
+        # We're gonna check if there's enough BCH for the tx
+        if not check_bch_balance(portfolio_address):
+            import app.email as email
+            email.send_email_to_admin("Not enough BCH to harvest EBEN")
+            return
+        import os
+        ABI = open(f"ABIs/{assets_balances[pool_name]['harvest_ABI']}", "r")
+        abi = json.loads(ABI.read())
+        contract = w3.eth.contract(address=assets_balances[pool_name]["BAR_CA"], abi=abi)
+        nonce = w3.eth.get_transaction_count(portfolio_address)
+        harvest_tx = contract.functions.leave(amount).buildTransaction(
+            {'chainId': 10000,
+             'gasPrice': w3.toWei('1.05', 'gwei'),
+             'nonce': nonce})
+        gas = w3.eth.estimateGas(harvest_tx, w3.eth.blockNumber)
+        harvest_tx["gas"] = gas + 10000  # Add some extra gas to be safe
+        private_key = os.environ.get('PORTFOLIO_PRIV_KEY')
+        if private_key == None:
+            import app.email as email
+            email.send_email_to_admin("Portfolio private key not loaded on shell environment")
+        signed_txn = w3.eth.account.sign_transaction(harvest_tx, private_key=private_key)
+        TXID = w3.eth.send_raw_transaction(signed_txn.rawTransaction)
+        time.sleep(25)
+        if w3.eth.getTransactionReceipt(TXID).status == 0:
+            import app.email as email
+            email.send_email_to_admin(f"Harvesting failed for {pool_name}, TXID is {TXID}")
 
 def main():
     global total_liquid_value

@@ -25,7 +25,7 @@ def generate_graphs():
             weekly_report = json.load(weekly_report_file)
         stacked_assets = weekly_report["STACKED_ASSETS"]
         for asset in stacked_assets:
-            if asset != "Total value" and asset != "Total yield value" and asset != 'Celery' and asset not in assets_list:
+            if asset != "Total value" and asset != "Total yield value" and asset not in assets_list:
                 assets_list[asset] = {"Yields": [], "USD total value": []}
     # Next, we will populate the assets_list dict with the yield % for every week and current value
     for file in snapshots_dates:
@@ -116,6 +116,11 @@ def main():
         json.dump(weekly_stats, file, indent=4)
     file.close()
     generate_graphs()
+    #Let's harvest the rewards from pools
+    import engine
+    for asset in stacked_assets:
+        if isinstance(stacked_assets[asset], dict): # Don't grab Total value and Total yield value entries
+            engine.harvest_pools_rewards(asset, amount=stacked_assets[asset]["Yields"])
 
 if __name__ == "__main__":
     main()
