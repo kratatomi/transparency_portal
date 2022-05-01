@@ -56,8 +56,8 @@ initial_pool_balances = {
     # Token0 is WBCH, Token1 is SIDX
     }
 
-extra_pool_balances = {"Mistswap": {"CA": "0x7E1B9F1e286160A80ab9B04D228C02583AeF90B5", "token0": 1.9145, "token1": 516.884},
-                       "Tangoswap": {"CA": "0x4509Ff66a56cB1b80a6184DB268AD9dFBB79DD53", "token0": 3.887, "token1": 1055.620}
+extra_pool_balances = {"Mistswap": {"CA": "0x7E1B9F1e286160A80ab9B04D228C02583AeF90B5", "token0": 2.2402, "token1": 650.847},
+                       "Tangoswap": {"CA": "0x4509Ff66a56cB1b80a6184DB268AD9dFBB79DD53", "token0": 3.9089, "token1": 1064.738}
                        }  # Token0 is WBCH, Token1 is SIDX
 
 
@@ -705,6 +705,7 @@ def harvest_pools_rewards(pool_name, amount=0):
         nonce = w3.eth.get_transaction_count(portfolio_address)
         harvest_tx = contract.functions.withdraw(assets_balances[pool_name]["harvest_pool_id"], 0).buildTransaction(
             {'chainId': 10000,
+             'gas': 200761,
              'gasPrice': w3.toWei('1.05', 'gwei'),
              'nonce': nonce})
         gas = w3.eth.estimateGas(harvest_tx, w3.eth.blockNumber)
