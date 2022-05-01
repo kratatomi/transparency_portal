@@ -691,6 +691,7 @@ def check_bch_balance(account):
         return False
 
 def harvest_pools_rewards(pool_name, amount=0):
+    import time
     if pool_name == ("Green Ben" or "DAIQUIRI"):
         # We're gonna check if there's enough BCH for the tx
         if not check_bch_balance(portfolio_address):
