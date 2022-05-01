@@ -47,7 +47,7 @@ assets_balances = {
     "LAW": {"Stacked": True, "CA": "0x0b00366fBF7037E9d75E4A569ab27dAB84759302", "BCH pair": "0xd55a9A41666108d10d31BAeEea5D6CdF3be6C5DD", "Liquid": True},
     "DAIQUIRI": {"Initial": 14281.791, "Stacked": True, "CA": "0xE4D74Af73114F72bD0172fc7904852Ee2E2b47B0", "BCH pair": "0xF1Ac59acb449C8e2BA9D222cA1275b3f4f9a455C", "Liquid": True, "harvest_CA": "0xE4D74Af73114F72bD0172fc7904852Ee2E2b47B0", "harvest_pool_id": 0, "harvest_ABI": "Tropical-Master-ABI.json"},
     "LNS": {"Initial": 44.9947, "Stacked": True, "CA": "0x35b3Ee79E1A7775cE0c11Bd8cd416630E07B0d6f", "BAR_CA": "0xBE7E034c86AC2a302f69ef3975e3D14820cC7660", "BCH pair": "0x7f3F57C92681c9a132660c468f9cdff456fC3Fd7", "Liquid": True, "harvest_ABI": "SushiBar.json"},
-    "GOB": {"Initial": 4.468543 , "Stacked": True, "CA": "0x56381cB87C8990971f3e9d948939e1a95eA113a3", "BCH pair": "0x86B0fD64234a747681f0235B6Cc5FE04a4D95B31", "Liquid": True},
+    "GOB": {"Initial": 2.468543 , "Stacked": True, "CA": "0x56381cB87C8990971f3e9d948939e1a95eA113a3", "BCH pair": "0x86B0fD64234a747681f0235B6Cc5FE04a4D95B31", "Liquid": True},
     "BCH": {"Stacked": False, "Liquid": True}
 }
 
