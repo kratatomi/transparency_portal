@@ -727,9 +727,11 @@ def harvest_pools_rewards(pool_name, amount=0):
         import os
         ABI = open(f"ABIs/{assets_balances[pool_name]['harvest_ABI']}", "r")
         abi = json.loads(ABI.read())
+        ratio = xsushi_ratio(assets_balances[pool_name]["CA"], assets_balances[pool_name]["BAR_CA"])
+        amount_to_harvest = amount / ratio
         contract = w3.eth.contract(address=assets_balances[pool_name]["BAR_CA"], abi=abi)
         nonce = w3.eth.get_transaction_count(portfolio_address)
-        harvest_tx = contract.functions.leave(amount).buildTransaction(
+        harvest_tx = contract.functions.leave(amount_to_harvest).buildTransaction(
             {'chainId': 10000,
              'gasPrice': w3.toWei('1.05', 'gwei'),
              'nonce': nonce})
