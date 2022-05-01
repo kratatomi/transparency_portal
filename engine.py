@@ -47,8 +47,9 @@ assets_balances = {
     "LAW": {"Stacked": True, "CA": "0x0b00366fBF7037E9d75E4A569ab27dAB84759302", "BCH pair": "0xd55a9A41666108d10d31BAeEea5D6CdF3be6C5DD", "Liquid": True},
     "DAIQUIRI": {"Initial": 14281.791, "Stacked": True, "CA": "0xE4D74Af73114F72bD0172fc7904852Ee2E2b47B0", "BCH pair": "0xF1Ac59acb449C8e2BA9D222cA1275b3f4f9a455C", "Liquid": True, "harvest_CA": "0xE4D74Af73114F72bD0172fc7904852Ee2E2b47B0", "harvest_pool_id": 0, "harvest_ABI": "Tropical-Master-ABI.json"},
     "LNS": {"Initial": 44.9947, "Stacked": True, "CA": "0x35b3Ee79E1A7775cE0c11Bd8cd416630E07B0d6f", "BAR_CA": "0xBE7E034c86AC2a302f69ef3975e3D14820cC7660", "BCH pair": "0x7f3F57C92681c9a132660c468f9cdff456fC3Fd7", "Liquid": True, "harvest_ABI": "SushiBar.json"},
-    "GOB": {"Initial": 4.468543 , "Stacked": True, "CA": "0x56381cB87C8990971f3e9d948939e1a95eA113a3", "BCH pair": "0x86B0fD64234a747681f0235B6Cc5FE04a4D95B31", "Liquid": True},
-    "BCH": {"Stacked": False, "Liquid": True}
+    "GOB": {"Initial": 2.468543 , "Stacked": True, "CA": "0x56381cB87C8990971f3e9d948939e1a95eA113a3", "BCH pair": "0x86B0fD64234a747681f0235B6Cc5FE04a4D95B31", "Liquid": True},
+    "BCH": {"Stacked": False, "Liquid": True},
+    "GBCH": {"Stacked": True, "Initial": 1.3156, "Liquid": False, "CA": "0x009dC89aC501a62C4FaaF7196aeE90CF79B6fC7c", "BCH pair": "0x1326E072b412FDF591562807657D48300CA21b1F"}
 }
 
 initial_pool_balances = {
@@ -318,6 +319,21 @@ def get_balances(ben_tokens, bch_price):
             total_value_stacked_assets += stacked_assets[asset]["Current value"]
             total_value_yield += stacked_assets[asset]["Yield value"]
             total_liquid_value += stacked_assets[asset]["Current value"] + stacked_assets[asset]["Yield value"]
+        if asset == "GBCH":
+            asset_price = get_price_from_pool(asset, bch_price)
+            # Get the pending reward
+            ABI = open("ABIs/AmpleBond", "r")  # Standard ABI for ERC20 tokens
+            abi = json.loads(ABI.read())
+            contract = w3.eth.contract(address="0x301fCF5A50a662EC941Ea836C019467DC265941c", abi=abi)
+            stacked_assets[asset] = {}
+            stacked_assets[asset]["Initial"] = round(assets_balances[asset]["Initial"], 2)
+            stacked_assets[asset]["Pending"] = round(
+                contract.functions.bondInfo(portfolio_address).call()[0] / 10 ** 18, 2)
+            stacked_assets[asset]["Current"] = round(stacked_assets[asset]["Initial"] - stacked_assets[asset]["Pending"], 2)
+            stacked_assets[asset]["Current value"] = round(stacked_assets[asset]["Current"] * asset_price, 2)
+            pie_chart_data[asset] = stacked_assets[asset]["Current value"]
+            total_value_stacked_assets += stacked_assets[asset]["Current value"]
+            total_illiquid_value += stacked_assets[asset]["Current value"]
     SEP20_tokens["Total value"] = round(total_value_SEP20_tokens, 2)
     stacked_assets["Total value"] = round(total_value_stacked_assets, 2)
     stacked_assets["Total yield value"] = round(total_value_yield, 2)
