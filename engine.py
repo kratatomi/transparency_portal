@@ -707,64 +707,64 @@ def check_bch_balance(account):
         return False
 
 def harvest_pools_rewards(pool_name, amount=0):
-    import time
-    if pool_name == ("Green Ben" or "DAIQUIRI"):
-        # We're gonna check if there's enough BCH for the tx
-        if not check_bch_balance(portfolio_address):
-            import app.email as email
-            email.send_email_to_admin("Not enough BCH to harvest EBEN")
-            return
-        import os
+    if pool_name in {"Green Ben", "DAIQUIRI"}:
         ABI = open(f"ABIs/{assets_balances[pool_name]['harvest_ABI']}", "r")
         abi = json.loads(ABI.read())
         contract = w3.eth.contract(address=assets_balances[pool_name]["harvest_CA"], abi=abi)
-        nonce = w3.eth.get_transaction_count(portfolio_address)
         harvest_tx = contract.functions.withdraw(assets_balances[pool_name]["harvest_pool_id"], 0).buildTransaction(
             {'chainId': 10000,
-             'gas': 200761,
-             'gasPrice': w3.toWei('1.05', 'gwei'),
-             'nonce': nonce})
-        gas = w3.eth.estimateGas(harvest_tx, w3.eth.blockNumber)
-        harvest_tx["gas"] = gas + 10000 #Add some extra gas to be safe
-        private_key = os.environ.get('PORTFOLIO_PRIV_KEY')
-        if private_key == None:
-            import app.email as email
-            email.send_email_to_admin("Portfolio private key not loaded on shell environment")
-        signed_txn = w3.eth.account.sign_transaction(harvest_tx, private_key=private_key)
-        TXID = w3.eth.send_raw_transaction(signed_txn.rawTransaction)
-        time.sleep(25)
-        if w3.eth.getTransactionReceipt(TXID).status == 0:
-            import app.email as email
-            email.send_email_to_admin(f"Harvesting failed for {pool_name}, TXID is {TXID}")
-    if pool_name == ("MistToken" or "LNS"):
-        # We're gonna check if there's enough BCH for the tx
-        if not check_bch_balance(portfolio_address):
-            import app.email as email
-            email.send_email_to_admin("Not enough BCH to harvest EBEN")
-            return
-        import os
+             'gasPrice': w3.toWei('1.046739556', 'gwei')
+             })
+        send_transaction(pool_name, harvest_tx)
+    if pool_name in {"MistToken", "LNS"}:
         ABI = open(f"ABIs/{assets_balances[pool_name]['harvest_ABI']}", "r")
         abi = json.loads(ABI.read())
         ratio = xsushi_ratio(assets_balances[pool_name]["CA"], assets_balances[pool_name]["BAR_CA"])
         amount_to_harvest = amount / ratio
         contract = w3.eth.contract(address=assets_balances[pool_name]["BAR_CA"], abi=abi)
-        nonce = w3.eth.get_transaction_count(portfolio_address)
         harvest_tx = contract.functions.leave(amount_to_harvest).buildTransaction(
             {'chainId': 10000,
-             'gasPrice': w3.toWei('1.05', 'gwei'),
-             'nonce': nonce})
-        gas = w3.eth.estimateGas(harvest_tx, w3.eth.blockNumber)
-        harvest_tx["gas"] = gas + 10000  # Add some extra gas to be safe
-        private_key = os.environ.get('PORTFOLIO_PRIV_KEY')
-        if private_key == None:
-            import app.email as email
-            email.send_email_to_admin("Portfolio private key not loaded on shell environment")
-        signed_txn = w3.eth.account.sign_transaction(harvest_tx, private_key=private_key)
+             'gasPrice': w3.toWei('1.046739556', 'gwei')
+             })
+        send_transaction(pool_name, harvest_tx)
+
+def estimate_gas_limit():
+    latest_block = w3.eth.getBlock('latest')
+    gas_limit = int(latest_block.gasLimit / (1 if len(latest_block.transactions) == 0 else len(latest_block.transactions)))
+    return gas_limit
+
+def send_transaction(identifier, tx):
+    # identifier is just a string to help the admin to identify the tx if it fails.
+    # First, check is there enough BCH to pay the gas fee
+    if not check_bch_balance(portfolio_address):
+        import app.email as email
+        email.send_email_to_admin("Not enough BCH to harvest EBEN")
+        return
+    import os
+    import time
+    # Gas estimation
+    gas_limit = estimate_gas_limit()
+    tx['gas'] = gas_limit
+    nonce = w3.eth.get_transaction_count(portfolio_address)
+    tx['nonce'] = nonce
+    private_key = os.environ.get('PORTFOLIO_PRIV_KEY')
+    if private_key == None:
+        import app.email as email
+        email.send_email_to_admin("Portfolio private key not loaded on shell environment")
+    signed_txn = w3.eth.account.sign_transaction(tx, private_key=private_key)
+    print(signed_txn)
+    TXID = w3.eth.send_raw_transaction(signed_txn.rawTransaction)
+    time.sleep(20)
+    # Verify if the transaction is successful. If not, raise gas fee to 500000.
+    if w3.eth.getTransactionReceipt(TXID).status == 0 and tx['gas'] < 500000:
+        tx['gas'] = 500000
+        signed_txn = w3.eth.account.sign_transaction(tx, private_key=private_key)
         TXID = w3.eth.send_raw_transaction(signed_txn.rawTransaction)
-        time.sleep(25)
-        if w3.eth.getTransactionReceipt(TXID).status == 0:
-            import app.email as email
-            email.send_email_to_admin(f"Harvesting failed for {pool_name}, TXID is {TXID}")
+        time.sleep(20)
+    # Email the admin if the transaction failed.
+    if w3.eth.getTransactionReceipt(TXID).status == 0:
+        import app.email as email
+        email.send_email_to_admin(f"Harvesting failed for {identifier}, TXID is {TXID}")
 
 def main():
     global total_liquid_value
