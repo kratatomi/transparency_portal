@@ -766,6 +766,19 @@ def send_transaction(identifier, tx):
         import app.email as email
         email.send_email_to_admin(f"Harvesting failed for {identifier}, TXID is {TXID}")
 
+def harvest_farms_rewards():
+    # Harvest all the rewards for every farm
+    for DEX in farms:
+        ABI = open(f"ABIs/{farms[DEX]['factory_ABI']}", "r")
+        abi = json.loads(ABI.read())
+        contract = w3.eth.contract(address=farms[DEX]['factory'], abi=abi)
+        for farm in farms[DEX]['farms']:
+            harvest_tx = contract.functions.deposit(farms[DEX][farm]["pool_id"], 0).buildTransaction(
+                {'chainId': 10000,
+                 'gasPrice': w3.toWei('1.046739556', 'gwei')
+                 })
+            send_transaction(farms[DEX][farm]["lp_CA"], harvest_tx)
+
 def main():
     global total_liquid_value
     global total_illiquid_value
