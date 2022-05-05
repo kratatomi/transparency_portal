@@ -47,7 +47,7 @@ assets_balances = {
     "LAW": {"Stacked": True, "CA": "0x0b00366fBF7037E9d75E4A569ab27dAB84759302", "BCH pair": "0xd55a9A41666108d10d31BAeEea5D6CdF3be6C5DD", "Liquid": True},
     "DAIQUIRI": {"Initial": 14281.791, "Stacked": True, "CA": "0xE4D74Af73114F72bD0172fc7904852Ee2E2b47B0", "BCH pair": "0xF1Ac59acb449C8e2BA9D222cA1275b3f4f9a455C", "Liquid": True, "harvest_CA": "0xE4D74Af73114F72bD0172fc7904852Ee2E2b47B0", "harvest_pool_id": 0, "harvest_ABI": "Tropical-Master-ABI.json"},
     "LNS": {"Initial": 44.9947, "Stacked": True, "CA": "0x35b3Ee79E1A7775cE0c11Bd8cd416630E07B0d6f", "BAR_CA": "0xBE7E034c86AC2a302f69ef3975e3D14820cC7660", "BCH pair": "0x7f3F57C92681c9a132660c468f9cdff456fC3Fd7", "Liquid": True, "harvest_ABI": "SushiBar.json"},
-    "GOB": {"Initial": 2.468543 , "Stacked": True, "CA": "0x56381cB87C8990971f3e9d948939e1a95eA113a3", "BCH pair": "0x86B0fD64234a747681f0235B6Cc5FE04a4D95B31", "Liquid": True},
+    "GOB": {"Initial": 2.468543 , "Stacked": True, "CA": "0x56381cB87C8990971f3e9d948939e1a95eA113a3", "BCH pair": "0x86B0fD64234a747681f0235B6Cc5FE04a4D95B31", "Liquid": True, "harvest_CA": "0x48B8aCe692ad8BD2E3139C65bFf7d28c048F8f00", "harvest_ABI": "GOB-StakingContract.json"},
     "BCH": {"Stacked": False, "Liquid": True},
     "GBCH": {"Stacked": True, "Initial": 1.3156, "Liquid": False, "CA": "0x009dC89aC501a62C4FaaF7196aeE90CF79B6fC7c", "BCH pair": "0x1326E072b412FDF591562807657D48300CA21b1F"}
 }
@@ -322,7 +322,7 @@ def get_balances(ben_tokens, bch_price):
         if asset == "GBCH":
             asset_price = get_price_from_pool(asset, bch_price)
             # Get the pending reward
-            ABI = open("ABIs/AmpleBond", "r")  # Standard ABI for ERC20 tokens
+            ABI = open("ABIs/AmpleBond.json", "r")  # Standard ABI for ERC20 tokens
             abi = json.loads(ABI.read())
             contract = w3.eth.contract(address="0x301fCF5A50a662EC941Ea836C019467DC265941c", abi=abi)
             stacked_assets[asset] = {}
@@ -713,6 +713,7 @@ def harvest_pools_rewards(pool_name, amount=0):
         contract = w3.eth.contract(address=assets_balances[pool_name]["harvest_CA"], abi=abi)
         harvest_tx = contract.functions.withdraw(assets_balances[pool_name]["harvest_pool_id"], 0).buildTransaction(
             {'chainId': 10000,
+             'from': portfolio_address,
              'gasPrice': w3.toWei('1.046739556', 'gwei')
              })
         send_transaction(pool_name, harvest_tx)
@@ -722,8 +723,20 @@ def harvest_pools_rewards(pool_name, amount=0):
         ratio = xsushi_ratio(assets_balances[pool_name]["CA"], assets_balances[pool_name]["BAR_CA"])
         amount_to_harvest = amount / ratio
         contract = w3.eth.contract(address=assets_balances[pool_name]["BAR_CA"], abi=abi)
-        harvest_tx = contract.functions.leave(amount_to_harvest).buildTransaction(
+        harvest_tx = contract.functions.leave(int(amount_to_harvest)).buildTransaction(
             {'chainId': 10000,
+             'from': portfolio_address,
+             'gasPrice': w3.toWei('1.046739556', 'gwei')
+             })
+        send_transaction(pool_name, harvest_tx)
+    if pool_name == "GOB":
+        ABI = open(f"ABIs/{assets_balances[pool_name]['harvest_ABI']}", "r")
+        abi = json.loads(ABI.read())
+        contract = w3.eth.contract(address=assets_balances[pool_name]["harvest_CA"], abi=abi)
+        harvest_amount = amount / 10 ** 9 # GOB has 9 decimals
+        harvest_tx = contract.functions.unstake(int(harvest_amount), True).buildTransaction(
+            {'chainId': 10000,
+             'from': portfolio_address,
              'gasPrice': w3.toWei('1.046739556', 'gwei')
              })
         send_transaction(pool_name, harvest_tx)
@@ -752,7 +765,6 @@ def send_transaction(identifier, tx):
         import app.email as email
         email.send_email_to_admin("Portfolio private key not loaded on shell environment")
     signed_txn = w3.eth.account.sign_transaction(tx, private_key=private_key)
-    print(signed_txn)
     TXID = w3.eth.send_raw_transaction(signed_txn.rawTransaction)
     time.sleep(20)
     # Verify if the transaction is successful. If not, raise gas fee to 500000.
@@ -775,6 +787,7 @@ def harvest_farms_rewards():
         for farm in farms[DEX]['farms']:
             harvest_tx = contract.functions.deposit(farms[DEX][farm]["pool_id"], 0).buildTransaction(
                 {'chainId': 10000,
+                 'from': portfolio_address,
                  'gasPrice': w3.toWei('1.046739556', 'gwei')
                  })
             send_transaction(farms[DEX][farm]["lp_CA"], harvest_tx)

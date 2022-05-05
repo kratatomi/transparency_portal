@@ -120,7 +120,7 @@ def main():
     import engine
     for asset in stacked_assets:
         if isinstance(stacked_assets[asset], dict): # Don't grab Total value and Total yield value entries
-            engine.harvest_pools_rewards(asset, amount=stacked_assets[asset]["Yields"])
+            engine.harvest_pools_rewards(asset, amount=stacked_assets[asset]["Yields"] * 10**18)
     engine.harvest_farms_rewards()
 
 if __name__ == "__main__":
