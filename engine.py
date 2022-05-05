@@ -468,9 +468,21 @@ def get_price_from_pool(asset, BCH_price, assets_positions=(0,1)):
 
 
 def get_BCH_price():
+    prices = []
     API = "https://api.benswap.cash/api/bch/price"
     url = requests.get(API)
-    return url.json()
+    if type(url.json()) == float:
+        prices.append(url.json())
+    API = 'https://coincodex.com/api/coincodex/get_coin/BCH'
+    url = requests.get(API)
+    if type(url.json()['last_price_usd']) == float:
+        prices.append(url.json()['last_price_usd'])
+    API = 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin-cash&vs_currencies=USD'
+    url = requests.get(API)
+    if type(url.json()['bitcoin-cash']['usd']) == float:
+        prices.append(url.json()['bitcoin-cash']['usd'])
+    mean = sum(prices) / len(prices)
+    return mean
 
 def update_punks_balance():
     punks_balance = {}
