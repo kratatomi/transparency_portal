@@ -9,6 +9,9 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver import FirefoxOptions
+import logging
+
+logger = logging.getLogger("app.engine")
 
 w3 = Web3(Web3.HTTPProvider('https://smartbch.greyh.at'))
 if not w3.isConnected():
@@ -778,17 +781,20 @@ def send_transaction(identifier, tx):
         email.send_email_to_admin("Portfolio private key not loaded on shell environment")
     signed_txn = w3.eth.account.sign_transaction(tx, private_key=private_key)
     TXID = w3.eth.send_raw_transaction(signed_txn.rawTransaction)
+    logger.info(f'TXID {TXID} sent, identifier is {identifier}')
     time.sleep(20)
     # Verify if the transaction is successful. If not, raise gas fee to 500000.
     if w3.eth.getTransactionReceipt(TXID).status == 0 and tx['gas'] < 500000:
         tx['gas'] = 500000
         signed_txn = w3.eth.account.sign_transaction(tx, private_key=private_key)
         TXID = w3.eth.send_raw_transaction(signed_txn.rawTransaction)
+        logger.info(f'TXID {TXID} sent again, identifier is {identifier}')
         time.sleep(20)
     # Email the admin if the transaction failed.
     if w3.eth.getTransactionReceipt(TXID).status == 0:
         import app.email as email
         email.send_email_to_admin(f"Harvesting failed for {identifier}, TXID is {TXID}")
+        logger.info(f'TXID {TXID} failed, identifier is {identifier}')
 
 def harvest_farms_rewards():
     # Harvest all the rewards for every farm
