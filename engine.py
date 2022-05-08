@@ -787,13 +787,13 @@ def harvest_farms_rewards():
         ABI = open(f"ABIs/{farms[DEX]['factory_ABI']}", "r")
         abi = json.loads(ABI.read())
         contract = w3.eth.contract(address=farms[DEX]['factory'], abi=abi)
-        for farm in farms[DEX]['farms']:
-            harvest_tx = contract.functions.deposit(farms[DEX][farm]["pool_id"], 0).buildTransaction(
+        for i in range(len(farms[DEX]['farms'])):
+            harvest_tx = contract.functions.deposit(farms[DEX]['farms'][i]['pool_id'], 0).buildTransaction(
                 {'chainId': 10000,
                  'from': portfolio_address,
                  'gasPrice': w3.toWei('1.046739556', 'gwei')
                  })
-            send_transaction(farms[DEX][farm]["lp_CA"], harvest_tx)
+            send_transaction(farms[DEX]['farms'][i]["lp_CA"], harvest_tx)
 
 def main():
     global total_liquid_value
