@@ -59,8 +59,8 @@ initial_pool_balances = {
     # Token0 is WBCH, Token1 is SIDX
     }
 
-extra_pool_balances = {"Mistswap": {"CA": "0x7E1B9F1e286160A80ab9B04D228C02583AeF90B5", "token0": 2.2402, "token1": 650.847},
-                       "Tangoswap": {"CA": "0x4509Ff66a56cB1b80a6184DB268AD9dFBB79DD53", "token0": 3.9089, "token1": 1064.738}
+extra_pool_balances = {"Mistswap": {"CA": "0x7E1B9F1e286160A80ab9B04D228C02583AeF90B5", "token0": 2.5507, "token1": 782.1863},
+                       "Tangoswap": {"CA": "0x4509Ff66a56cB1b80a6184DB268AD9dFBB79DD53", "token0": 3.9298, "token1": 1073.6799}
                        }  # Token0 is WBCH, Token1 is SIDX
 
 
