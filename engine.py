@@ -324,7 +324,7 @@ def get_balances(ben_tokens, bch_price):
         if asset == "GBCH":
             asset_price = get_price_from_pool(asset, bch_price)
             # Get the pending reward
-            ABI = open("ABIs/AmpleBond.json", "r")  # Standard ABI for ERC20 tokens
+            ABI = open("ABIs/AmpleBond.json", "r")
             abi = json.loads(ABI.read())
             contract = w3.eth.contract(address="0x301fCF5A50a662EC941Ea836C019467DC265941c", abi=abi)
             stacked_assets[asset] = {}
@@ -755,11 +755,6 @@ def harvest_pools_rewards(pool_name, amount=0):
              })
         send_transaction(pool_name, harvest_tx)
 
-def estimate_gas_limit():
-    latest_block = w3.eth.getBlock('latest')
-    gas_limit = int(latest_block.gasLimit / (1 if len(latest_block.transactions) == 0 else len(latest_block.transactions)))
-    return gas_limit
-
 def send_transaction(identifier, tx):
     # identifier is just a string to help the admin to identify the tx if it fails.
     # First, check is there enough BCH to pay the gas fee
@@ -770,8 +765,7 @@ def send_transaction(identifier, tx):
     import os
     import time
     # Gas estimation
-    gas_limit = estimate_gas_limit()
-    tx['gas'] = gas_limit
+    tx['gas'] = 500000
     nonce = w3.eth.get_transaction_count(portfolio_address)
     tx['nonce'] = nonce
     private_key = os.environ.get('PORTFOLIO_PRIV_KEY')
@@ -782,14 +776,6 @@ def send_transaction(identifier, tx):
     TXID = w3.eth.send_raw_transaction(signed_txn.rawTransaction)
     logger.info(f'TXID {TXID} sent, identifier is {identifier}')
     time.sleep(20)
-    # Verify if the transaction is successful. If not, raise gas fee to 500000.
-    if w3.eth.getTransactionReceipt(TXID).status == 0 and tx['gas'] < 500000:
-        tx['gas'] = 500000
-        signed_txn = w3.eth.account.sign_transaction(tx, private_key=private_key)
-        TXID = w3.eth.send_raw_transaction(signed_txn.rawTransaction)
-        logger.info(f'TXID {TXID} sent again, identifier is {identifier}')
-        time.sleep(20)
-    # Email the admin if the transaction failed.
     if w3.eth.getTransactionReceipt(TXID).status == 0:
         import app.email as email
         email.send_email_to_admin(f"Harvesting failed for {identifier}, TXID is {TXID}")
