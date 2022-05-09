@@ -846,6 +846,10 @@ def send_transaction(identifier, tx):
             logger.info(f'Failed to get TX status, TXID is {TXID}, identifier is {identifier}')
             import app.email as email
             email.send_email_to_admin(f'Failed to get TX status, TXID is {TXID}, identifier is {identifier}')
+        except:
+            logger.info(f'Failed to get TX status by unknown reason, TXID is {TXID}, identifier is {identifier}')
+            import app.email as email
+            email.send_email_to_admin(f'Failed to get TX status by unknown reason, TXID is {TXID}, identifier is {identifier}')
 
 def harvest_farms_rewards():
     # Harvest all the rewards for every farm
