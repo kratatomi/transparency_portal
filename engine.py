@@ -48,7 +48,7 @@ assets_balances = {
     "FlexUSD": {"Initial": 511.62, "Stacked": True, "CA": "0x7b2B3C5308ab5b2a1d9a94d20D35CCDf61e05b72",
                 "BCH pair": "0x24f011f12Ea45AfaDb1D4245bA15dCAB38B43D13", "Liquid": True},
     "Green Ben": {"Initial": 1875.168, "Stacked": True, "CA": "0xDEa721EFe7cBC0fCAb7C8d65c598b21B6373A2b6",
-                  "Liquid": True, "harvest_CA": "0xDEa721EFe7cBC0fCAb7C8d65c598b21B6373A2b6", "harvest_pool_id": 1,
+                  "Liquid": True, "BCH pair": "0x0D4372aCc0503Fbcc7EB129e0De3283c348B82c3", "harvest_CA": "0xDEa721EFe7cBC0fCAb7C8d65c598b21B6373A2b6", "harvest_pool_id": 1,
                   "harvest_ABI": "BEN-Master-ABI.json"},
     "Celery": {"Initial": 1674817.26, "Stacked": True, "CA": "0x7642Df81b5BEAeEb331cc5A104bd13Ba68c34B91",
                "BCH pair": "0x5775D98022590dc60E9c4Ae0a1c56bF1fD8fcaDC", "Liquid": False},
@@ -120,7 +120,7 @@ farms = {"Mistswap": {"factory": "0x3A7B9D0ed49a90712da4E087b17eE4Ac1375a5D4",
 pie_chart_data = {}
 
 
-def get_balances(ben_tokens, bch_price):
+def get_balances(bch_price):
     stacked_assets = {}
     SEP20_tokens = {}
     total_value_SEP20_tokens = 0
@@ -145,12 +145,7 @@ def get_balances(ben_tokens, bch_price):
                 SEP20_tokens[asset]["Current"] = round(
                     contract.functions.balanceOf(portfolio_address).call() / 10 ** contract.functions.decimals().call(),
                     2)
-                if asset in ben_tokens:
-                    asset_price = get_price(assets_balances[asset]["CA"])
-                    SEP20_tokens[asset]["Current value"] = round(SEP20_tokens[asset]["Current"] * asset_price, 2)
-                    total_value_SEP20_tokens += SEP20_tokens[asset]["Current value"]
-                    pie_chart_data[asset] = SEP20_tokens[asset]["Current value"]
-                elif "BCH pair" in assets_balances[asset]:
+                if "BCH pair" in assets_balances[asset]:
                     asset_price = get_price_from_pool(asset, bch_price)
                     SEP20_tokens[asset]["Current value"] = round(SEP20_tokens[asset]["Current"] * asset_price, 2)
                     total_value_SEP20_tokens += SEP20_tokens[asset]["Current value"]
@@ -197,12 +192,6 @@ def get_balances(ben_tokens, bch_price):
                 stacked_assets[asset]["Current value"] = round(stacked_assets[asset]["Current"] * asset_price, 2)
                 total_value_stacked_assets += stacked_assets[asset]["Current value"]
                 stacked_assets[asset]["Yield value"] = round(stacked_assets[asset]["Yield"] * asset_price, 2)
-                pie_chart_data[asset] = stacked_assets[asset]["Current value"]
-            elif asset in ben_tokens:
-                asset_price = get_price(assets_balances[asset]["CA"])
-                stacked_assets[asset]["Current value"] = round(stacked_assets[asset]["Current"] * asset_price, 2)
-                total_value_stacked_assets += stacked_assets[asset]["Current value"]
-                stacked_assets[asset]["Yield value"] = round(stacked_assets[asset]["Yield"] * asset_price, 2)
                 total_value_yield += stacked_assets[asset]["Yield value"]
                 pie_chart_data[asset] = stacked_assets[asset]["Current value"]
             total_illiquid_value += stacked_assets[asset]["Current value"] + stacked_assets[asset]["Yield value"]
@@ -216,13 +205,13 @@ def get_balances(ben_tokens, bch_price):
                 contract.functions.pendingGreenBen(1, portfolio_address).call() / 10 ** 18, 2)
             stacked_assets[asset]["Current"] = round(stacked_assets[asset]["Initial"] + stacked_assets[asset]["Yield"],
                                                      2)
-            if asset in ben_tokens:
-                asset_price = get_price(assets_balances[asset]["CA"])
+            if "BCH pair" in assets_balances[asset]:
+                asset_price = get_price_from_pool(asset, bch_price, assets_positions=(1, 0))
                 stacked_assets[asset]["Current value"] = round(stacked_assets[asset]["Current"] * asset_price, 2)
-                stacked_assets[asset]["Yield value"] = round(stacked_assets[asset]["Yield"] * asset_price, 2)
-                pie_chart_data[asset] = stacked_assets[asset]["Current value"]
                 total_value_stacked_assets += stacked_assets[asset]["Current value"]
+                stacked_assets[asset]["Yield value"] = round(stacked_assets[asset]["Yield"] * asset_price, 2)
                 total_value_yield += stacked_assets[asset]["Yield value"]
+                pie_chart_data[asset] = stacked_assets[asset]["Current value"]
             total_liquid_value += stacked_assets[asset]["Current value"] + stacked_assets[asset]["Yield value"]
         if asset == "MistToken":
             ABI = open("ABIs/ERC20-ABI.json", "r")  # Standard ABI for ERC20 tokens
@@ -242,19 +231,7 @@ def get_balances(ben_tokens, bch_price):
                 total_value_stacked_assets += stacked_assets[asset]["Current value"]
                 stacked_assets[asset]["Yield value"] = round(stacked_assets[asset]["Yield"] * asset_price, 2)
                 pie_chart_data[asset] = stacked_assets[asset]["Current value"]
-            elif asset in ben_tokens:
-                asset_price = get_price(assets_balances[asset]["CA"])
-                stacked_assets[asset]["Current value"] = round(stacked_assets[asset]["Current"] * asset_price, 2)
-                stacked_assets[asset]["Yield value"] = round(stacked_assets[asset]["Yield"] * asset_price, 2)
-                pie_chart_data[asset] = stacked_assets[asset]["Current value"]
-                total_value_stacked_assets += stacked_assets[asset]["Current value"]
             total_liquid_value += stacked_assets[asset]["Current value"] + stacked_assets[asset]["Yield value"]
-        if asset == "1BCH":
-            ABI = open("ABIs/PCK-Master-ABI.json", "r")
-            abi = json.loads(ABI.read())
-            contract = w3.eth.contract(address=assets_balances[asset]["CA"], abi=abi)
-            assets_balances[asset]["Yield"] = contract.functions.userInfo(0, portfolio_address).call()[1] / 10 ** 18
-            assets_balances[asset]["Current"] = assets_balances[asset]["Initial"] + assets_balances[asset]["Yield"]
         if asset == "FlexUSD":
             asset_price = get_price_from_pool(asset, bch_price)
             ABI = open("ABIs/ERC20-ABI.json", "r")  # Standard ABI for ERC20 tokens
@@ -272,22 +249,6 @@ def get_balances(ben_tokens, bch_price):
             total_value_stacked_assets += stacked_assets[asset]["Current value"]
             total_value_yield += stacked_assets[asset]["Yield value"]
             total_liquid_value += stacked_assets[asset]["Current value"] + stacked_assets[asset]["Yield value"]
-        if asset == "BCHPAD":
-            asset_price = get_price_from_pool(asset, bch_price, assets_positions=(1, 0))
-            ABI = open("ABIs/BPADStaking-ABI.json", "r")  # ABI for BPAD stacking
-            abi = json.loads(ABI.read())
-            contract = w3.eth.contract(address=assets_balances[asset]["CA"], abi=abi)
-            stacked_assets[asset] = {}
-            stacked_assets[asset]["Initial"] = round(assets_balances[asset]["Initial"], 2)
-            stacked_assets[asset]["Current"] = round((contract.functions.balanceOf(
-                portfolio_address).call() + contract.functions.earned(portfolio_address).call()) / 10 ** 18, 2)
-            stacked_assets[asset]["Yield"] = round(stacked_assets[asset]["Current"] - stacked_assets[asset]["Initial"],
-                                                   2)
-            stacked_assets[asset]["Current value"] = round(stacked_assets[asset]["Current"] * asset_price, 2)
-            stacked_assets[asset]["Yield value"] = round(stacked_assets[asset]["Yield"] * asset_price, 2)
-            pie_chart_data[asset] = stacked_assets[asset]["Current value"]
-            total_value_stacked_assets += stacked_assets[asset]["Current value"]
-            total_liquid_value += stacked_assets[asset]["Current value"] + stacked_assets[asset]["Yield value"]
         if asset == "DAIQUIRI":
             ABI = open("ABIs/Tropical-Master-ABI.json", "r")
             abi = json.loads(ABI.read())
@@ -303,6 +264,7 @@ def get_balances(ben_tokens, bch_price):
             stacked_assets[asset]["Yield value"] = round(stacked_assets[asset]["Yield"] * asset_price, 2)
             pie_chart_data[asset] = stacked_assets[asset]["Current value"]
             total_value_stacked_assets += stacked_assets[asset]["Current value"]
+            total_value_yield += stacked_assets[asset]["Yield value"]
             total_liquid_value += stacked_assets[asset]["Current value"] + stacked_assets[asset]["Yield value"]
         if asset == "LNS":
             ABI = open("ABIs/ERC20-ABI.json", "r")  # Standard ABI for ERC20 tokens
@@ -321,6 +283,7 @@ def get_balances(ben_tokens, bch_price):
                 stacked_assets[asset]["Current value"] = round(stacked_assets[asset]["Current"] * asset_price, 2)
                 total_value_stacked_assets += stacked_assets[asset]["Current value"]
                 stacked_assets[asset]["Yield value"] = round(stacked_assets[asset]["Yield"] * asset_price, 2)
+                total_value_yield += stacked_assets[asset]["Yield value"]
                 pie_chart_data[asset] = stacked_assets[asset]["Current value"]
         if asset == "GOB":
             # GOB has 9 decimals
@@ -341,22 +304,6 @@ def get_balances(ben_tokens, bch_price):
             total_value_stacked_assets += stacked_assets[asset]["Current value"]
             total_value_yield += stacked_assets[asset]["Yield value"]
             total_liquid_value += stacked_assets[asset]["Current value"] + stacked_assets[asset]["Yield value"]
-        if asset == "GBCH":
-            asset_price = get_price_from_pool(asset, bch_price)
-            # Get the pending reward
-            ABI = open("ABIs/AmpleBond.json", "r")
-            abi = json.loads(ABI.read())
-            contract = w3.eth.contract(address="0x301fCF5A50a662EC941Ea836C019467DC265941c", abi=abi)
-            stacked_assets[asset] = {}
-            stacked_assets[asset]["Initial"] = round(assets_balances[asset]["Initial"], 2)
-            stacked_assets[asset]["Pending"] = round(
-                contract.functions.bondInfo(portfolio_address).call()[0] / 10 ** 18, 2)
-            stacked_assets[asset]["Current"] = round(
-                stacked_assets[asset]["Initial"] - stacked_assets[asset]["Pending"], 2)
-            stacked_assets[asset]["Current value"] = round(stacked_assets[asset]["Current"] * asset_price, 2)
-            pie_chart_data[asset] = stacked_assets[asset]["Current value"]
-            total_value_stacked_assets += stacked_assets[asset]["Current value"]
-            total_illiquid_value += stacked_assets[asset]["Current value"]
     SEP20_tokens["Total value"] = round(total_value_SEP20_tokens, 2)
     stacked_assets["Total value"] = round(total_value_stacked_assets, 2)
     stacked_assets["Total yield value"] = round(total_value_yield, 2)
@@ -453,17 +400,6 @@ def get_LP_balances(initial_pool_balances, wallet_address, bch_price, sidx_price
         total_liquid_value += LP_balances[DEX]["Reward value"]
         total_rewards_value += LP_balances[DEX]["Reward value"]
     return LP_balances
-
-
-def ben_listed_tokens():
-    ben_listed_tokens = []
-    API = "https://api.benswap.cash/api/dex/tokens"
-    url = requests.get(API)
-    data = url.json()
-    for coin in data:
-        ben_listed_tokens.append(coin["name"])
-    return ben_listed_tokens
-
 
 def get_price(token_CA):
     if token_CA == "0xDEa721EFe7cBC0fCAb7C8d65c598b21B6373A2b6":
@@ -874,8 +810,7 @@ def main():
     bch_price = get_BCH_price()
     SIDX_stats = get_SIDX_stats(bch_price)
     sidx_price = float(SIDX_stats["Price"].split()[0])
-    ben_tokens = ben_listed_tokens()
-    SEP20_tokens, stacked_assets = get_balances(ben_tokens, bch_price)
+    SEP20_tokens, stacked_assets = get_balances(bch_price)
     total_rewards_value = stacked_assets["Total yield value"]
     LP_balances = get_LP_balances(initial_pool_balances, portfolio_address, bch_price, sidx_price)
     extra_LP_balances = get_LP_balances(extra_pool_balances, punk_wallets[1], bch_price, sidx_price)
