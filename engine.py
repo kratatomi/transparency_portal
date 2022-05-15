@@ -75,8 +75,8 @@ initial_pool_balances = {
 }
 
 extra_pool_balances = {
-    "Mistswap": {"CA": "0x7E1B9F1e286160A80ab9B04D228C02583AeF90B5", "token0": 2.5507, "token1": 782.1863},
-    "Tangoswap": {"CA": "0x4509Ff66a56cB1b80a6184DB268AD9dFBB79DD53", "token0": 3.9298, "token1": 1073.6799}
+    "Mistswap": {"CA": "0x7E1B9F1e286160A80ab9B04D228C02583AeF90B5", "token0": 2.976577, "token1": 978.9463},
+    "Tangoswap": {"CA": "0x4509Ff66a56cB1b80a6184DB268AD9dFBB79DD53", "token0": 3.9533, "token1": 1084.6799}
     }  # Token0 is WBCH, Token1 is SIDX
 
 farms = {"Mistswap": {"factory": "0x3A7B9D0ed49a90712da4E087b17eE4Ac1375a5D4",
@@ -136,6 +136,7 @@ def get_balances(bch_price):
                     w3.eth.get_balance(portfolio_address) / 10 ** 18, 2)
                 SEP20_tokens[asset]["Current value"] = round(SEP20_tokens[asset]["Current"] * bch_price, 2)
                 total_value_SEP20_tokens += SEP20_tokens[asset]["Current value"]
+                total_liquid_value += SEP20_tokens[asset]["Current value"]
                 pie_chart_data[asset] = SEP20_tokens[asset]["Current value"]
             else:
                 ABI = open("ABIs/ERC20-ABI.json", "r")  # Standard ABI for ERC20 tokens
@@ -345,6 +346,7 @@ def get_token_info(contract_address):
 def get_LP_balances(initial_pool_balances, wallet_address, bch_price, sidx_price):
     global total_liquid_value
     global total_rewards_value
+    global SIDX_LP_value
     # Modified for Mistswap farm
     LP_balances = {}
     for DEX in initial_pool_balances:
@@ -386,18 +388,19 @@ def get_LP_balances(initial_pool_balances, wallet_address, bch_price, sidx_price
         LP_balances[DEX][token0_ticker]["Current value"] = round(LP_balances[DEX][token0_ticker]["Current"] * bch_price,
                                                                  2)
         total_liquid_value += LP_balances[DEX][token0_ticker]["Current value"]
+        SIDX_LP_value += LP_balances[DEX][token0_ticker]["Current value"]
         LP_balances[DEX][token1_ticker]["Current"] = round(
             ((portfolio_LP_balance / LP_total_supply) * token1_reserves) / 10 ** token1_decimals, 2)
         LP_balances[DEX][token1_ticker]["Current value"] = round(
             LP_balances[DEX][token1_ticker]["Current"] * sidx_price, 2)
         total_liquid_value += LP_balances[DEX][token1_ticker]["Current value"]
+        SIDX_LP_value += LP_balances[DEX][token1_ticker]["Current value"]
         LP_balances[DEX][token0_ticker]["Difference"] = round(
             LP_balances[DEX][token0_ticker]["Current"] - LP_balances[DEX][token0_ticker]["Initial"], 2)
         LP_balances[DEX][token1_ticker]["Difference"] = round(LP_balances[DEX][token1_ticker]["Current"] - \
                                                               LP_balances[DEX][token1_ticker]["Initial"], 2)
         LP_balances[DEX]["Reward"] = round(reward / 10 ** 18, 2)
         LP_balances[DEX]["Reward value"] = round(LP_balances[DEX]["Reward"] * asset_price, 2)
-        total_liquid_value += LP_balances[DEX]["Reward value"]
         total_rewards_value += LP_balances[DEX]["Reward value"]
     return LP_balances
 
@@ -560,7 +563,6 @@ def get_farms(bch_price):
             if farms[DEX]["farms"][i]["reward coin"] in assets_balances:
                 asset_price = get_price_from_pool(farms[DEX]["farms"][i]["reward coin"], bch_price)
                 farms[DEX]["farms"][i]["reward value"] = round((farms[DEX]["farms"][i]["reward"] * asset_price), 2)
-                total_liquid_value += farms[DEX]["farms"][i]["reward value"]
                 total_rewards_value += farms[DEX]["farms"][i]["reward value"]
 
 
@@ -800,13 +802,44 @@ def harvest_farms_rewards():
                  })
             send_transaction(farms[DEX]['farms'][i]["lp_CA"], harvest_tx)
 
+def get_ETF_assets_allocation(farms):
+    portfolio = {"Standalone assets": {}, "Farms": {}}
+    total_percentage = 0
+    total_value = 0
+    for asset in pie_chart_data:
+        portfolio["Standalone assets"][asset] = pie_chart_data[asset]
+        total_value += portfolio["Standalone assets"][asset]
+    for DEX in farms:
+        portfolio["Farms"][DEX] = {}
+        for i in range(len(farms[DEX]['farms'])):
+            lp_CA = farms[DEX]['farms'][i]['lp_CA']
+            portfolio["Farms"][DEX][lp_CA] = 0
+            for coin in farms[DEX]['farms'][i]['Coins']:
+                portfolio["Farms"][DEX][lp_CA] += farms[DEX]['farms'][i]['Coins'][coin]['Current value']
+            total_value += portfolio["Farms"][DEX][lp_CA]
+    #It's time to compute the allocation of each asset
+    for asset in portfolio["Standalone assets"]:
+        portfolio["Standalone assets"][asset] = (portfolio["Standalone assets"][asset] / total_value) * 100
+        total_percentage += portfolio["Standalone assets"][asset]
+    for DEX in portfolio["Farms"]:
+        for lp_CA in portfolio["Farms"][DEX]:
+            portfolio["Farms"][DEX][lp_CA] = (portfolio["Farms"][DEX][lp_CA] / total_value) * 100
+            total_percentage += portfolio["Farms"][DEX][lp_CA]
+    if total_percentage < 99.9 or total_percentage > 100:
+        logger.info(f'Warning: total percentage of ETF portfolio is {total_percentage}')
+        import app.email as email
+        email.send_email_to_admin(f'Warning: total percentage of ETF portfolio is {total_percentage}')
+    return portfolio
+
 
 def main():
     global total_liquid_value
     global total_illiquid_value
     global total_rewards_value
+    global SIDX_LP_value
     total_liquid_value = 0
     total_illiquid_value = 0
+    SIDX_LP_value = 0
     bch_price = get_BCH_price()
     SIDX_stats = get_SIDX_stats(bch_price)
     sidx_price = float(SIDX_stats["Price"].split()[0])
@@ -817,6 +850,7 @@ def main():
     get_law_rewards(bch_price)
     make_pie_chart()
     get_farms(bch_price)
+    ETF_portfolio = get_ETF_assets_allocation(farms)
     global_portfolio_stats = {"total_liquid_value": round(total_liquid_value, 2),
                               "total_illiquid_value": round(total_illiquid_value, 2),
                               "total_portfolio_balance": round(total_liquid_value + total_illiquid_value, 2),
@@ -838,7 +872,8 @@ def main():
         json.dump(farms, file, indent=4)
     with open('data/GLOBAL_STATS.json', 'w') as file:
         json.dump(global_portfolio_stats, file, indent=4)
-
+    with open('data/ETF_portfolio.json', 'w') as file:
+        json.dump(ETF_portfolio, file, indent=4)
 
 if __name__ == "__main__":
     main()
