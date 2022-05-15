@@ -100,6 +100,16 @@ farms = {"Mistswap": {"factory": "0x3A7B9D0ed49a90712da4E087b17eE4Ac1375a5D4",
                                  "initial_token1_amount": 154.06,  # LawUSD
                                  "token_1_bch_pair": "0xFEdfE67b179b2247053797d3b49d167a845a933e",
                                  "token_1_assets_position": (1, 0),
+                                 "reward coin": "MistToken"},
+                                {"lp_CA": "0x20943aD7855bdE06Dd41BB89C9D2efE05DB329EC",
+                                 "pool_id": 32,
+                                 "lp_token_amount": 17618193073021479641,
+                                 "initial_token0_amount": 0.498718,  # WBCH
+                                 "token_0_bch_pair": "0x3743eC0673453E5009310C727Ba4eaF7b3a1cc04", #Get price from pool will jusr return BCH price
+                                 "token_0_assets_position": (0, 1),
+                                 "initial_token1_amount": 758.67058,  # JOY
+                                 "token_1_bch_pair": "0x20943aD7855bdE06Dd41BB89C9D2efE05DB329EC",
+                                 "token_1_assets_position": (1, 0),
                                  "reward coin": "MistToken"}
                                 ]},
          "Tangoswap": {"factory": "0x38cC060DF3a0498e978eB756e44BD43CC4958aD9",
@@ -426,7 +436,10 @@ def get_price_from_pool(asset, BCH_price, assets_positions=(0, 1)):
             asset_position = 1
             BCH_position = 0
     else:  # Directly pass BCH pair address
-        contract = w3.eth.contract(address=asset, abi=abi)
+        if asset == "0x3743eC0673453E5009310C727Ba4eaF7b3a1cc04":
+            return BCH_price
+        else:
+            contract = w3.eth.contract(address=asset, abi=abi)
     pool_reserves = contract.functions.getReserves().call()
     BCH_reserves = pool_reserves[BCH_position]
     asset_reserves = pool_reserves[asset_position]
