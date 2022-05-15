@@ -825,7 +825,7 @@ def get_ETF_assets_allocation(farms):
         for lp_CA in portfolio["Farms"][DEX]:
             portfolio["Farms"][DEX][lp_CA] = (portfolio["Farms"][DEX][lp_CA] / total_value) * 100
             total_percentage += portfolio["Farms"][DEX][lp_CA]
-    if total_percentage < 99.9 or total_percentage > 100:
+    if total_percentage < 99.9 or total_percentage > 100.1:
         logger.info(f'Warning: total percentage of ETF portfolio is {total_percentage}')
         import app.email as email
         email.send_email_to_admin(f'Warning: total percentage of ETF portfolio is {total_percentage}')
