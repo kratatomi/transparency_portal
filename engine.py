@@ -11,6 +11,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver import FirefoxOptions
 import logging
 
+
 logger = logging.getLogger("app.engine")
 
 w3 = Web3(Web3.HTTPProvider('https://smartbch.greyh.at'))
@@ -780,10 +781,10 @@ def send_transaction(identifier, tx):
         logger.info(f'TX reverted. Identifier is {identifier}, error: {error}')
         import app.email as email
         email.send_email_to_admin(f'TX reverted. Identifier is {identifier}, error: {error}')
-    except:
-        logger.info(f'TX failed to sent, unknown Web3py error. Identifier is {identifier}')
+    except Exception as e:
+        logger.info(f'TX failed to sent, error is {e}. Identifier is {identifier}')
         import app.email as email
-        email.send_email_to_admin(f'TX failed to sent, Web3py error. Identifier is {identifier}')
+        email.send_email_to_admin(f'TX failed to sent, error is {e}. Identifier is {identifier}')
     else:
         logger.info(f'TXID {TXID} sent, identifier is {identifier}')
         try:
