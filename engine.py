@@ -757,6 +757,8 @@ def harvest_pools_rewards(pool_name, amount=0):
              'gasPrice': w3.toWei('1.046739556', 'gwei')
              })
         send_transaction(pool_name, harvest_tx)
+    if pool_name == "FlexUSD":
+        swap_assets("0x7b2B3C5308ab5b2a1d9a94d20D35CCDf61e05b72", "0x0000000000000000000000000000000000000000", amount)
 
 def send_transaction(identifier, tx):
     # identifier is just a string to help the admin to identify the tx if it fails.
@@ -766,7 +768,8 @@ def send_transaction(identifier, tx):
         email.send_email_to_admin("Not enough BCH to send a tx.")
         return
     import os
-    tx['gas'] = 400000
+    tx['gas'] *= 1.5
+    tx['gas'] = int(tx['gas']) # Decimals removed
     nonce = w3.eth.get_transaction_count(portfolio_address)
     tx['nonce'] = nonce
     private_key = os.environ.get('PORTFOLIO_PRIV_KEY')
@@ -797,10 +800,10 @@ def send_transaction(identifier, tx):
             logger.info(f'Failed to get TX status, TXID is {TXID}, identifier is {identifier}')
             import app.email as email
             email.send_email_to_admin(f'Failed to get TX status, TXID is {TXID}, identifier is {identifier}')
-        except:
-            logger.info(f'Failed to get TX status by unknown reason, TXID is {TXID}, identifier is {identifier}')
+        except Exception as e:
+            logger.info(f'Failed to get TX status, error is {e}, TXID is {TXID}, identifier is {identifier}')
             import app.email as email
-            email.send_email_to_admin(f'Failed to get TX status by unknown reason, TXID is {TXID}, identifier is {identifier}')
+            email.send_email_to_admin(f'Failed to get TX status, error is {e}, TXID is {TXID}, identifier is {identifier}')
 
 def harvest_farms_rewards():
     # Harvest all the rewards for every farm
@@ -844,6 +847,46 @@ def get_ETF_assets_allocation(farms):
         import app.email as email
         email.send_email_to_admin(f'Warning: total percentage of ETF portfolio is {total_percentage}')
     return portfolio
+
+def swap_assets(asset_in, asset_out, amount):
+    # asset_in and asset_out are the respective contract address of each token. Amount is the amount to swap.
+    # First, we need to make sure that the portfolio holds the required amount of asset_in
+    ABI = open("ABIs/ERC20-ABI.json", "r")
+    abi = json.loads(ABI.read())
+    contract = w3.eth.contract(address=asset_in, abi=abi)
+    asset_in_amount = contract.functions.balanceOf(portfolio_address).call()
+    if asset_in_amount < amount:
+        logger.info(f'Warning: not enough {asset_in} balance, needed {amount}.')
+        import app.email as email
+        email.send_email_to_admin(f'Warning: not enough {asset_in} balance, needed {amount}.')
+        return
+    # Second, we need to know if SmartSwap router is allowed to swap asset_in
+    router = "0xEd2E356C00A555DDdd7663BDA822C6acB34Ce614"
+    allowance = contract.functions.allowance(portfolio_address, router).call()
+    if allowance == 0:
+        amount = contract.functions.totalSupply().call()
+        allowance_tx = contract.functions.approve(router, amount).buildTransaction(
+            {'chainId': 10000,
+             'from': portfolio_address,
+             'gasPrice': w3.toWei('1.05', 'gwei')
+             })
+        send_transaction(f"Approving {asset_in} for SmartSwap router", allowance_tx)
+    ABI = open("ABIs/SmartSwap-ABI.json", "r")
+    abi = json.loads(ABI.read())
+    contract = w3.eth.contract(address=router, abi=abi)
+    parts = 10 # Number of DEXs to used, set to 10 by default
+    # Third, we'll get the expected return and DEXs distribution
+    expected_return, distribution = contract.functions.getExpectedReturn(asset_in, asset_out, int(amount), parts, 0).call()
+    # Last, we'll construct the swap TX
+    deadline = round(time()) + 60  # Added 60 sec to the current time
+    minAmount = int(expected_return * 0.975) #Slippage tolerance 2.5%
+    swap_tx = contract.functions.swap(asset_in, asset_out, int(amount), minAmount, distribution, 0, deadline, 500000000000000).buildTransaction(
+        {'chainId': 10000,
+         'from': portfolio_address,
+         'gasPrice': w3.toWei('1.05', 'gwei')
+         })
+    identifier = f"Swap {amount} {asset_in} for {asset_out}"
+    send_transaction(identifier, swap_tx)
 
 
 def main():
