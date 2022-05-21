@@ -513,12 +513,11 @@ def get_law_rewards(bch_price):
     opts.add_argument("--disable-gpu")
     driver = webdriver.Firefox(options=opts)
     driver.get(url)
-    wait = WebDriverWait(driver, 10)
+    wait = WebDriverWait(driver, 15)
     try:
         status = wait.until(EC.text_to_be_present_in_element((By.CLASS_NAME, "punks-market-info-item-num.BCH"), "."))
         element = driver.find_element(By.CLASS_NAME, 'punks-market-info-item-num.BCH')
         floor_price = float(element.text.split()[0])
-        driver.quit()
         punks_owned["Floor price"] = floor_price  # In BCH
         punks_owned["Total floor value"] = round(floor_price * punks_number * bch_price, 2)  # In USD
         total_illiquid_value += punks_owned["Total floor value"]
@@ -526,16 +525,16 @@ def get_law_rewards(bch_price):
         element = driver.find_element(By.CLASS_NAME, 'punks-market-info-item-num.BCH')
         if element.text.split()[0].isnumeric():
             floor_price = float(element.text.split()[0])
-            driver.quit()
             punks_owned["Floor price"] = floor_price  # In BCH
             punks_owned["Total floor value"] = round(floor_price * punks_number * bch_price, 2)  # In USD
             total_illiquid_value += punks_owned["Total floor value"]
         else:
-            driver.quit()
             logger.info(f'Error found trying to get punks floor price: {e}')
             import app.email as email
             email.send_email_to_admin(f'Error found trying to get punks floor price: {e}')
             total_illiquid_value += punks_owned["Total floor value"]
+    finally:
+        driver.quit()
 
 
 def get_farms(bch_price):
