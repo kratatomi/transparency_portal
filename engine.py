@@ -523,10 +523,20 @@ def get_law_rewards(bch_price):
         punks_owned["Total floor value"] = round(floor_price * punks_number * bch_price, 2)  # In USD
         total_illiquid_value += punks_owned["Total floor value"]
     except Exception as e:
-        logger.info(f'Error found trying to get punks floor price: {e}')
-        import app.email as email
-        email.send_email_to_admin(f'Error found trying to get punks floor price: {e}')
-        total_illiquid_value += punks_owned["Total floor value"]
+        element = driver.find_element(By.CLASS_NAME, 'punks-market-info-item-num.BCH')
+        if element.text.split()[0].isnumeric():
+            floor_price = float(element.text.split()[0])
+            driver.quit()
+            punks_owned["Floor price"] = floor_price  # In BCH
+            punks_owned["Total floor value"] = round(floor_price * punks_number * bch_price, 2)  # In USD
+            total_illiquid_value += punks_owned["Total floor value"]
+            print('Done')
+        else:
+            driver.quit
+            logger.info(f'Error found trying to get punks floor price: {e}')
+            import app.email as email
+            email.send_email_to_admin(f'Error found trying to get punks floor price: {e}')
+            total_illiquid_value += punks_owned["Total floor value"]
 
 
 def get_farms(bch_price):
