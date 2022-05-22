@@ -612,47 +612,27 @@ def start_celery_stake():
         import app.email as email
         email.send_email_to_admin("Not enough BCH to start CLY stake")
         return
-    import os
     ABI = open("ABIs/CLY-ABI.json", "r")  # ABI for CLY token
     abi = json.loads(ABI.read())
     contract = w3.eth.contract(address="0x7642Df81b5BEAeEb331cc5A104bd13Ba68c34B91", abi=abi)
-    nonce = w3.eth.get_transaction_count(portfolio_address)
     stake_cly_tx = contract.functions.startStake().buildTransaction(
         {'chainId': 10000,
-         'gas': 123209,
-         'gasPrice': w3.toWei('1.05', 'gwei'),
-         'nonce': nonce})
-    # We're gonna check if there's enough BCH for the tx
-    private_key = os.environ.get('PORTFOLIO_PRIV_KEY')
-    if private_key == None:
-        import app.email as email
-        email.send_email_to_admin("Portfolio private key not loaded on shell environment")
-    signed_txn = w3.eth.account.sign_transaction(stake_cly_tx, private_key=private_key)
-    w3.eth.send_raw_transaction(signed_txn.rawTransaction)
+         'from': portfolio_address,
+         'gasPrice': w3.toWei('1.05', 'gwei')
+        })
+    send_transaction("Celery stacking", stake_cly_tx)
 
 
 def start_celery_payout():
-    # We're gonna check if there's enough BCH for the tx
-    if not check_bch_balance(portfolio_address):
-        import app.email as email
-        email.send_email_to_admin("Not enough BCH to start CLY payout")
-        return
-    import os
     ABI = open("ABIs/CLY-ABI.json", "r")  # ABI for CLY token
     abi = json.loads(ABI.read())
     contract = w3.eth.contract(address="0x7642Df81b5BEAeEb331cc5A104bd13Ba68c34B91", abi=abi)
-    nonce = w3.eth.get_transaction_count(portfolio_address)
     payout_cly_tx = contract.functions.startPayout().buildTransaction(
         {'chainId': 10000,
-         'gas': 81716,
-         'gasPrice': w3.toWei('1.05', 'gwei'),
-         'nonce': nonce})
-    private_key = os.environ.get('PORTFOLIO_PRIV_KEY')
-    if private_key == None:
-        import app.email as email
-        email.send_email_to_admin("Portfolio private key not loaded on shell environment")
-    signed_txn = w3.eth.account.sign_transaction(payout_cly_tx, private_key=private_key)
-    w3.eth.send_raw_transaction(signed_txn.rawTransaction)
+         'from': portfolio_address,
+         'gasPrice': w3.toWei('1.05', 'gwei')
+         })
+    send_transaction("Celery payout", payout_cly_tx)
 
 
 def swapBCHtoSIDX(bch_balance):
