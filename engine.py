@@ -29,14 +29,10 @@ punk_wallets = [portfolio_address,  # Punks wallet 1
                 "0x3484f575A3d3b4026B4708997317797925A236ae",  # Punks wallet 2
                 "0x57BB80fdab3ca9FDBC690F4b133010d8615e77b3"]  # Punks wallet 3
 
-voting_wallets = ["0xa3533751171786035fC440bFeF3F535093EAd686",
-                  "0xe26B069480c24b195Cd48c8d61857B5Aaf610569",
-                  "0x711CA8Da9bE7a3Ee698dD76C632A19cFB6F768Cb"]
+WBCH_CA = "0x3743eC0673453E5009310C727Ba4eaF7b3a1cc04"
 
 with open("data/PUNKS_BALANCES.json", "r") as file:
     punks_owned = json.load(file)
-
-cheque_CA = w3.toChecksumAddress("0xa36C479eEAa25C0CFC7e099D3bEbF7A7F1303F40")
 
 assets_balances = {
     "MistToken": {"Initial": 226146.43, "Stacked": True, "CA": "0x5fA664f69c2A4A3ec94FaC3cBf7049BD9CA73129",
@@ -754,22 +750,28 @@ def harvest_pools_rewards(pool_name, amount=0):
     if pool_name == "FlexUSD":
         swap_assets("0x7b2B3C5308ab5b2a1d9a94d20D35CCDf61e05b72", "0x0000000000000000000000000000000000000000", amount)
 
-def send_transaction(identifier, tx):
+def send_transaction(identifier, tx, *account):
     # identifier is just a string to help the admin to identify the tx if it fails.
+    # account contains the address and the private key env location
     # First, check is there enough BCH to pay the gas fee
-    if not check_bch_balance(portfolio_address):
+    if not account:
+        address = portfolio_address
+        priv_key_env = 'PORTFOLIO_PRIV_KEY'
+    else:
+        address, priv_key_env = account
+    if not check_bch_balance(address):
         import app.email as email
-        email.send_email_to_admin("Not enough BCH to send a tx.")
+        email.send_email_to_admin(f"Not enough BCH to send a tx in account {address}")
         return
     import os
     tx['gas'] *= 1.5
     tx['gas'] = int(tx['gas']) # Decimals removed
-    nonce = w3.eth.get_transaction_count(portfolio_address)
+    nonce = w3.eth.get_transaction_count(address)
     tx['nonce'] = nonce
-    private_key = os.environ.get('PORTFOLIO_PRIV_KEY')
+    private_key = os.environ.get(priv_key_env)
     if private_key == None:
         import app.email as email
-        email.send_email_to_admin("Portfolio private key not loaded on shell environment")
+        email.send_email_to_admin(f"Private key for account {address} not loaded on shell environment")
         return
     signed_txn = w3.eth.account.sign_transaction(tx, private_key=private_key)
     try:
@@ -813,6 +815,48 @@ def harvest_farms_rewards():
                  })
             send_transaction(farms[DEX]['farms'][i]["lp_CA"], harvest_tx)
 
+def harvest_tango_sidx_farm(*account):
+    address, priv_key_env = account
+    # Harvest SIDX/BCH farm on Tangoswap, in the second wallet
+    ABI = open("ABIs/MIST-Master-ABI.json", "r")
+    abi = json.loads(ABI.read())
+    contract = w3.eth.contract(address=farms["Tangoswap"]['factory'], abi=abi)
+    harvest_tx = contract.functions.deposit(32, 0).buildTransaction(
+        {'chainId': 10000,
+         'from': address,
+         'gasPrice': w3.toWei('1.046739556', 'gwei')
+         })
+    send_transaction("Harvesting SIDX/BCH farm on Tango", harvest_tx)
+    # Then, get the Tango amount harvested
+    tango_CA = "0x73BE9c8Edf5e951c9a0762EA2b1DE8c8F38B5e91"
+    tango_amount = int(round(get_SEP20_balance(tango_CA, address) / 2))
+    # Swap half of the amount for SIDX
+    swap_assets(tango_CA, SIDX_CA, tango_amount, *account)
+    # Swap the rest to WBCH
+    tango_amount = get_SEP20_balance(tango_CA, address)
+    swap_assets(tango_CA, WBCH_CA, tango_amount, *account)
+    # Add liquidity to the SIDX/WBCH pool
+    tokens_dictionary = {"token0": {"CA": WBCH_CA, "amount": 0},
+                         "token1": {"CA": SIDX_CA, "amount": "all"}}
+    LP_CA = "0x4509Ff66a56cB1b80a6184DB268AD9dFBB79DD53"
+    tango_router = "0xb93184fB3eEDb4d32150763578cA305488240c8e"
+    add_liquidity(tokens_dictionary, LP_CA, tango_router, *account)
+    # Time to check the LP tokens balance
+    ABI = open("ABIs/UniswapV2Pair.json", "r")
+    abi = json.loads(ABI.read())
+    contract = w3.eth.contract(address=LP_CA, abi=abi)
+    LP_balance = int(contract.functions.balanceOf(address).call())
+    # Finally, LP tokens are deposited on the farm
+    ABI = open(f"ABIs/{farms['Tangoswap']['factory_ABI']}", "r")
+    abi = json.loads(ABI.read())
+    contract = w3.eth.contract(address=farms['Tangoswap']['factory'], abi=abi)
+    deposit_tx = contract.functions.deposit(32, LP_balance).buildTransaction(
+        {'chainId': 10000,
+         'from': address,
+         'gasPrice': w3.toWei('1.046739556', 'gwei')
+         })
+    send_transaction(f"Depositing {LP_balance} SIDX/WBCH LP tokens to TangoSwap farm", deposit_tx, *account)
+
 def get_ETF_assets_allocation(farms):
     portfolio = {"Standalone assets": {}, "Farms": {}}
     total_percentage = 0
@@ -842,29 +886,23 @@ def get_ETF_assets_allocation(farms):
         email.send_email_to_admin(f'Warning: total percentage of ETF portfolio is {total_percentage}')
     return portfolio
 
-def swap_assets(asset_in, asset_out, amount):
+def swap_assets(asset_in, asset_out, amount, *account):
     # asset_in and asset_out are the respective contract address of each token. Amount is the amount to swap.
     # First, we need to make sure that the portfolio holds the required amount of asset_in
-    ABI = open("ABIs/ERC20-ABI.json", "r")
-    abi = json.loads(ABI.read())
-    contract = w3.eth.contract(address=asset_in, abi=abi)
-    asset_in_amount = contract.functions.balanceOf(portfolio_address).call()
+    if not account:
+        address = portfolio_address
+        priv_key_env = 'PORTFOLIO_PRIV_KEY'
+    else:
+        address, priv_key_env = account
+    asset_in_amount = get_SEP20_balance(asset_in, address)
     if asset_in_amount < amount:
-        logger.info(f'Warning: not enough {asset_in} balance, needed {amount}.')
+        logger.info(f'Warning: not enough {asset_in} balance in account {address}, needed {amount}.')
         import app.email as email
         email.send_email_to_admin(f'Warning: not enough {asset_in} balance, needed {amount}.')
         return
     # Second, we need to know if SmartSwap router is allowed to swap asset_in
     router = "0xEd2E356C00A555DDdd7663BDA822C6acB34Ce614"
-    allowance = contract.functions.allowance(portfolio_address, router).call()
-    if allowance == 0:
-        amount = contract.functions.totalSupply().call()
-        allowance_tx = contract.functions.approve(router, amount).buildTransaction(
-            {'chainId': 10000,
-             'from': portfolio_address,
-             'gasPrice': w3.toWei('1.05', 'gwei')
-             })
-        send_transaction(f"Approving {asset_in} for SmartSwap router", allowance_tx)
+    asset_allowance(asset_in, router, amount="all", *account)
     ABI = open("ABIs/SmartSwap-ABI.json", "r")
     abi = json.loads(ABI.read())
     contract = w3.eth.contract(address=router, abi=abi)
@@ -876,12 +914,99 @@ def swap_assets(asset_in, asset_out, amount):
     minAmount = int(expected_return * 0.975) #Slippage tolerance 2.5%
     swap_tx = contract.functions.swap(asset_in, asset_out, int(amount), minAmount, distribution, 0, deadline, 500000000000000).buildTransaction(
         {'chainId': 10000,
-         'from': portfolio_address,
+         'from': address,
          'gasPrice': w3.toWei('1.05', 'gwei')
          })
-    identifier = f"Swap {amount} {asset_in} for {asset_out}"
-    send_transaction(identifier, swap_tx)
+    identifier = f"Swap {amount} {asset_in} for {asset_out} in account {address}"
+    send_transaction(identifier, swap_tx, *account)
 
+def asset_allowance(token_CA, spender, *account, amount="all"):
+    if not account:
+        address = portfolio_address
+        priv_key_env = 'PORTFOLIO_PRIV_KEY'
+    else:
+        address, priv_key_env = account
+    ABI = open("ABIs/ERC20-ABI.json", "r")
+    abi = json.loads(ABI.read())
+    contract = w3.eth.contract(address=token_CA, abi=abi)
+    allowance = contract.functions.allowance(address, spender).call()
+    if allowance != 0:
+        return
+    else:
+        if amount == "all":
+            amount = contract.functions.totalSupply().call()
+        allowance_tx = contract.functions.approve(spender, amount).buildTransaction(
+            {'chainId': 10000,
+             'from': address,
+             'gasPrice': w3.toWei('1.05', 'gwei')
+             })
+        send_transaction(f"Approving {token_CA} to be spent by {spender} in account {address}", allowance_tx, *account)
+
+def add_liquidity(tokens_dictionary, LP_CA, router, *account, min_amount_percentage=1):
+    '''tokens_dictionary has the following structure:
+    tokens_dictionary = {"token0": {"CA": CA, "amount": "all" | amount | 0},
+                        "token1": {"CA": CA, "amount": "all" | amount | 0}}
+    where tries to match all token balance with the other, amount is an int number and 0 means that the other token will decide the matching amount.'''
+    if not account:
+        address = portfolio_address
+        priv_key_env = 'PORTFOLIO_PRIV_KEY'
+    else:
+        address, priv_key_env = account
+    chosen_token = "token0"
+    if tokens_dictionary["token1"]["amount"] != 0:
+        chosen_token = "token1"
+    # Let's get the amount to swap of the chosen token
+    if tokens_dictionary[chosen_token]["amount"] == "all":
+        tokens_dictionary[chosen_token]["amount"] = get_SEP20_balance(tokens_dictionary[chosen_token]["CA"], address)
+    # Now, let's get the balance of the counter-token to add liquidity
+    ABI = open("ABIs/UniswapV2Pair.json", "r")
+    abi = json.loads(ABI.read())
+    contract = w3.eth.contract(address=LP_CA, abi=abi)
+    token0_reserves, token1_reserves = [contract.functions.getReserves().call()[i] for i in (0, 1)]
+    if chosen_token == "token0":
+        tokens_dictionary["token1"]["amount"] = (tokens_dictionary["token0"]["amount"] / token0_reserves) * token1_reserves
+    else:
+        tokens_dictionary["token0"]["amount"] = (tokens_dictionary["token1"]["amount"] / token1_reserves) * token0_reserves
+    # Router must be allowed to spend both tokens
+    asset_allowance(tokens_dictionary["token0"]["CA"], router, amount="all", *account)
+    asset_allowance(tokens_dictionary["token1"]["CA"], router, amount="all", *account)
+    # Now we can construct the addLiquidity() function
+    token0_min_amount = tokens_dictionary["token0"]["amount"] * ((100-min_amount_percentage) / 100)
+    token1_min_amount = tokens_dictionary["token1"]["amount"] * ((100 - min_amount_percentage) / 100)
+    ABI = open("ABIs/UniswapV2Router.json", "r")
+    abi = json.loads(ABI.read())
+    contract = w3.eth.contract(address=router, abi=abi)
+    deadline = int(time()) + 60
+    add_liquidity_tx = contract.functions.addLiquidity(tokens_dictionary["token0"]["CA"], tokens_dictionary["token1"]["CA"], tokens_dictionary["token0"]["amount"], tokens_dictionary["token1"]["amount"], token0_min_amount, token1_min_amount, address, deadline).buildTransaction(
+        {'chainId': 10000,
+         'from': address,
+         'gasPrice': w3.toWei('1.05', 'gwei')
+         })
+    send_transaction(f"Adding liquidity: at least {token0_min_amount} of {tokens_dictionary['token0']['CA']} and {token1_min_amount} of {tokens_dictionary['token1']['CA']} in account {address}", add_liquidity_tx, *account)
+
+def wrap_BCH(amount, *account):
+    amount = int(amount)
+    if not account:
+        address = portfolio_address
+        priv_key_env = 'PORTFOLIO_PRIV_KEY'
+    else:
+        address, priv_key_env = account
+    ABI = open("ABIs/WBCH-ABI.json", "r")
+    abi = json.loads(ABI.read())
+    contract = w3.eth.contract(address=WBCH_CA, abi=abi)
+    wrap_bch_tx = contract.functions.deposit().buildTransaction(
+        {'chainId': 10000,
+         'from': address,
+         'value': amount,
+         'gasPrice': w3.toWei('1.05', 'gwei')
+         })
+    send_transaction(f'Wrapping {amount} BCH from account {address}', wrap_bch_tx, *account)
+
+def get_SEP20_balance(token_CA, wallet):
+    ABI = open("ABIs/ERC20-ABI.json")
+    abi = json.loads(ABI.read())
+    contract = w3.eth.contract(address=token_CA, abi=abi)
+    return int(contract.functions.balanceOf(wallet).call())
 
 def main():
     global total_liquid_value

@@ -123,6 +123,7 @@ def main():
         if isinstance(stacked_assets[asset], dict): # Don't grab Total value and Total yield value entries
             engine.harvest_pools_rewards(asset, amount=stacked_assets[asset]["Yield"] * 10**18)
     engine.harvest_farms_rewards()
+    engine.harvest_tango_sidx_farm(engine.punk_wallets[1], 'SECOND_WALLET_PRIV_KEY')
 
 if __name__ == "__main__":
     main()
