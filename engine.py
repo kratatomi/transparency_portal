@@ -826,7 +826,7 @@ def harvest_tango_sidx_farm(*account):
          'from': address,
          'gasPrice': w3.toWei('1.046739556', 'gwei')
          })
-    send_transaction("Harvesting SIDX/BCH farm on Tango", harvest_tx)
+    send_transaction("Harvesting SIDX/BCH farm on Tango", harvest_tx, *account)
     # Then, get the Tango amount harvested
     tango_CA = "0x73BE9c8Edf5e951c9a0762EA2b1DE8c8F38B5e91"
     tango_amount = int(round(get_SEP20_balance(tango_CA, address) / 2))
