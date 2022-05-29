@@ -964,15 +964,15 @@ def add_liquidity(tokens_dictionary, LP_CA, router, *account, min_amount_percent
     contract = w3.eth.contract(address=LP_CA, abi=abi)
     token0_reserves, token1_reserves = [contract.functions.getReserves().call()[i] for i in (0, 1)]
     if chosen_token == "token0":
-        tokens_dictionary["token1"]["amount"] = (tokens_dictionary["token0"]["amount"] / token0_reserves) * token1_reserves
+        tokens_dictionary["token1"]["amount"] = int(round((tokens_dictionary["token0"]["amount"] / token0_reserves) * token1_reserves))
     else:
-        tokens_dictionary["token0"]["amount"] = (tokens_dictionary["token1"]["amount"] / token1_reserves) * token0_reserves
+        tokens_dictionary["token0"]["amount"] = int(round((tokens_dictionary["token1"]["amount"] / token1_reserves) * token0_reserves))
     # Router must be allowed to spend both tokens
     asset_allowance(tokens_dictionary["token0"]["CA"], router, amount="all", *account)
     asset_allowance(tokens_dictionary["token1"]["CA"], router, amount="all", *account)
     # Now we can construct the addLiquidity() function
-    token0_min_amount = tokens_dictionary["token0"]["amount"] * ((100-min_amount_percentage) / 100)
-    token1_min_amount = tokens_dictionary["token1"]["amount"] * ((100 - min_amount_percentage) / 100)
+    token0_min_amount = int(round(tokens_dictionary["token0"]["amount"] * ((100-min_amount_percentage) / 100)))
+    token1_min_amount = int(round(tokens_dictionary["token1"]["amount"] * ((100 - min_amount_percentage) / 100)))
     ABI = open("ABIs/UniswapV2Router.json", "r")
     abi = json.loads(ABI.read())
     contract = w3.eth.contract(address=router, abi=abi)
