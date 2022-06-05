@@ -72,8 +72,8 @@ initial_pool_balances = {
 }
 
 extra_pool_balances = {
-    "Mistswap": {"CA": "0x7E1B9F1e286160A80ab9B04D228C02583AeF90B5", "token0": 3.668377, "token1": 1381.36},
-    "Tangoswap": {"CA": "0x4509Ff66a56cB1b80a6184DB268AD9dFBB79DD53", "token0": 4.0022, "token1": 1327.3239}
+    "Mistswap": {"CA": "0x7E1B9F1e286160A80ab9B04D228C02583AeF90B5", "token0": 3.9883, "token1": 1565.11},
+    "Tangoswap": {"CA": "0x4509Ff66a56cB1b80a6184DB268AD9dFBB79DD53", "token0": 4.0262, "token1": 1341.2959}
     }  # Token0 is WBCH, Token1 is SIDX
 
 farms = {"Mistswap": {"factory": "0x3A7B9D0ed49a90712da4E087b17eE4Ac1375a5D4",
@@ -777,27 +777,30 @@ def send_transaction(identifier, tx, *account):
     try:
         TXID = w3.eth.send_raw_transaction(signed_txn.rawTransaction)
     except exceptions.SolidityError as error:
-        logger.info(f'TX reverted. Identifier is {identifier}, error: {error}')
+        logger.error(f'TX reverted. Identifier is {identifier}, error: {error}')
         import app.email as email
         email.send_email_to_admin(f'TX reverted. Identifier is {identifier}, error: {error}')
     except Exception as e:
-        logger.info(f'TX failed to sent, error is {e}. Identifier is {identifier}')
+        print("Broad exception triggered")
+        logger.error(f'TX failed to sent, error is {e}. Identifier is {identifier}')
         import app.email as email
         email.send_email_to_admin(f'TX failed to sent, error is {e}. Identifier is {identifier}')
     else:
         logger.info(f'TXID {TXID} sent, identifier is {identifier}')
+        formatted_TXID = w3.toText(TXID)
+        print(formatted_TXID)
         try:
             receipt = w3.eth.wait_for_transaction_receipt(TXID)
             if receipt.status == 0:
                 import app.email as email
                 email.send_email_to_admin(f"Harvesting failed for {identifier}, TXID is {TXID}")
-                logger.info(f'TXID {TXID} failed, identifier is {identifier}')
+                logger.error(f'TXID {TXID} failed, identifier is {identifier}')
         except exceptions.TimeExhausted:
-            logger.info(f'Failed to get TX status, TXID is {TXID}, identifier is {identifier}')
+            logger.error(f'Failed to get TX status, TXID is {TXID}, identifier is {identifier}')
             import app.email as email
             email.send_email_to_admin(f'Failed to get TX status, TXID is {TXID}, identifier is {identifier}')
         except Exception as e:
-            logger.info(f'Failed to get TX status, error is {e}, TXID is {TXID}, identifier is {identifier}')
+            logger.error(f'Failed to get TX status, error is {e}, TXID is {TXID}, identifier is {identifier}')
             import app.email as email
             email.send_email_to_admin(f'Failed to get TX status, error is {e}, TXID is {TXID}, identifier is {identifier}')
 
