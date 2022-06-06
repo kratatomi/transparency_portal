@@ -705,12 +705,19 @@ def wash_trading_bot(min_usd_balance):
     return "Threshold reached"
 
 
-def check_bch_balance(account):
+def check_bch_balance(account, tx=None):
     bch_balance = w3.eth.get_balance(account)
-    if bch_balance > 2000000000000000:
-        return True
+    if tx != None:
+        fee = tx['gas'] * tx['gasPrice']
+        if bch_balance >= fee:
+            return True
+        else:
+            return False
     else:
-        return False
+        if bch_balance > 200000000000000:
+            return True
+        else:
+            return False
 
 
 def harvest_pools_rewards(pool_name, amount=0):
@@ -753,16 +760,11 @@ def harvest_pools_rewards(pool_name, amount=0):
 def send_transaction(identifier, tx, *account):
     # identifier is just a string to help the admin to identify the tx if it fails.
     # account contains the address and the private key env location
-    # First, check is there enough BCH to pay the gas fee
     if not account:
         address = portfolio_address
         priv_key_env = 'PORTFOLIO_PRIV_KEY'
     else:
         address, priv_key_env = account
-    if not check_bch_balance(address):
-        import app.email as email
-        email.send_email_to_admin(f"Not enough BCH to send a tx in account {address}")
-        return
     import os
     tx['gas'] *= 1.5
     tx['gas'] = int(tx['gas']) # Decimals removed
@@ -772,6 +774,11 @@ def send_transaction(identifier, tx, *account):
     if private_key == None:
         import app.email as email
         email.send_email_to_admin(f"Private key for account {address} not loaded on shell environment")
+        return
+    # Check is there enough BCH to pay the gas fee
+    if not check_bch_balance(address, tx=tx):
+        import app.email as email
+        email.send_email_to_admin(f"Not enough BCH to send a tx in account {address}")
         return
     signed_txn = w3.eth.account.sign_transaction(tx, private_key=private_key)
     try:
