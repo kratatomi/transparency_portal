@@ -794,8 +794,6 @@ def send_transaction(identifier, tx, *account):
         email.send_email_to_admin(f'TX failed to sent, error is {e}. Identifier is {identifier}')
     else:
         logger.info(f'TXID {TXID} sent, identifier is {identifier}')
-        formatted_TXID = w3.toText(TXID)
-        print(formatted_TXID)
         try:
             receipt = w3.eth.wait_for_transaction_receipt(TXID)
             if receipt.status == 0:
