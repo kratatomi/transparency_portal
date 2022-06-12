@@ -793,21 +793,22 @@ def send_transaction(identifier, tx, *account):
         import app.email as email
         email.send_email_to_admin(f'TX failed to sent, error is {e}. Identifier is {identifier}')
     else:
-        logger.info(f'TXID {TXID} sent, identifier is {identifier}')
+        hex_TXID = w3.toHex(TXID)
+        logger.info(f'TXID {hex_TXID} sent, identifier is {identifier}')
         try:
             receipt = w3.eth.wait_for_transaction_receipt(TXID)
             if receipt.status == 0:
                 import app.email as email
                 email.send_email_to_admin(f"Harvesting failed for {identifier}, TXID is {TXID}")
-                logger.error(f'TXID {TXID} failed, identifier is {identifier}')
+                logger.error(f'TXID {hex_TXID} failed, identifier is {identifier}')
         except exceptions.TimeExhausted:
-            logger.error(f'Failed to get TX status, TXID is {TXID}, identifier is {identifier}')
+            logger.error(f'Failed to get TX status, TXID is {hex_TXID}, identifier is {identifier}')
             import app.email as email
-            email.send_email_to_admin(f'Failed to get TX status, TXID is {TXID}, identifier is {identifier}')
+            email.send_email_to_admin(f'Failed to get TX status, TXID is {hex_TXID}, identifier is {identifier}')
         except Exception as e:
-            logger.error(f'Failed to get TX status, error is {e}, TXID is {TXID}, identifier is {identifier}')
+            logger.error(f'Failed to get TX status, error is {e}, TXID is {hex_TXID}, identifier is {identifier}')
             import app.email as email
-            email.send_email_to_admin(f'Failed to get TX status, error is {e}, TXID is {TXID}, identifier is {identifier}')
+            email.send_email_to_admin(f'Failed to get TX status, error is {e}, TXID is {hex_TXID}, identifier is {identifier}')
 
 def harvest_farms_rewards():
     # Harvest all the rewards for every farm
