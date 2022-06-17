@@ -466,7 +466,7 @@ def update_punks_balance():
     punks_balance["Wallets"] = {k: {} for k in punk_wallets}
     for wallet in punk_wallets:
         punks_balance["Wallets"][wallet] = {"Punks": [], "LAW rewards": 0}
-    # As all punks in SmartIndex are stacked, we need to scan the full punks supply in the punks DEX
+    # As all punks in SmartIndex are staked, we need to scan the full punks supply in the punks DEX
     ABI = open("ABIs/LAW_punks_DEX-ABI.json", "r")
     abi = json.loads(ABI.read())
     contract = w3.eth.contract(address=law_punks_market, abi=abi)

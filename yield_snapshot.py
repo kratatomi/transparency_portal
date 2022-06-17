@@ -49,7 +49,7 @@ def generate_graphs():
 
     ax.set(xlabel='Week',
            ylabel='Yield percentage',
-           title='Yield percentage of stacked assets')
+           title='Yield percentage of staked assets')
 
     for asset in assets_list:
         ax.plot(weeks, assets_list[asset]["Yields"], label=asset)
@@ -62,7 +62,7 @@ def generate_graphs():
 
     ax.set(xlabel='Week',
            ylabel='USD value',
-           title='Value of stacked assets')
+           title='Value of staked assets')
 
     for asset in assets_list:
         ax.plot(weeks, assets_list[asset]["USD total value"], label=asset)
