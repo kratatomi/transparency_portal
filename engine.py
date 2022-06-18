@@ -72,9 +72,10 @@ initial_pool_balances = {
 }
 
 extra_pool_balances = {
-    "Mistswap": {"CA": "0x7E1B9F1e286160A80ab9B04D228C02583AeF90B5", "token0": 4.3143, "token1": 1813.58},
-    "Tangoswap": {"CA": "0x4509Ff66a56cB1b80a6184DB268AD9dFBB79DD53", "token0": 4.0453, "token1": 1355.94}
-    }  # Token0 is WBCH, Token1 is SIDX
+    "Mistswap": {"CA": "0x7E1B9F1e286160A80ab9B04D228C02583AeF90B5", "token0": 3.4119, "token1": 1281.46},
+    "Tangoswap": {"CA": "0x4509Ff66a56cB1b80a6184DB268AD9dFBB79DD53", "token0": 4.0453, "token1": 1355.94},
+    "Emberswap": {"CA": "0x97dEAeB1A9A762d97Ac565cD3Ff7629CD6d55D09", "token0": 168318, "token1": 527.115}
+    }  # Token0 is WBCH/EMBER, Token1 is SIDX
 
 farms = {"Mistswap": {"factory": "0x3A7B9D0ed49a90712da4E087b17eE4Ac1375a5D4",
                       "factory_ABI": "MIST-Master-ABI.json",
@@ -375,6 +376,14 @@ def get_LP_balances(initial_pool_balances, wallet_address, bch_price, sidx_price
             portfolio_LP_balance = contract.functions.userInfo(pool_id, wallet_address).call()[0]
             reward = contract.functions.pendingSushi(pool_id, wallet_address).call()
             asset_price = get_price_from_pool("Tango", bch_price)
+        if DEX == "Emberswap":
+            ABI = open("ABIs/EMBER_Distributor-ABI.json", 'r')
+            abi = json.loads(ABI.read())
+            contract = w3.eth.contract(address="0x8ecb32C33AB3f7ee3D6Ce9D4020bC53fecB36Be9", abi=abi)
+            pool_id = 31
+            portfolio_LP_balance = contract.functions.userInfo(pool_id, wallet_address).call()[0]
+            reward = contract.functions.pendingTokens(pool_id, wallet_address).call()[3][0]
+            asset_price = get_price_from_pool("0x52c656FaF57DCbDdDd47BCbA7b2ab79e4c232C28", bch_price, assets_positions=(1, 0))
         # Get assets in liquidity pools
         ABI = open("ABIs/UniswapV2Pair.json", "r")  # Standard ABI for LP tokens
         abi = json.loads(ABI.read())
@@ -392,8 +401,12 @@ def get_LP_balances(initial_pool_balances, wallet_address, bch_price, sidx_price
         LP_total_supply = contract.functions.totalSupply().call()
         LP_balances[DEX][token0_ticker]["Current"] = round(
             ((portfolio_LP_balance / LP_total_supply) * token0_reserves) / 10 ** token0_decimals, 2)
-        LP_balances[DEX][token0_ticker]["Current value"] = round(LP_balances[DEX][token0_ticker]["Current"] * bch_price,
-                                                                 2)
+        if DEX == "Emberswap":
+            LP_balances[DEX][token0_ticker]["Current value"] = round(LP_balances[DEX][token0_ticker]["Current"] * asset_price,
+                                                                     2)
+        else:
+            LP_balances[DEX][token0_ticker]["Current value"] = round(LP_balances[DEX][token0_ticker]["Current"] * bch_price,
+                                                                     2)
         total_liquid_value += LP_balances[DEX][token0_ticker]["Current value"]
         SIDX_LP_value += LP_balances[DEX][token0_ticker]["Current value"]
         LP_balances[DEX][token1_ticker]["Current"] = round(

@@ -102,7 +102,7 @@
             <li>{{ key }}
                 <ul>
                     {% for key, value in value.items() %}
-                    {% if key == "Wrapped BCH" %}
+                    {% if key == "Wrapped BCH" or key == "Ember Token" %}
                     <li>{{ key }}</li>
                     <ul>
                         <li>Initial amount: {{ value["Initial"] }}</li>
