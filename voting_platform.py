@@ -190,6 +190,7 @@ def send_memo(key, message):
     encoded_message = hex_to_bytes(POST_MEMO_PREFIX + PUSHDATA_CODE + bytes_to_hex(message.encode('utf-8')))
 
     if len(encoded_message) <= 220:
+        key.get_balance()
         memo_tx = key.create_transaction([], message=encoded_message, leftover=key.address, custom_pushdata=True)
         NetworkAPI.broadcast_tx(memo_tx)
         key.get_balance()
