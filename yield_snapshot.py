@@ -26,7 +26,7 @@ def generate_graphs():
         stacked_assets = weekly_report["STACKED_ASSETS"]
         for asset in stacked_assets:
             if asset != "Total value" and asset != "Total yield value" and asset not in assets_list:
-                assets_list[asset] = {"Yields": [], "USD total value": []}
+                assets_list[asset] = {"Yields": [], "USD total value": [], "Weeks tracked": 0}
     # Next, we will populate the assets_list dict with the yield % for every week and current value
     for file in snapshots_dates:
         with open(f'data/snapshots/{file}.json') as weekly_report_file:
@@ -40,6 +40,7 @@ def generate_graphs():
                 yield_percentage = (stacked_assets[asset]['Yield value'] / stacked_assets[asset]['Current value']) * 100
                 assets_list[asset]["Yields"].append(yield_percentage)
                 assets_list[asset]["USD total value"].append(stacked_assets[asset]["Current value"])
+                assets_list[asset]["Weeks tracked"] += 1
         if "GLOBAL_STATS" in weekly_report:
             value_per_sidx.append(weekly_report["GLOBAL_STATS"]["value_per_sidx"])
         else:
@@ -70,7 +71,7 @@ def generate_graphs():
     plt.legend()
     plt.savefig("app/static/assets_value.png")
 
-    #Finally, the graph showing price per SIDX evolution
+    #The graph showing price per SIDX evolution:
     fig, ax = plt.subplots()
 
     ax.set(xlabel='Week',
@@ -80,6 +81,44 @@ def generate_graphs():
     ax.plot(weeks, value_per_sidx)
 
     plt.savefig("app/static/sidx_value.png")
+
+    #Finally, a graph with the APY of every asset
+    columns = [] #List of assets
+    rows = [] #List of APYs
+    for asset in assets_list:
+        columns.append(asset)
+        yield_percentage_sum = sum(filter(None, assets_list[asset]["Yields"]))
+        rows.append(yield_percentage_sum * (52 / assets_list[asset]["Weeks tracked"])) #52 weeks per year
+
+    '''Broken axis method extracted from https://matplotlib.org/3.1.0/gallery/subplots_axes_and_figures/broken_axis.html'''
+    f, (ax, ax2) = plt.subplots(2, 1, sharex=True, figsize=(16, 9))
+    ax.bar(columns, rows, color='maroon', width=0.4)
+    ax2.bar(columns, rows, color='maroon', width=0.4)
+    ax.set_ylim(200, 600)
+    ax2.set_ylim(0, 100)
+    ax.spines['bottom'].set_visible(False)
+    ax2.spines['top'].set_visible(False)
+    ax.xaxis.tick_top()
+    ax.tick_params(labeltop=False)  # don't put tick labels at the top
+    ax2.xaxis.tick_bottom()
+    ax.set(xlabel='Asset',
+           ylabel='Estimated APY',
+           title='Estimated APY of staked assets in the portfolio')
+
+    ax.grid(visible=True, color='grey',
+            linestyle='-.', linewidth=0.5,
+            alpha=0.2)
+
+    d = .015  # how big to make the diagonal lines in axes coordinates
+    # arguments to pass to plot, just so we don't keep repeating them
+    kwargs = dict(transform=ax.transAxes, color='k', clip_on=False)
+    ax.plot((-d, +d), (-d, +d), **kwargs)  # top-left diagonal
+    ax.plot((1 - d, 1 + d), (-d, +d), **kwargs)  # top-right diagonal
+
+    kwargs.update(transform=ax2.transAxes)  # switch to the bottom axes
+    ax2.plot((-d, +d), (1 - d, 1 + d), **kwargs)  # bottom-left diagonal
+    ax2.plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)  # bottom-right diagonal
+    plt.savefig("app/static/assets_apy.png")
 
 def main():
     with open('data/SIDX_STATS.json') as sidx_stats_file:
