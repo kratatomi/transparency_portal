@@ -879,6 +879,45 @@ def harvest_tango_sidx_farm(*account):
          })
     send_transaction(f"Depositing {LP_balance} SIDX/WBCH LP tokens to TangoSwap farm", deposit_tx, *account)
 
+def harvest_sidx_ember_farm(*account):
+    address, priv_key_env = account
+    # Harvest SIDX/EMBER farm on Emberswap, in the second wallet
+    ABI = open("ABIs/EMBER_Distributor-ABI.json", "r")
+    abi = json.loads(ABI.read())
+    contract = w3.eth.contract(address="0x8ecb32C33AB3f7ee3D6Ce9D4020bC53fecB36Be9", abi=abi)
+    harvest_tx = contract.functions.deposit(31, 0).buildTransaction(
+        {'chainId': 10000,
+         'from': address,
+         'gasPrice': w3.toWei('1.046739556', 'gwei')
+         })
+    send_transaction("Harvesting SIDX/EMBER farm on Emberswap", harvest_tx, *account)
+    # Then, get the Ember amount harvested
+    ember_CA = "0x6BAbf5277849265b6738e75AEC43AEfdde0Ce88D"
+    ember_amount = int(round(get_SEP20_balance(ember_CA, address) / 2))
+    # Swap half of the amount for SIDX
+    swap_assets(ember_CA, SIDX_CA, ember_amount, *account)
+    # Add liquidity to the SIDX/EMBER pool
+    tokens_dictionary = {"token0": {"CA": ember_CA, "amount": 0},
+                         "token1": {"CA": SIDX_CA, "amount": "all"}}
+    LP_CA = "0x97dEAeB1A9A762d97Ac565cD3Ff7629CD6d55D09"
+    ember_router = "0x217057A8B0bDEb160829c19243A2E03bfe95555a"
+    add_liquidity(tokens_dictionary, LP_CA, ember_router, *account)
+    # Time to check the LP tokens balance
+    ABI = open("ABIs/UniswapV2Pair.json", "r")
+    abi = json.loads(ABI.read())
+    contract = w3.eth.contract(address=LP_CA, abi=abi)
+    LP_balance = int(contract.functions.balanceOf(address).call())
+    # Finally, LP tokens are deposited on the farm
+    ABI = open("ABIs/EMBER_Distributor-ABI.json", "r")
+    abi = json.loads(ABI.read())
+    contract = w3.eth.contract(address="0x8ecb32C33AB3f7ee3D6Ce9D4020bC53fecB36Be9", abi=abi)
+    deposit_tx = contract.functions.deposit(31, LP_balance).buildTransaction(
+        {'chainId': 10000,
+         'from': address,
+         'gasPrice': w3.toWei('1.046739556', 'gwei')
+         })
+    send_transaction(f"Depositing {LP_balance} SIDX/EMBER LP tokens to EmberSwap farm", deposit_tx, *account)
+
 def get_ETF_assets_allocation(farms):
     portfolio = {"Standalone assets": {}, "Farms": {}}
     total_percentage = 0
