@@ -791,8 +791,9 @@ def send_transaction(identifier, tx, *account):
     # Check is there enough BCH to pay the gas fee
     if not check_bch_balance(address, tx=tx):
         import app.email as email
-        email.send_email_to_admin(f"Not enough BCH to send a tx in account {address}")
-        return
+        fee = tx['gas'] * tx['gasPrice']
+        email.send_email_to_admin(f"Not enough BCH to send a tx in account {address}. Fee is {fee}.")
+        #TX will be sent anyways
     signed_txn = w3.eth.account.sign_transaction(tx, private_key=private_key)
     try:
         TXID = w3.eth.send_raw_transaction(signed_txn.rawTransaction)
