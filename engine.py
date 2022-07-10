@@ -42,7 +42,7 @@ assets_balances = {
     "Tango": {"Initial": 23897.252, "Stacked": True, "CA": "0x73BE9c8Edf5e951c9a0762EA2b1DE8c8F38B5e91",
               "BAR_CA": "0x98Ff640323C059d8C4CB846976973FEEB0E068aA",
               "BCH pair": "0x4b773a2ea30C6A77564E4FaE60204e7Bc0a81A90", "Liquid": True},
-    "FlexUSD": {"Initial": 511.62, "Stacked": True, "CA": "0x7b2B3C5308ab5b2a1d9a94d20D35CCDf61e05b72",
+    "FlexUSD": {"Initial": 957.21, "Stacked": True, "CA": "0x7b2B3C5308ab5b2a1d9a94d20D35CCDf61e05b72",
                 "BCH pair": "0x24f011f12Ea45AfaDb1D4245bA15dCAB38B43D13", "Liquid": True},
     "Green Ben": {"Initial": 1875.168, "Stacked": True, "CA": "0xDEa721EFe7cBC0fCAb7C8d65c598b21B6373A2b6",
                   "Liquid": True, "BCH pair": "0x0D4372aCc0503Fbcc7EB129e0De3283c348B82c3", "harvest_CA": "0xDEa721EFe7cBC0fCAb7C8d65c598b21B6373A2b6", "harvest_pool_id": 1,
@@ -50,7 +50,7 @@ assets_balances = {
     "Celery": {"Initial": 1674817.26, "Stacked": True, "CA": "0x7642Df81b5BEAeEb331cc5A104bd13Ba68c34B91",
                "BCH pair": "0x5775D98022590dc60E9c4Ae0a1c56bF1fD8fcaDC", "Liquid": False},
     "FLEX Coin": {"Initial": 142.804, "Stacked": True, "CA": "0x98Dd7eC28FB43b3C4c770AE532417015fa939Dd3",
-                  "Liquid": True},
+                  "Liquid": True, "BCH pair": "0x1A2bdFF5bA942bF20f0db7218cdE28D19aC8dD20"},
     "LAW": {"Stacked": True, "CA": "0x0b00366fBF7037E9d75E4A569ab27dAB84759302",
             "BCH pair": "0xd55a9A41666108d10d31BAeEea5D6CdF3be6C5DD", "Liquid": True},
     "DAIQUIRI": {"Initial": 14281.791, "Stacked": True, "CA": "0xE4D74Af73114F72bD0172fc7904852Ee2E2b47B0",
@@ -63,7 +63,8 @@ assets_balances = {
     "GOB": {"Initial": 5.524333, "Stacked": True, "CA": "0x56381cB87C8990971f3e9d948939e1a95eA113a3",
             "BCH pair": "0x86B0fD64234a747681f0235B6Cc5FE04a4D95B31", "Liquid": True,
             "harvest_CA": "0x48B8aCe692ad8BD2E3139C65bFf7d28c048F8f00", "harvest_ABI": "GOB-StakingContract.json"},
-    "BCH": {"Stacked": False, "Liquid": True}
+    "BCH": {"Stacked": False, "Liquid": True},
+    "xTANGO": {"Stacked": False, "Liquid": True, "CA": "0x98Ff640323C059d8C4CB846976973FEEB0E068aA", "BCH pair": "0x7FbcD4B5b7838F3C22151d492cB7E30B28dED77a"}
 }
 
 initial_pool_balances = {
@@ -72,9 +73,9 @@ initial_pool_balances = {
 }
 
 extra_pool_balances = {
-    "Mistswap": {"CA": "0x7E1B9F1e286160A80ab9B04D228C02583AeF90B5", "token0": 3.9798, "token1": 1568.11},
-    "Tangoswap": {"CA": "0x4509Ff66a56cB1b80a6184DB268AD9dFBB79DD53", "token0": 4.1015, "token1": 1382.86},
-    "Emberswap": {"CA": "0x97dEAeB1A9A762d97Ac565cD3Ff7629CD6d55D09", "token0": 176044, "token1": 539.66}
+    "Mistswap": {"CA": "0x7E1B9F1e286160A80ab9B04D228C02583AeF90B5", "token0": 4.0948, "token1": 1652.98},
+    "Tangoswap": {"CA": "0x4509Ff66a56cB1b80a6184DB268AD9dFBB79DD53", "token0": 4.1355, "token1": 1405.71},
+    "Emberswap": {"CA": "0x97dEAeB1A9A762d97Ac565cD3Ff7629CD6d55D09", "token0": 184311, "token1": 551.86}
     }  # Token0 is WBCH/EMBER, Token1 is SIDX
 
 farms = {"Mistswap": {"factory": "0x3A7B9D0ed49a90712da4E087b17eE4Ac1375a5D4",
