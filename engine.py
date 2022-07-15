@@ -49,7 +49,7 @@ assets_balances = {
                   "harvest_ABI": "BEN-Master-ABI.json"},
     "Celery": {"Initial": 1674817.26, "Stacked": True, "CA": "0x7642Df81b5BEAeEb331cc5A104bd13Ba68c34B91",
                "BCH pair": "0x5775D98022590dc60E9c4Ae0a1c56bF1fD8fcaDC", "Liquid": False},
-    "FLEX Coin": {"Initial": 142.804, "Stacked": True, "CA": "0x98Dd7eC28FB43b3C4c770AE532417015fa939Dd3",
+    "FLEX Coin": {"Initial": 142.804, "Stacked": False, "CA": "0x98Dd7eC28FB43b3C4c770AE532417015fa939Dd3",
                   "Liquid": True, "BCH pair": "0x1A2bdFF5bA942bF20f0db7218cdE28D19aC8dD20"},
     "LAW": {"Stacked": True, "CA": "0x0b00366fBF7037E9d75E4A569ab27dAB84759302",
             "BCH pair": "0xd55a9A41666108d10d31BAeEea5D6CdF3be6C5DD", "Liquid": True},
@@ -80,17 +80,7 @@ extra_pool_balances = {
 
 farms = {"Mistswap": {"factory": "0x3A7B9D0ed49a90712da4E087b17eE4Ac1375a5D4",
                       "factory_ABI": "MIST-Master-ABI.json",
-                      "farms": [{"lp_CA": "0x4fF52e9D7824EC9b4e0189F11B5aA0F02b459b03",
-                                 "pool_id": 2,
-                                 "lp_token_amount": 344.686876049931219858 * 10 ** 18,
-                                 "initial_token0_amount": 882.588,  # FlexUSD
-                                 "token_0_bch_pair": "0x24f011f12Ea45AfaDb1D4245bA15dCAB38B43D13",
-                                 "token_0_assets_position": (1, 0),
-                                 "initial_token1_amount": 142.8045,  # FLEX
-                                 "token_1_bch_pair": "0x8E647c88243A374E60eb644Afb13FfFd52278051",
-                                 "token_1_assets_position": (1, 0),
-                                 "reward coin": "MistToken"},
-                                {"lp_CA": "0x1D5A7bea34EE984D54aF6Ff355A1Cb54c29eb546",
+                      "farms": [{"lp_CA": "0x1D5A7bea34EE984D54aF6Ff355A1Cb54c29eb546",
                                  "pool_id": 47,
                                  "lp_token_amount": 188.882290723925139574 * 10 ** 18,
                                  "initial_token0_amount": 237.61,  # LAW
@@ -104,26 +94,23 @@ farms = {"Mistswap": {"factory": "0x3A7B9D0ed49a90712da4E087b17eE4Ac1375a5D4",
                                  "pool_id": 32,
                                  "lp_token_amount": 17618193073021479641,
                                  "initial_token0_amount": 0.498718,  # WBCH
-                                 "token_0_bch_pair": "0x3743eC0673453E5009310C727Ba4eaF7b3a1cc04", #Get price from pool will jusr return BCH price
+                                 "token_0_bch_pair": "0x3743eC0673453E5009310C727Ba4eaF7b3a1cc04", #Get price from pool will just return BCH price
                                  "token_0_assets_position": (0, 1),
                                  "initial_token1_amount": 758.67058,  # JOY
                                  "token_1_bch_pair": "0x20943aD7855bdE06Dd41BB89C9D2efE05DB329EC",
                                  "token_1_assets_position": (1, 0),
+                                 "reward coin": "MistToken"},
+                                {"lp_CA": "0xde5D57B31cB67d5Aed93c26940394796953961cb",
+                                 "pool_id": 60,
+                                 "lp_token_amount": 1322867557150664581,
+                                 "initial_token0_amount": 1.419,  # WBCH
+                                 "token_0_bch_pair": "0x3743eC0673453E5009310C727Ba4eaF7b3a1cc04", #Get price from pool will just return BCH price
+                                 "token_0_assets_position": (0, 1),
+                                 "initial_token1_amount": 1.405,  # bcBCH
+                                 "token_1_bch_pair": "0xde5D57B31cB67d5Aed93c26940394796953961cb",
+                                 "token_1_assets_position": (1, 0),
                                  "reward coin": "MistToken"}
-                                ]},
-         "Tangoswap": {"factory": "0x38cC060DF3a0498e978eB756e44BD43CC4958aD9",
-                       "factory_ABI": "MIST-Master-ABI.json",
-                       "farms": [{"lp_CA": "0xcdb6081DCb9fd2b3d48927790DF7757E8d137fF4",
-                                  "pool_id": 27,
-                                  "lp_token_amount": 2602.810500549833989903 * 10 ** 18,
-                                  "initial_token0_amount": 599.648,  # FlexUSD
-                                  "token_0_bch_pair": "0x24f011f12Ea45AfaDb1D4245bA15dCAB38B43D13",
-                                  "token_0_assets_position": (1, 0),
-                                  "initial_token1_amount": 11910.1,  # XTANGO
-                                  "token_1_bch_pair": "0x7FbcD4B5b7838F3C22151d492cB7E30B28dED77a",
-                                  "token_1_assets_position": (1, 0),
-                                  "reward coin": "Tango"}]
-                       }
+                                ]}
          }
 
 pie_chart_data = {}
