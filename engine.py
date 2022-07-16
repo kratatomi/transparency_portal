@@ -109,6 +109,16 @@ farms = {"Mistswap": {"factory": "0x3A7B9D0ed49a90712da4E087b17eE4Ac1375a5D4",
                                  "initial_token1_amount": 1.405,  # bcBCH
                                  "token_1_bch_pair": "0xde5D57B31cB67d5Aed93c26940394796953961cb",
                                  "token_1_assets_position": (1, 0),
+                                 "reward coin": "MistToken"},
+                                {"lp_CA": "0x24f011f12Ea45AfaDb1D4245bA15dCAB38B43D13",
+                                 "pool_id": 1,
+                                 "lp_token_amount": 15.66541,
+                                 "initial_token0_amount": 1.419,  # WBCH
+                                 "token_0_bch_pair": "0x3743eC0673453E5009310C727Ba4eaF7b3a1cc04", #Get price from pool will just return BCH price
+                                 "token_0_assets_position": (0, 1),
+                                 "initial_token1_amount": 1.405,  # flexUSD
+                                 "token_1_bch_pair": "0x24f011f12Ea45AfaDb1D4245bA15dCAB38B43D13",
+                                 "token_1_assets_position": (1, 0),
                                  "reward coin": "MistToken"}
                                 ]}
          }

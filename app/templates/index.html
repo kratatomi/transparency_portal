@@ -60,7 +60,7 @@
         <H2>SIDX initial liquidity pools:</H2>
         <ul id="SIDX_liquidity_pools">
             {% for key, value in lp_balances.items() %}
-            <li>{{ key }}
+            <li><b>{{ key }}</b>
                 <ul>
                     {% for key, value in value.items() %}
                     {% if key == "Wrapped BCH" %}
@@ -99,7 +99,7 @@
         <small>See <a href="https://transparency.smartindex.cash/proposals/10">proposal #10</a>, <a href="https://transparency.smartindex.cash/proposals/19">#19</a> and <a href="https://transparency.smartindex.cash/proposals/21">#21</a></small>
         <ul id="extra_SIDX_liquidity_pools">
             {% for key, value in extra_lp_balances.items() %}
-            <li>{{ key }}
+            <li><b>{{ key }}</b>
                 <ul>
                     {% for key, value in value.items() %}
                     {% if key == "Wrapped BCH" or key == "Ember Token" %}
@@ -138,7 +138,7 @@
         <H2>Farms:</H2>
         <ul id="farms">
             {% for key, value in farms.items() %}
-            <li>{{ key }}
+            <li><b>{{ key }}</b>
                 <ul>
                     {% for farm in value["farms"] %}
                         {% for key, value in farm["Coins"].items() %}
