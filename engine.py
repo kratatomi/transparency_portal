@@ -841,7 +841,7 @@ def harvest_tango_sidx_farm(*account):
     # Harvest SIDX/BCH farm on Tangoswap, in the second wallet
     ABI = open("ABIs/MIST-Master-ABI.json", "r")
     abi = json.loads(ABI.read())
-    contract = w3.eth.contract(address=farms["Tangoswap"]['factory'], abi=abi)
+    contract = w3.eth.contract(address="0x2F3f70d13223EDDCA9593fAC9fc010e912DF917a", abi=abi)
     harvest_tx = contract.functions.deposit(32, 0).buildTransaction(
         {'chainId': 10000,
          'from': address,
