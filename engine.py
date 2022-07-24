@@ -839,11 +839,10 @@ def harvest_tango_sidx_farm(*account):
     # Harvest SIDX/BCH farm on Tangoswap, in the second wallet
     ABI = open("ABIs/MIST-Master-ABI.json", "r")
     abi = json.loads(ABI.read())
-    contract = w3.eth.contract(address="0x2F3f70d13223EDDCA9593fAC9fc010e912DF917a", abi=abi)
+    contract = w3.eth.contract(address="0x38cC060DF3a0498e978eB756e44BD43CC4958aD9", abi=abi)
     harvest_tx = contract.functions.deposit(32, 0).buildTransaction(
         {'chainId': 10000,
          'from': address,
-         'nonce': w3.eth.get_transaction_count(address),
          'gasPrice': w3.toWei('1.046739556', 'gwei')
          })
     send_transaction("Harvesting SIDX/BCH farm on Tango", harvest_tx, *account)
@@ -873,7 +872,6 @@ def harvest_tango_sidx_farm(*account):
     deposit_tx = contract.functions.deposit(32, LP_balance).buildTransaction(
         {'chainId': 10000,
          'from': address,
-         'nonce': w3.eth.get_transaction_count(address),
          'gasPrice': w3.toWei('1.046739556', 'gwei')
          })
     send_transaction(f"Depositing {LP_balance} SIDX/WBCH LP tokens to TangoSwap farm", deposit_tx, *account)
