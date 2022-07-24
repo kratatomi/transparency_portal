@@ -843,7 +843,7 @@ def harvest_tango_sidx_farm(*account):
     harvest_tx = contract.functions.deposit(32, 0).buildTransaction(
         {'chainId': 10000,
          'from': address,
-         'gasPrice': w3.toWei('1.046739556', 'gwei')
+         'gasPrice': w3.toWei('1.05', 'gwei')
          })
     send_transaction("Harvesting SIDX/BCH farm on Tango", harvest_tx, *account)
     # Then, get the Tango amount harvested
@@ -872,7 +872,7 @@ def harvest_tango_sidx_farm(*account):
     deposit_tx = contract.functions.deposit(32, LP_balance).buildTransaction(
         {'chainId': 10000,
          'from': address,
-         'gasPrice': w3.toWei('1.046739556', 'gwei')
+         'gasPrice': w3.toWei('1.05', 'gwei')
          })
     send_transaction(f"Depositing {LP_balance} SIDX/WBCH LP tokens to TangoSwap farm", deposit_tx, *account)
 
