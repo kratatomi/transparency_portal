@@ -165,5 +165,14 @@ def main():
     engine.harvest_tango_sidx_farm(engine.punk_wallets[1], 'SECOND_WALLET_PRIV_KEY')
     engine.harvest_sidx_ember_farm(engine.punk_wallets[1], 'SECOND_WALLET_PRIV_KEY')
 
+    # We have to take the profits from the BCH/bcBCH and flexUSD/BCH farms and swap them for bcUSDT (proposal #42)
+    amount_to_swap = 0
+    for farm in farms["Mistswap"]["farms"]:
+        if farm["pool_id"] in (1, 60):
+            amount_to_swap += farm["reward"]
+
+    amount_to_swap = amount_to_swap * 10**18
+    engine.swap_assets("0x5fA664f69c2A4A3ec94FaC3cBf7049BD9CA73129", "0xBc2F884680c95A02cea099dA2F524b366d9028Ba", amount_to_swap)
+
 if __name__ == "__main__":
     main()
