@@ -4,7 +4,9 @@ import matplotlib.pyplot as plt
 from os import listdir, getcwd
 from os.path import isfile, join, abspath
 from datetime import datetime
+import logging
 
+logger = logging.getLogger("app.engine")
 def generate_graphs():
     snapshots_dir = abspath(getcwd()) + "/data/snapshots"
     snapshot_files = [f for f in listdir(snapshots_dir) if isfile(join(snapshots_dir, f))]
@@ -161,18 +163,37 @@ def main():
     for asset in stacked_assets:
         if isinstance(stacked_assets[asset], dict): # Don't grab Total value and Total yield value entries
             engine.harvest_pools_rewards(asset, amount=stacked_assets[asset]["Yield"] * 10**18)
-    engine.harvest_farms_rewards()
-    engine.harvest_tango_sidx_farm(engine.punk_wallets[1], 'SECOND_WALLET_PRIV_KEY')
-    engine.harvest_sidx_ember_farm(engine.punk_wallets[1], 'SECOND_WALLET_PRIV_KEY')
 
-    # We have to take the profits from the BCH/bcBCH and flexUSD/BCH farms and swap them for bcUSDT (proposal #42)
-    amount_to_swap = 0
-    for farm in farms["Mistswap"]["farms"]:
-        if farm["pool_id"] in (1, 60):
-            amount_to_swap += farm["reward"]
+    try:
+        engine.harvest_farms_rewards()
+    except Exception as e:
+        logger.error(f'Function harvest_farms_rewards failed. Exception: {e}')
+        import app.email as email
+        email.send_email_to_admin(f'Function harvest_farms_rewards failed. Exception: {e}')
+    else:
+        # We have to take the profits from the BCH/bcBCH and flexUSD/BCH farms and swap them for bcUSDT (proposal #42)
+        amount_to_swap = 0
+        for farm in farms["Mistswap"]["farms"]:
+            if farm["pool_id"] in (1, 60):
+                amount_to_swap += farm["reward"]
 
-    amount_to_swap = amount_to_swap * 10**18
-    engine.swap_assets("0x5fA664f69c2A4A3ec94FaC3cBf7049BD9CA73129", "0xBc2F884680c95A02cea099dA2F524b366d9028Ba", amount_to_swap)
+        amount_to_swap = amount_to_swap * 10 ** 18
+        engine.swap_assets("0x5fA664f69c2A4A3ec94FaC3cBf7049BD9CA73129", "0xBc2F884680c95A02cea099dA2F524b366d9028Ba",
+                           amount_to_swap)
+    try:
+        engine.harvest_tango_sidx_farm(engine.punk_wallets[1], 'SECOND_WALLET_PRIV_KEY')
+    except Exception as e:
+        logger.error(f'Function harvest_tango_sidx_farm failed. Exception: {e}')
+        import app.email as email
+        email.send_email_to_admin(f'Function harvest_tango_sidx_farm failed. Exception: {e}')
+
+    try:
+        engine.harvest_sidx_ember_farm(engine.punk_wallets[1], 'SECOND_WALLET_PRIV_KEY')
+    except Exception as e:
+        logger.error(f'Function harvest_sidx_ember_farm failed. Exception: {e}')
+        import app.email as email
+        email.send_email_to_admin(f'Function harvest_sidx_ember_farm failed. Exception: {e}')
+
 
 if __name__ == "__main__":
     main()
