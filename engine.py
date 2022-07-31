@@ -62,7 +62,8 @@ assets_balances = {
             "BCH pair": "0x86B0fD64234a747681f0235B6Cc5FE04a4D95B31", "Liquid": True,
             "harvest_CA": "0x48B8aCe692ad8BD2E3139C65bFf7d28c048F8f00", "harvest_ABI": "GOB-StakingContract.json"},
     "BCH": {"Stacked": False, "Liquid": True},
-    "xTANGO": {"Stacked": False, "Liquid": True, "CA": "0x98Ff640323C059d8C4CB846976973FEEB0E068aA", "BCH pair": "0x7FbcD4B5b7838F3C22151d492cB7E30B28dED77a"}
+    "xTANGO": {"Stacked": False, "Liquid": True, "CA": "0x98Ff640323C059d8C4CB846976973FEEB0E068aA", "BCH pair": "0x7FbcD4B5b7838F3C22151d492cB7E30B28dED77a"},
+    "bcUSDT": {"Stacked": False, "Liquid": True, "CA": "0xBc2F884680c95A02cea099dA2F524b366d9028Ba", "BCH pair": "0x27580618797a2CE02FDFBbee948388a50a823611"}
 }
 
 initial_pool_balances = {
@@ -71,9 +72,9 @@ initial_pool_balances = {
 }
 
 extra_pool_balances = {
-    "Mistswap": {"CA": "0x7E1B9F1e286160A80ab9B04D228C02583AeF90B5", "token0": 4.5418, "token1": 1966.8},
-    "Tangoswap": {"CA": "0x4509Ff66a56cB1b80a6184DB268AD9dFBB79DD53", "token0": 4.2604, "token1": 1495.11},
-    "Emberswap": {"CA": "0x97dEAeB1A9A762d97Ac565cD3Ff7629CD6d55D09", "token0": 194260, "token1": 573.08}
+    "Mistswap": {"CA": "0x7E1B9F1e286160A80ab9B04D228C02583AeF90B5", "token0": 4.6468, "token1": 2026},
+    "Tangoswap": {"CA": "0x4509Ff66a56cB1b80a6184DB268AD9dFBB79DD53", "token0": 4.3044, "token1": 1519.86},
+    "Emberswap": {"CA": "0x97dEAeB1A9A762d97Ac565cD3Ff7629CD6d55D09", "token0": 194635, "token1": 576.16}
     }  # Token0 is WBCH/EMBER, Token1 is SIDX
 
 farms = {"Mistswap": {"factory": "0x3A7B9D0ed49a90712da4E087b17eE4Ac1375a5D4",
@@ -866,9 +867,9 @@ def harvest_tango_sidx_farm(*account):
     contract = w3.eth.contract(address=LP_CA, abi=abi)
     LP_balance = int(contract.functions.balanceOf(address).call())
     # Finally, LP tokens are deposited on the farm
-    ABI = open(f"ABIs/{farms['Tangoswap']['factory_ABI']}", "r")
+    ABI = open("ABIs/MIST-Master-ABI.json", "r")
     abi = json.loads(ABI.read())
-    contract = w3.eth.contract(address=farms['Tangoswap']['factory'], abi=abi)
+    contract = w3.eth.contract(address="0x38cC060DF3a0498e978eB756e44BD43CC4958aD9", abi=abi)
     deposit_tx = contract.functions.deposit(32, LP_balance).buildTransaction(
         {'chainId': 10000,
          'from': address,
