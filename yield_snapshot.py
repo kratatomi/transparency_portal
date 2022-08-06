@@ -180,12 +180,12 @@ def main():
         amount_to_swap = amount_to_swap * 10 ** 18
         engine.swap_assets("0x5fA664f69c2A4A3ec94FaC3cBf7049BD9CA73129", "0xBc2F884680c95A02cea099dA2F524b366d9028Ba",
                            amount_to_swap)
-    try:
+    '''    try:
         engine.harvest_tango_sidx_farm(engine.punk_wallets[1], 'SECOND_WALLET_PRIV_KEY')
     except Exception as e:
         logger.error(f'Function harvest_tango_sidx_farm failed. Exception: {e}')
         import app.email as email
-        email.send_email_to_admin(f'Function harvest_tango_sidx_farm failed. Exception: {e}')
+        email.send_email_to_admin(f'Function harvest_tango_sidx_farm failed. Exception: {e}')'''
 
     try:
         engine.harvest_sidx_ember_farm(engine.punk_wallets[1], 'SECOND_WALLET_PRIV_KEY')

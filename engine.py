@@ -61,8 +61,7 @@ assets_balances = {
     "GOB": {"Initial": 5.524333, "Stacked": True, "CA": "0x56381cB87C8990971f3e9d948939e1a95eA113a3",
             "BCH pair": "0x86B0fD64234a747681f0235B6Cc5FE04a4D95B31", "Liquid": True,
             "harvest_CA": "0x48B8aCe692ad8BD2E3139C65bFf7d28c048F8f00", "harvest_ABI": "GOB-StakingContract.json"},
-    "BCH": {"Stacked": False, "Liquid": True},
-    "xTANGO": {"Stacked": False, "Liquid": True, "CA": "0x98Ff640323C059d8C4CB846976973FEEB0E068aA", "BCH pair": "0x7FbcD4B5b7838F3C22151d492cB7E30B28dED77a"},
+    "BCH": {"Stacked": True, "Liquid": True}, # Staked set to true as BCH hold by now is just for fees
     "bcUSDT": {"Stacked": False, "Liquid": True, "CA": "0xBc2F884680c95A02cea099dA2F524b366d9028Ba", "BCH pair": "0x27580618797a2CE02FDFBbee948388a50a823611"}
 }
 
@@ -119,8 +118,21 @@ farms = {"Mistswap": {"factory": "0x3A7B9D0ed49a90712da4E087b17eE4Ac1375a5D4",
                                  "token_1_bch_pair": "0x24f011f12Ea45AfaDb1D4245bA15dCAB38B43D13",
                                  "token_1_assets_position": (1, 0),
                                  "reward coin": "MistToken"}
-                                ]}
-         }
+                                ]},
+        "Tangoswap": {"factory": "0x38cC060DF3a0498e978eB756e44BD43CC4958aD9",
+                      "factory_ABI": "MIST-Master-ABI.json",
+                      "farms": [{"lp_CA": "0xC01FC198B8c69857D112b6dD2BD3f3fb27e01418",
+                                 "pool_id": 35,
+                                 "lp_token_amount": 831.247 * 10 ** 18,
+                                 "initial_token0_amount": 8123.62, #TANGO
+                                 "token_0_bch_pair": "0x4b773a2ea30C6A77564E4FaE60204e7Bc0a81A90",
+                                 "token_0_assets_position": (1, 0),
+                                 "initial_token1_amount": 85.19, #bcUSDT
+                                 "token_1_bch_pair": "0x27580618797a2CE02FDFBbee948388a50a823611",
+                                 "token_1_assets_position": (1, 0),
+                                 "reward coin": "Tango"}]
+         },
+}
 
 pie_chart_data = {}
 
