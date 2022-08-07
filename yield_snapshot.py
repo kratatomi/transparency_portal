@@ -186,12 +186,20 @@ def main():
         amount_to_swap = amount_to_swap * 10 ** 18
         engine.swap_assets("0x5fA664f69c2A4A3ec94FaC3cBf7049BD9CA73129", "0xBc2F884680c95A02cea099dA2F524b366d9028Ba",
                            amount_to_swap)
-    '''    try:
+        # Now it's time to send bcUSDT/Tango rewards to the second wallet to add it to the SIDX/BCH Tango extra liquidity farm (proposal #44)
+
+        for farm in farms["Tangoswap"]["farms"]:
+            if farm["pool_id"] == 35:
+                amount_to_send = farm["reward"] * 10**18
+        if amount_to_send != 0:
+            engine.transfer_asset("0x73BE9c8Edf5e951c9a0762EA2b1DE8c8F38B5e91", amount_to_send, engine.punk_wallets[1])
+
+    try:
         engine.harvest_tango_sidx_farm(engine.punk_wallets[1], 'SECOND_WALLET_PRIV_KEY')
     except Exception as e:
         logger.error(f'Function harvest_tango_sidx_farm failed. Exception: {e}')
         import app.email as email
-        email.send_email_to_admin(f'Function harvest_tango_sidx_farm failed. Exception: {e}')'''
+        email.send_email_to_admin(f'Function harvest_tango_sidx_farm failed. Exception: {e}')
 
     try:
         engine.harvest_sidx_ember_farm(engine.punk_wallets[1], 'SECOND_WALLET_PRIV_KEY')

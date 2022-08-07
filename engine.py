@@ -1102,6 +1102,36 @@ def get_SEP20_balance(token_CA, wallet):
     contract = w3.eth.contract(address=token_CA, abi=abi)
     return int(contract.functions.balanceOf(wallet).call())
 
+def transfer_asset(asset, amount, destination, *account):
+    # Function to transfer SEP20 assets
+    if not account:
+        address = portfolio_address
+        priv_key_env = 'PORTFOLIO_PRIV_KEY'
+    else:
+        address, priv_key_env = account
+    amount_available = get_SEP20_balance(asset, address)
+    if amount == "all":
+        if amount_available != 0:
+            amount = amount_available
+        else:
+            logger.info(f'Warning: no balance of {asset} in account {address}.')
+            import app.email as email
+            email.send_email_to_admin(f'Warning: no balance of {asset} in account {address}.')
+            return
+    if amount_available < amount:
+        logger.info(f'Warning: not enough {asset} balance in account {address}, needed {amount}.')
+        import app.email as email
+        email.send_email_to_admin(f'Warning: not enough {asset} balance, needed {amount}.')
+        return
+    ABI = open("ABIs/ERC20-ABI.json", "r")  # Standard ABI for ERC20 tokens
+    abi = json.loads(ABI.read())
+    contract = w3.eth.contract(address=asset, abi=abi)
+    transfer_tx = contract.functions.transfer(destination, int(amount)).buildTransaction(
+        {'chainId': 10000,
+         'from': address,
+         'gasPrice': w3.toWei('1.05', 'gwei')
+         })
+    send_transaction(f'Transfer {amount} of token {asset} from account {address}', transfer_tx, *account)
 def main():
     global total_liquid_value
     global total_illiquid_value
