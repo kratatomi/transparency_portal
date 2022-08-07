@@ -777,6 +777,12 @@ def harvest_pools_rewards(pool_name, amount=0):
              'gasPrice': w3.toWei('1.046739556', 'gwei')
              })
         send_transaction(pool_name, harvest_tx)
+        try:
+            swap_assets("0x56381cB87C8990971f3e9d948939e1a95eA113a3", "0x0000000000000000000000000000000000000000", harvest_amount)
+        except Exception as e:
+            logger.error(f'Failed to swap GOB rewards to BCH. Exception: {e}')
+            import app.email as email
+            email.send_email_to_admin(f'Failed to swap GOB rewards to BCH. Exception: {e}')
     if pool_name == "FlexUSD":
         swap_assets("0x7b2B3C5308ab5b2a1d9a94d20D35CCDf61e05b72", "0x0000000000000000000000000000000000000000", amount)
 
@@ -967,6 +973,14 @@ def swap_assets(asset_in, asset_out, amount, *account):
     else:
         address, priv_key_env = account
     asset_in_amount = get_SEP20_balance(asset_in, address)
+    if amount == "all":
+        if asset_in_amount != 0:
+            amount = asset_in_amount
+        else:
+            logger.info(f'Warning: no balance of {asset_in} in account {address}.')
+            import app.email as email
+            email.send_email_to_admin(f'Warning: no balance of {asset_in} in account {address}.')
+            return
     if asset_in_amount < amount:
         logger.info(f'Warning: not enough {asset_in} balance in account {address}, needed {amount}.')
         import app.email as email

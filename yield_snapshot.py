@@ -160,6 +160,12 @@ def main():
     #Let's harvest the rewards from pools
     import engine
     engine.start_celery_stake() # Turning to staking mode harvest the CLY rewards
+    try:
+        engine.swap_assets("0x7642Df81b5BEAeEb331cc5A104bd13Ba68c34B91", "0x0000000000000000000000000000000000000000", "all") #Sell CLY for BCH
+    except Exception as e:
+        logger.error(f'Failed to swap CLY to BCH. Exception: {e}')
+        import app.email as email
+        email.send_email_to_admin(f'Failed to swap CLY to BCH. Exception: {e}')
     for asset in stacked_assets:
         if isinstance(stacked_assets[asset], dict): # Don't grab Total value and Total yield value entries
             engine.harvest_pools_rewards(asset, amount=stacked_assets[asset]["Yield"] * 10**18)
