@@ -754,6 +754,14 @@ def harvest_pools_rewards(pool_name, amount=0):
              'gasPrice': w3.toWei('1.046739556', 'gwei')
              })
         send_transaction(pool_name, harvest_tx)
+        if pool_name == "Green Ben":
+            try:
+                swap_assets("0xDEa721EFe7cBC0fCAb7C8d65c598b21B6373A2b6", "0x0000000000000000000000000000000000000000",
+                            "all")
+            except Exception as e:
+                logger.error(f'Failed to swap EBEN rewards to BCH. Exception: {e}')
+                import app.email as email
+                email.send_email_to_admin(f'Failed to swap EBEN rewards to BCH. Exception: {e}')
     if pool_name in {"MistToken", "LNS"}:
         ABI = open(f"ABIs/{assets_balances[pool_name]['harvest_ABI']}", "r")
         abi = json.loads(ABI.read())
