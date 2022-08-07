@@ -62,7 +62,8 @@ assets_balances = {
             "BCH pair": "0x86B0fD64234a747681f0235B6Cc5FE04a4D95B31", "Liquid": True,
             "harvest_CA": "0x48B8aCe692ad8BD2E3139C65bFf7d28c048F8f00", "harvest_ABI": "GOB-StakingContract.json"},
     "BCH": {"Stacked": True, "Liquid": True}, # Staked set to true as BCH hold by now is just for fees
-    "bcUSDT": {"Stacked": False, "Liquid": True, "CA": "0xBc2F884680c95A02cea099dA2F524b366d9028Ba", "BCH pair": "0x27580618797a2CE02FDFBbee948388a50a823611"}
+    "bcUSDT": {"Stacked": False, "Liquid": True, "CA": "0xBc2F884680c95A02cea099dA2F524b366d9028Ba", "BCH pair": "0x27580618797a2CE02FDFBbee948388a50a823611"},
+    "LAW": {"Stacked": False, "Liquid": True, "CA": "0x0b00366fBF7037E9d75E4A569ab27dAB84759302", "BCH pair": "0x54AA3B2250A0e1f9852b4a489Fe1C20e7C71fd88"}
 }
 
 initial_pool_balances = {
@@ -71,9 +72,9 @@ initial_pool_balances = {
 }
 
 extra_pool_balances = {
-    "Mistswap": {"CA": "0x7E1B9F1e286160A80ab9B04D228C02583AeF90B5", "token0": 4.6468, "token1": 2026},
-    "Tangoswap": {"CA": "0x4509Ff66a56cB1b80a6184DB268AD9dFBB79DD53", "token0": 4.3044, "token1": 1519.86},
-    "Emberswap": {"CA": "0x97dEAeB1A9A762d97Ac565cD3Ff7629CD6d55D09", "token0": 194635, "token1": 576.16}
+    "Mistswap": {"CA": "0x7E1B9F1e286160A80ab9B04D228C02583AeF90B5", "token0": 4.7305, "token1": 2057.68},
+    "Tangoswap": {"CA": "0x4509Ff66a56cB1b80a6184DB268AD9dFBB79DD53", "token0": 4.3302, "token1": 1529.64},
+    "Emberswap": {"CA": "0x97dEAeB1A9A762d97Ac565cD3Ff7629CD6d55D09", "token0": 195354, "token1": 577.62}
     }  # Token0 is WBCH/EMBER, Token1 is SIDX
 
 farms = {"Mistswap": {"factory": "0x3A7B9D0ed49a90712da4E087b17eE4Ac1375a5D4",
@@ -110,11 +111,11 @@ farms = {"Mistswap": {"factory": "0x3A7B9D0ed49a90712da4E087b17eE4Ac1375a5D4",
                                  "reward coin": "MistToken"},
                                 {"lp_CA": "0x24f011f12Ea45AfaDb1D4245bA15dCAB38B43D13",
                                  "pool_id": 1,
-                                 "lp_token_amount": 15.66541,
-                                 "initial_token0_amount": 1.419,  # WBCH
+                                 "lp_token_amount": 15.66541 * 10**18,
+                                 "initial_token0_amount": 0.92,  # WBCH
                                  "token_0_bch_pair": "0x3743eC0673453E5009310C727Ba4eaF7b3a1cc04", #Get price from pool will just return BCH price
                                  "token_0_assets_position": (0, 1),
-                                 "initial_token1_amount": 1.405,  # flexUSD
+                                 "initial_token1_amount": 332.51,  # flexUSD
                                  "token_1_bch_pair": "0x24f011f12Ea45AfaDb1D4245bA15dCAB38B43D13",
                                  "token_1_assets_position": (1, 0),
                                  "reward coin": "MistToken"}
