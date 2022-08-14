@@ -918,7 +918,7 @@ def harvest_sidx_ember_farm(*account):
     send_transaction("Harvesting SIDX/EMBER farm on Emberswap", harvest_tx, *account)
     # Then, get the Ember amount harvested
     ember_CA = "0x6BAbf5277849265b6738e75AEC43AEfdde0Ce88D"
-    ember_amount = int(round(get_SEP20_balance(ember_CA, address) / 2))
+    ember_amount = int(round(get_SEP20_balance(ember_CA, address) / 2) * 0.98) # Multiplier added to avoid INSUFFICIENT_AMOUNT error
     # Swap half of the amount for SIDX
     swap_assets(ember_CA, SIDX_CA, ember_amount, *account)
     # Add liquidity to the SIDX/EMBER pool
