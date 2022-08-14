@@ -72,9 +72,9 @@ initial_pool_balances = {
 }
 
 extra_pool_balances = {
-    "Mistswap": {"CA": "0x7E1B9F1e286160A80ab9B04D228C02583AeF90B5", "token0": 4.7305, "token1": 2057.68},
-    "Tangoswap": {"CA": "0x4509Ff66a56cB1b80a6184DB268AD9dFBB79DD53", "token0": 4.3302, "token1": 1529.64},
-    "Emberswap": {"CA": "0x97dEAeB1A9A762d97Ac565cD3Ff7629CD6d55D09", "token0": 195354, "token1": 577.62}
+    "Mistswap": {"CA": "0x7E1B9F1e286160A80ab9B04D228C02583AeF90B5", "token0": 4.8005, "token1": 2087.02},
+    "Tangoswap": {"CA": "0x4509Ff66a56cB1b80a6184DB268AD9dFBB79DD53", "token0": 4.3652, "token1": 1544.23},
+    "Emberswap": {"CA": "0x97dEAeB1A9A762d97Ac565cD3Ff7629CD6d55D09", "token0": 201032, "token1": 590.74}
     }  # Token0 is WBCH/EMBER, Token1 is SIDX
 
 farms = {"Mistswap": {"factory": "0x3A7B9D0ed49a90712da4E087b17eE4Ac1375a5D4",
@@ -756,7 +756,7 @@ def harvest_pools_rewards(pool_name, amount=0):
         send_transaction(pool_name, harvest_tx)
         if pool_name == "Green Ben":
             try:
-                swap_assets("0xDEa721EFe7cBC0fCAb7C8d65c598b21B6373A2b6", "0x0000000000000000000000000000000000000000",
+                swap_assets("0x77CB87b57F54667978Eb1B199b28a0db8C8E1c0B", "0x0000000000000000000000000000000000000000",
                             "all")
             except Exception as e:
                 logger.error(f'Failed to swap EBEN rewards to BCH. Exception: {e}')
