@@ -751,7 +751,7 @@ def harvest_pools_rewards(pool_name, amount=0):
         harvest_tx = contract.functions.withdraw(assets_balances[pool_name]["harvest_pool_id"], 0).buildTransaction(
             {'chainId': 10000,
              'from': portfolio_address,
-             'gasPrice': w3.toWei('1.046739556', 'gwei')
+             'gasPrice': w3.toWei('1.05', 'gwei')
              })
         send_transaction(pool_name, harvest_tx)
         if pool_name == "Green Ben":
@@ -771,7 +771,7 @@ def harvest_pools_rewards(pool_name, amount=0):
         harvest_tx = contract.functions.leave(int(amount_to_harvest)).buildTransaction(
             {'chainId': 10000,
              'from': portfolio_address,
-             'gasPrice': w3.toWei('1.046739556', 'gwei')
+             'gasPrice': w3.toWei('1.05', 'gwei')
              })
         send_transaction(pool_name, harvest_tx)
     if pool_name == "GOB":
@@ -782,7 +782,7 @@ def harvest_pools_rewards(pool_name, amount=0):
         harvest_tx = contract.functions.unstake(int(harvest_amount), True).buildTransaction(
             {'chainId': 10000,
              'from': portfolio_address,
-             'gasPrice': w3.toWei('1.046739556', 'gwei')
+             'gasPrice': w3.toWei('1.05', 'gwei')
              })
         send_transaction(pool_name, harvest_tx)
         try:
@@ -858,7 +858,7 @@ def harvest_farms_rewards():
             harvest_tx = contract.functions.deposit(farms[DEX]['farms'][i]['pool_id'], 0).buildTransaction(
                 {'chainId': 10000,
                  'from': portfolio_address,
-                 'gasPrice': w3.toWei('1.046739556', 'gwei')
+                 'gasPrice': w3.toWei('1.05', 'gwei')
                  })
             send_transaction(farms[DEX]['farms'][i]["lp_CA"], harvest_tx)
 
@@ -871,7 +871,7 @@ def harvest_tango_sidx_farm(*account):
     harvest_tx = contract.functions.deposit(32, 0).buildTransaction(
         {'chainId': 10000,
          'from': address,
-         'gasPrice': w3.toWei('1.046739556', 'gwei')
+         'gasPrice': w3.toWei('1.05', 'gwei')
          })
     send_transaction("Harvesting SIDX/BCH farm on Tango", harvest_tx, *account)
     # Then, get the Tango amount harvested
@@ -900,7 +900,7 @@ def harvest_tango_sidx_farm(*account):
     deposit_tx = contract.functions.deposit(32, LP_balance).buildTransaction(
         {'chainId': 10000,
          'from': address,
-         'gasPrice': w3.toWei('1.046739556', 'gwei')
+         'gasPrice': w3.toWei('1.05', 'gwei')
          })
     send_transaction(f"Depositing {LP_balance} SIDX/WBCH LP tokens to TangoSwap farm", deposit_tx, *account)
 
@@ -913,7 +913,7 @@ def harvest_sidx_ember_farm(*account):
     harvest_tx = contract.functions.deposit(31, 0).buildTransaction(
         {'chainId': 10000,
          'from': address,
-         'gasPrice': w3.toWei('1.046739556', 'gwei')
+         'gasPrice': w3.toWei('1.05', 'gwei')
          })
     send_transaction("Harvesting SIDX/EMBER farm on Emberswap", harvest_tx, *account)
     # Then, get the Ember amount harvested
@@ -939,7 +939,7 @@ def harvest_sidx_ember_farm(*account):
     deposit_tx = contract.functions.deposit(31, LP_balance).buildTransaction(
         {'chainId': 10000,
          'from': address,
-         'gasPrice': w3.toWei('1.046739556', 'gwei')
+         'gasPrice': w3.toWei('1.05', 'gwei')
          })
     send_transaction(f"Depositing {LP_balance} SIDX/EMBER LP tokens to EmberSwap farm", deposit_tx, *account)
 
