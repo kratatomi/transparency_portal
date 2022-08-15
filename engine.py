@@ -918,7 +918,7 @@ def harvest_sidx_ember_farm(*account):
     send_transaction("Harvesting SIDX/EMBER farm on Emberswap", harvest_tx, *account)
     # Then, get the Ember amount harvested
     ember_CA = "0x6BAbf5277849265b6738e75AEC43AEfdde0Ce88D"
-    ember_amount = int(round(get_SEP20_balance(ember_CA, address) / 2) * 0.98) # Multiplier added to avoid INSUFFICIENT_AMOUNT error
+    ember_amount = int(round(get_SEP20_balance(ember_CA, address) / 2))
     # Swap half of the amount for SIDX
     swap_assets(ember_CA, SIDX_CA, ember_amount, *account)
     # Add liquidity to the SIDX/EMBER pool
@@ -926,7 +926,7 @@ def harvest_sidx_ember_farm(*account):
                          "token1": {"CA": SIDX_CA, "amount": "all"}}
     LP_CA = "0x97dEAeB1A9A762d97Ac565cD3Ff7629CD6d55D09"
     ember_router = "0x217057A8B0bDEb160829c19243A2E03bfe95555a"
-    add_liquidity(tokens_dictionary, LP_CA, ember_router, *account)
+    add_liquidity(tokens_dictionary, LP_CA, ember_router, *account, min_amount_percentage=2)
     # Time to check the LP tokens balance
     ABI = open("ABIs/UniswapV2Pair.json", "r")
     abi = json.loads(ABI.read())
@@ -1065,7 +1065,7 @@ def add_liquidity(tokens_dictionary, LP_CA, router, *account, min_amount_percent
     asset_allowance(tokens_dictionary["token0"]["CA"], router, amount="all", *account)
     asset_allowance(tokens_dictionary["token1"]["CA"], router, amount="all", *account)
     # Now we can construct the addLiquidity() function
-    token0_min_amount = int(round(tokens_dictionary["token0"]["amount"] * ((100-min_amount_percentage) / 100)))
+    token0_min_amount = int(round(tokens_dictionary["token0"]["amount"] * ((100 - min_amount_percentage) / 100)))
     token1_min_amount = int(round(tokens_dictionary["token1"]["amount"] * ((100 - min_amount_percentage) / 100)))
     ABI = open("ABIs/UniswapV2Router.json", "r")
     abi = json.loads(ABI.read())
