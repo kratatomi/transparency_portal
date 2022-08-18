@@ -22,7 +22,8 @@ lp_factories = {"benswap": {"address": "0x8d973bAD782c1FFfd8FcC9d7579542BA7Dd099
                 "1BCH": {"address": "0x3dC4e6aC26df957a908cfE1C0E6019545D08319b", "start_block": 1890341},
                 "tropical": {"address": "0x138504000feaEd02AD75B1e8BDb904f51C445F4C", "start_block": 2127480},
                 "smartdex": {"address": "0xDd749813a4561100bDD3F50079a07110d148EaF5", "start_block": 2503959},
-                "emberswap": {"address": "0xE62983a68679834eD884B9673Fb6aF13db740fF0", "start_block": 3157682}} # Factories for every DEX
+                "emberswap": {"address": "0xE62983a68679834eD884B9673Fb6aF13db740fF0", "start_block": 3157682},
+                "blockng": {"address": "0x3A2643c00171b1EA6f6b6EaC77b1E0DdB02c3a62", "start_block": 3622020}} # Factories for every DEX
 
 createPair_topic = ["0x0d3648bd0f6ba80134a33ba9275ac585d9d315f0ad8355cddefde31afa28d0e9"]
 
@@ -36,6 +37,9 @@ farms = {"BEN": ["0xDEa721EFe7cBC0fCAb7C8d65c598b21B6373A2b6"], #Benswap
                    "0x8ecb32C33AB3f7ee3D6Ce9D4020bC53fecB36Be9"] #Emberswap
          } # Master contracts
 
+'''BlockNG factory works as any UniswapV2 factory, but farms are quite different: every farm has a dedicated contract'''
+BlockNG_SIDX_LAW_LP = "0x1CD36D9dEd958366d17DfEdD91b5F8e682D7f914"
+BlockNG_SIDX_LAW_farm = "0x3384d970688f7B86a8D7aE6D8670CD5f9fd5fE1E"
 def get_liquidity_pools():
     ABI = open("ABIs/UniswapV2Factory.json", "r")  # Standard ABI for LP factories
     abi = json.loads(ABI.read())
@@ -121,6 +125,15 @@ def get_farms(LP_CA_list):
                         token_balance = contract.functions.userInfo(i, address).call()[0]
                         if token_balance != 0:
                             balances[address] = token_balance
+
+    # Now it's time to get SIDX/LAW farmed in blockNG
+    ABI = open("ABIs/BlockNG-farm.json")
+    abi = json.loads(ABI.read())
+    contract = w3.eth.contract(address=BlockNG_SIDX_LAW_farm, abi=abi)
+    for address in address_list:
+        LP_amount = contract.functions.balanceOf(address).call()
+        if LP_amount != 0:
+            LPs_in_farms[BlockNG_SIDX_LAW_LP].append((address, LP_amount))
 
     return LPs_in_farms
 
