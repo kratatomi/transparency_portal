@@ -31,7 +31,6 @@ farms = {"BEN": ["0xDEa721EFe7cBC0fCAb7C8d65c598b21B6373A2b6"], #Benswap
          "PANCAKE": ["0xeC0A7496e66a206181034F86B261DDDC1A2c406E",  #1BCH
                      "0xE4D74Af73114F72bD0172fc7904852Ee2E2b47B0"], #Tropical
          "SUSHI": ["0x3A7B9D0ed49a90712da4E087b17eE4Ac1375a5D4", #Mistswap
-                   "0x4856BB1a11AF5514dAA0B0DC8Ca630671eA9bf56", #Muesli
                    "0x38cC060DF3a0498e978eB756e44BD43CC4958aD9", #Tangoswap
                    "0x14C15BD8ba2854750770D38472dc5633152f70aa", #SmartDEX
                    "0x8ecb32C33AB3f7ee3D6Ce9D4020bC53fecB36Be9"] #Emberswap
@@ -127,6 +126,7 @@ def get_farms(LP_CA_list):
                             balances[address] = token_balance
 
     # Now it's time to get SIDX/LAW farmed in blockNG
+    LPs_in_farms[BlockNG_SIDX_LAW_LP] = []
     ABI = open("ABIs/BlockNG-farm.json")
     abi = json.loads(ABI.read())
     contract = w3.eth.contract(address=BlockNG_SIDX_LAW_farm, abi=abi)
