@@ -72,9 +72,9 @@ initial_pool_balances = {
 }
 
 extra_pool_balances = {
-    "Mistswap": {"CA": "0x7E1B9F1e286160A80ab9B04D228C02583AeF90B5", "token0": 4.8005, "token1": 2087.02},
-    "Tangoswap": {"CA": "0x4509Ff66a56cB1b80a6184DB268AD9dFBB79DD53", "token0": 4.3652, "token1": 1544.23},
-    "Emberswap": {"CA": "0x97dEAeB1A9A762d97Ac565cD3Ff7629CD6d55D09", "token0": 201032, "token1": 590.74}
+    "Mistswap": {"CA": "0x7E1B9F1e286160A80ab9B04D228C02583AeF90B5", "token0": 4.8885, "token1": 2135.51},
+    "Tangoswap": {"CA": "0x4509Ff66a56cB1b80a6184DB268AD9dFBB79DD53", "token0": 4.4072, "token1": 1567.34},
+    "Emberswap": {"CA": "0x97dEAeB1A9A762d97Ac565cD3Ff7629CD6d55D09", "token0": 204695, "token1": 605.08}
     }  # Token0 is WBCH/EMBER, Token1 is SIDX
 
 farms = {"Mistswap": {"factory": "0x3A7B9D0ed49a90712da4E087b17eE4Ac1375a5D4",
@@ -880,7 +880,7 @@ def harvest_tango_sidx_farm(*account):
     # Swap half of the amount for SIDX
     swap_assets(tango_CA, SIDX_CA, tango_amount, *account)
     # Swap the rest to WBCH
-    tango_amount = get_SEP20_balance(tango_CA, address)
+    tango_amount = int(round(get_SEP20_balance(tango_CA, address)))
     swap_assets(tango_CA, WBCH_CA, tango_amount, *account)
     # Add liquidity to the SIDX/WBCH pool
     tokens_dictionary = {"token0": {"CA": WBCH_CA, "amount": 0},
@@ -893,6 +893,11 @@ def harvest_tango_sidx_farm(*account):
     abi = json.loads(ABI.read())
     contract = w3.eth.contract(address=LP_CA, abi=abi)
     LP_balance = int(contract.functions.balanceOf(address).call())
+    if LP_balance == 0:
+        logger.error(f'No liquidity to add to SIDX/BCH Tango farm. Error is {e}.')
+        import app.email as email
+        email.send_email_to_admin(f'No liquidity to add to SIDX/BCH Tango farm. Error is {e}.')
+        return
     # Finally, LP tokens are deposited on the farm
     ABI = open("ABIs/MIST-Master-ABI.json", "r")
     abi = json.loads(ABI.read())
@@ -922,16 +927,29 @@ def harvest_sidx_ember_farm(*account):
     # Swap half of the amount for SIDX
     swap_assets(ember_CA, SIDX_CA, ember_amount, *account)
     # Add liquidity to the SIDX/EMBER pool
-    tokens_dictionary = {"token0": {"CA": ember_CA, "amount": 0},
-                         "token1": {"CA": SIDX_CA, "amount": "all"}}
     LP_CA = "0x97dEAeB1A9A762d97Ac565cD3Ff7629CD6d55D09"
     ember_router = "0x217057A8B0bDEb160829c19243A2E03bfe95555a"
-    add_liquidity(tokens_dictionary, LP_CA, ember_router, *account, min_amount_percentage=2)
+    try:
+        tokens_dictionary = {"token0": {"CA": ember_CA, "amount": "all"},
+                             "token1": {"CA": SIDX_CA, "amount": 0}}
+        add_liquidity(tokens_dictionary, LP_CA, ember_router, *account, min_amount_percentage=2)
+    except Exception as e:
+        logger.error(f'Failed to add liquidity to SIDX/EMBER farm, trying to modify the amounts. Error is {e}.')
+        import app.email as email
+        email.send_email_to_admin(f'Failed to add liquidity to SIDX/EMBER farm, trying to modify the amounts. Error is {e}.')
+        tokens_dictionary = {"token0": {"CA": ember_CA, "amount": 0},
+                             "token1": {"CA": SIDX_CA, "amount": "all"}}
+        add_liquidity(tokens_dictionary, LP_CA, ember_router, *account, min_amount_percentage=2)
     # Time to check the LP tokens balance
     ABI = open("ABIs/UniswapV2Pair.json", "r")
     abi = json.loads(ABI.read())
     contract = w3.eth.contract(address=LP_CA, abi=abi)
     LP_balance = int(contract.functions.balanceOf(address).call())
+    if LP_balance == 0:
+        logger.error(f'No liquidity to add to SIDX/EMBER farm. Error is {e}.')
+        import app.email as email
+        email.send_email_to_admin(f'No liquidity to add to SIDX/EMBER farm. Error is {e}.')
+        return
     # Finally, LP tokens are deposited on the farm
     ABI = open("ABIs/EMBER_Distributor-ABI.json", "r")
     abi = json.loads(ABI.read())
