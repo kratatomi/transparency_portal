@@ -81,8 +81,17 @@
                         <li>Current value: {{ value["Current value"] }} USD</li>
                     </ul>
                     {% endif %}
+                    {% if key == "LAWTOKEN" %}
+                    <li>{{ key }}</li>
+                    <ul>
+                        <li>Initial amount: {{ value["Initial"] }}</li>
+                        <li>Current amount: {{ value["Current"] }}</li>
+                        <li>Difference: {{ value["Difference"] }}</li>
+                        <li>Current value: {{ value["Current value"] }} USD</li>
+                    </ul>
+                    {% endif %}
                     {% if key == "Reward" %}
-                        Reward: {{ value }} MIST
+                        Reward: {{ value }} reward tokens
                     {% endif %}
                     {% if key == "Reward value" %}
                         Value: {{ value }} USD

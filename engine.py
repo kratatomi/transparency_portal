@@ -49,8 +49,6 @@ assets_balances = {
                "BCH pair": "0x5775D98022590dc60E9c4Ae0a1c56bF1fD8fcaDC", "Liquid": False},
     "FLEX Coin": {"Initial": 142.804, "Stacked": False, "CA": "0x98Dd7eC28FB43b3C4c770AE532417015fa939Dd3",
                   "Liquid": True, "BCH pair": "0x1A2bdFF5bA942bF20f0db7218cdE28D19aC8dD20"},
-    "LAW": {"Stacked": True, "CA": "0x0b00366fBF7037E9d75E4A569ab27dAB84759302",
-            "BCH pair": "0xd55a9A41666108d10d31BAeEea5D6CdF3be6C5DD", "Liquid": True},
     "DAIQUIRI": {"Initial": 14281.791, "Stacked": True, "CA": "0xE4D74Af73114F72bD0172fc7904852Ee2E2b47B0",
                  "BCH pair": "0xF1Ac59acb449C8e2BA9D222cA1275b3f4f9a455C", "Liquid": True,
                  "harvest_CA": "0xE4D74Af73114F72bD0172fc7904852Ee2E2b47B0", "harvest_pool_id": 0,
@@ -67,8 +65,9 @@ assets_balances = {
 }
 
 initial_pool_balances = {
-    "Mistswap": {"CA": "0x7E1B9F1e286160A80ab9B04D228C02583AeF90B5", "token0": 5, "token1": 23711.1}
-    # Token0 is WBCH, Token1 is SIDX
+    "Mistswap": {"CA": "0x7E1B9F1e286160A80ab9B04D228C02583AeF90B5", "token0": 3.333, "token1": 15807.4},
+    "BlockNG": {"CA": "0x1CD36D9dEd958366d17DfEdD91b5F8e682D7f914", "token0": 2053.18, "token1": 2838.09}
+    # Token0 is WBCH/LAW, Token1 is SIDX
 }
 
 extra_pool_balances = {
@@ -394,6 +393,14 @@ def get_LP_balances(initial_pool_balances, wallet_address, bch_price, sidx_price
             portfolio_LP_balance = contract.functions.userInfo(pool_id, wallet_address).call()[0]
             reward = contract.functions.pendingTokens(pool_id, wallet_address).call()[3][0]
             asset_price = get_price_from_pool("0x52c656FaF57DCbDdDd47BCbA7b2ab79e4c232C28", bch_price, assets_positions=(1, 0))
+        if DEX == "BlockNG":
+            ABI = open("ABIs/BlockNG-farm.json", 'r')
+            abi = json.loads(ABI.read())
+            contract = w3.eth.contract(address="0x3384d970688f7B86a8D7aE6D8670CD5f9fd5fE1E", abi=abi)
+            portfolio_LP_balance = contract.functions.balanceOf(wallet_address).call()
+            contract = w3.eth.contract(address="0xdB8Fc051ec6956f1c8D018F033E6788f959313d1", abi=abi)
+            reward = contract.caller().gaugeStakedDetailNonView("0x3384d970688f7B86a8D7aE6D8670CD5f9fd5fE1E", wallet_address, assets_balances["LAW"]["CA"])[5]
+            asset_price = get_price_from_pool("LAW", bch_price)
         # Get assets in liquidity pools
         ABI = open("ABIs/UniswapV2Pair.json", "r")  # Standard ABI for LP tokens
         abi = json.loads(ABI.read())
@@ -411,7 +418,7 @@ def get_LP_balances(initial_pool_balances, wallet_address, bch_price, sidx_price
         LP_total_supply = contract.functions.totalSupply().call()
         LP_balances[DEX][token0_ticker]["Current"] = round(
             ((portfolio_LP_balance / LP_total_supply) * token0_reserves) / 10 ** token0_decimals, 2)
-        if DEX == "Emberswap":
+        if DEX == "Emberswap" or DEX == "BlockNG":
             LP_balances[DEX][token0_ticker]["Current value"] = round(LP_balances[DEX][token0_ticker]["Current"] * asset_price,
                                                                      2)
         else:

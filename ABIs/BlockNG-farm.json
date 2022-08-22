@@ -41,5 +41,70 @@
     "payable": false,
     "stateMutability": "view",
     "type": "function"
+  },
+      {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "gauge",
+        "type": "address"
+      },
+      {
+      "name": "user",
+      "type": "address"
+      },
+      {
+      "name": "law",
+      "type": "address"
+      }
+    ],
+    "name": "gaugeStakedDetailNonView",
+    "outputs": [
+      {
+        "name": "poolInfo",
+        "type": "tuple",
+        "components": [
+          {
+            "name": "pool",
+            "type": "address"
+          },
+          {
+            "name": "tokenId",
+            "type": "uint256"
+          },
+	  {
+            "name": "stake_total",
+            "type": "uint256"
+          },
+          {
+            "name": "stake_amount",
+            "type": "uint256"
+          },
+          {
+            "name": "work_amount",
+            "type": "uint256"
+          },
+          {
+            "name": "earned_amount",
+            "type": "uint256"
+          },
+          {
+            "name": "token_balance",
+            "type": "uint256"
+          },
+          {
+            "name": "approved",
+            "type": "uint256"
+          },
+          {
+            "name": "acc",
+            "type": "uint256"
+          }
+        ]
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
   }
 ]
