@@ -15,25 +15,38 @@ def generate_graphs():
     for file in snapshot_files:
         snapshots_dates.append(str(file.split(".")[0]))
     snapshots_dates.sort(key=lambda date: datetime.strptime(date, "%d-%m-%Y"))
-    # Now, let's generate a list with the number of weeks and a dict with the assets available
-    weeks = []
+    # Now, let's generate a list with the number of weeks and a dict with the current assets available
     assets_list = {}
-    value_per_sidx = []
-    i = 1
-    for file in snapshots_dates:
-        weeks.append(i)
-        i += 1
-        with open(f'data/snapshots/{file}.json') as weekly_report_file:
-            weekly_report = json.load(weekly_report_file)
-        stacked_assets = weekly_report["STACKED_ASSETS"]
-        for asset in stacked_assets:
-            if asset != "Total value" and asset != "Total yield value" and asset not in assets_list:
+    farms_list = {}
+    last_snapshot_date = snapshots_dates[-1]
+    with open(f'data/snapshots/{last_snapshot_date}.json') as last_weekly_report_file:
+        last_weekly_report = json.load(last_weekly_report_file)
+        staked_assets = last_weekly_report["STACKED_ASSETS"]
+        for asset in staked_assets:
+            if asset != "Total value" and asset != "Total yield value":
                 assets_list[asset] = {"Yields": [], "USD total value": [], "Weeks tracked": 0}
+    # Now with the current farms
+    with open(f'data/snapshots/{last_snapshot_date}.json') as last_weekly_report_file:
+        last_weekly_report = json.load(last_weekly_report_file)
+        current_farms = last_weekly_report["FARMS"]
+    for DEX in current_farms:
+        for i in range(len(current_farms[DEX]["farms"])):
+            coins_pair = []
+            for coin in current_farms[DEX]["farms"][i]["Coins"]:
+                coins_pair.append(coin)
+            farms_list[current_farms[DEX]["farms"][i]["lp_CA"]] = {"name": f"{DEX}-{coins_pair[0]}-{coins_pair[1]}", "Yields": [], "USD total value": [], "Weeks tracked": 0}
+    weeks = list(range(len(snapshots_dates)))
+    value_per_sidx = []
     # Next, we will populate the assets_list dict with the yield % for every week and current value
     for file in snapshots_dates:
         with open(f'data/snapshots/{file}.json') as weekly_report_file:
             weekly_report = json.load(weekly_report_file)
         stacked_assets = weekly_report["STACKED_ASSETS"]
+        if "FARMS" in weekly_report:
+            farms = weekly_report["FARMS"]
+        else:
+            farms = None
+
         for asset in assets_list:
             if asset not in stacked_assets:
                 assets_list[asset]["Yields"].append(None)
@@ -43,11 +56,40 @@ def generate_graphs():
                 assets_list[asset]["Yields"].append(yield_percentage)
                 assets_list[asset]["USD total value"].append(stacked_assets[asset]["Current value"])
                 assets_list[asset]["Weeks tracked"] += 1
+        if farms != None:
+            farms_in_weekly_report = []
+            for DEX in farms:
+                for i in range(len(farms[DEX]["farms"])):
+                    farms_in_weekly_report.append(farms[DEX]["farms"][i]["lp_CA"])
+                    if farms[DEX]["farms"][i]["lp_CA"] in farms_list:
+                        reward_value = farms[DEX]["farms"][i]["reward value"]
+                        current_value = 0
+                        for coin in farms[DEX]["farms"][i]["Coins"]:
+                            current_value += farms[DEX]["farms"][i]["Coins"][coin]["Current value"]
+
+                        if current_value != 0:
+                            yield_percentage = (reward_value / current_value) * 100
+                        else:
+                            yield_percentage = 0
+                        farms_list[farms[DEX]["farms"][i]["lp_CA"]]["Yields"].append(yield_percentage)
+                        farms_list[farms[DEX]["farms"][i]["lp_CA"]]["USD total value"].append(current_value)
+                        farms_list[farms[DEX]["farms"][i]["lp_CA"]]["Weeks tracked"] += 1
+
+            for farm in farms_list:
+                if farm not in farms_in_weekly_report:
+                        farms_list[farm]["Yields"].append(None)
+                        farms_list[farm]["USD total value"].append(None)
+        else:
+            for farm in farms_list:
+                farms_list[farm]["Yields"].append(None)
+                farms_list[farm]["USD total value"].append(None)
+
         if "GLOBAL_STATS" in weekly_report:
             value_per_sidx.append(weekly_report["GLOBAL_STATS"]["value_per_sidx"])
         else:
             value_per_sidx.append(None)
-    # Time to plot the yields graph
+
+    # Time to plot the yields graph for staked assets
     fig, ax = plt.subplots()
 
     ax.set(xlabel='Week',
@@ -60,7 +102,20 @@ def generate_graphs():
     plt.legend()
     plt.savefig("app/static/yields.png")
 
-    # Now, the total value graph
+    # Next, the yields graph for farms
+    fig, ax = plt.subplots()
+
+    ax.set(xlabel='Week',
+           ylabel='Yield percentage',
+           title='Yield percentage of farms')
+
+    for farm in farms_list:
+        ax.plot(weeks, farms_list[farm]["Yields"], label=farms_list[farm]["name"])
+
+    plt.legend()
+    plt.savefig("app/static/farms_yields.png")
+
+    # Now, the total value graph for staked assets
     fig, ax = plt.subplots()
 
     ax.set(xlabel='Week',
@@ -72,6 +127,19 @@ def generate_graphs():
 
     plt.legend()
     plt.savefig("app/static/assets_value.png")
+
+    # And the total value graph for farms
+    fig, ax = plt.subplots()
+
+    ax.set(xlabel='Week',
+           ylabel='USD value',
+           title='Value of assets in farms')
+
+    for farm in farms_list:
+        ax.plot(weeks, farms_list[farm]["USD total value"], label=farms_list[farm]["name"])
+
+    plt.legend()
+    plt.savefig("app/static/farms_value.png")
 
     #The graph showing price per SIDX evolution:
     fig, ax = plt.subplots()
