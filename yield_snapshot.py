@@ -15,26 +15,45 @@ def generate_graphs():
     for file in snapshot_files:
         snapshots_dates.append(str(file.split(".")[0]))
     snapshots_dates.sort(key=lambda date: datetime.strptime(date, "%d-%m-%Y"))
-    # Now, let's generate a list with the number of weeks and a dict with the current assets available
+    # Now, let's generate a list with the number of weeks and a dict with the current assets, farms and liquidity available
     assets_list = {}
     farms_list = {}
+    sidx_liquidity = {"Total USD value": 0}
     last_snapshot_date = snapshots_dates[-1]
     with open(f'data/snapshots/{last_snapshot_date}.json') as last_weekly_report_file:
         last_weekly_report = json.load(last_weekly_report_file)
         staked_assets = last_weekly_report["STACKED_ASSETS"]
+        current_farms = last_weekly_report["FARMS"]
+        current_liquidity = last_weekly_report["LP_BALANCES"]
+        current_extra_liquidity = last_weekly_report["EXTRA_LP_BALANCES"]
         for asset in staked_assets:
             if asset != "Total value" and asset != "Total yield value":
                 assets_list[asset] = {"Yields": [], "USD total value": [], "Weeks tracked": 0}
-    # Now with the current farms
-    with open(f'data/snapshots/{last_snapshot_date}.json') as last_weekly_report_file:
-        last_weekly_report = json.load(last_weekly_report_file)
-        current_farms = last_weekly_report["FARMS"]
     for DEX in current_farms:
         for i in range(len(current_farms[DEX]["farms"])):
             coins_pair = []
             for coin in current_farms[DEX]["farms"][i]["Coins"]:
                 coins_pair.append(coin)
             farms_list[current_farms[DEX]["farms"][i]["lp_CA"]] = {"name": f"{DEX}-{coins_pair[0]}-{coins_pair[1]}", "Yields": [], "USD total value": [], "Weeks tracked": 0}
+    # Adding all value in SIDX liquidity pools
+    for DEX in current_liquidity:
+        if DEX not in sidx_liquidity:
+            sidx_liquidity[DEX] = {"Value": 0}
+        for coin in current_liquidity[DEX]:
+            if coin not in ("Reward", "Reward value"):
+                sidx_liquidity[DEX]["Value"] += current_liquidity[DEX][coin]["Current value"]
+                sidx_liquidity["Total USD value"] += current_liquidity[DEX][coin]["Current value"]
+    for DEX in current_extra_liquidity:
+        if DEX not in sidx_liquidity:
+            sidx_liquidity[DEX] = {"Value": 0}
+        for coin in current_extra_liquidity[DEX]:
+            if coin not in ("Reward", "Reward value"):
+                sidx_liquidity[DEX]["Value"] += current_extra_liquidity[DEX][coin]["Current value"]
+                sidx_liquidity["Total USD value"] += current_extra_liquidity[DEX][coin]["Current value"]
+    # Calculating the percetage of liquidity per DEX
+    for DEX in sidx_liquidity:
+        if DEX != "Total USD value":
+            sidx_liquidity[DEX]["Percentage"] = (sidx_liquidity[DEX]["Value"] / sidx_liquidity["Total USD value"]) * 100
     weeks = list(range(len(snapshots_dates)))
     value_per_sidx = []
     # Next, we will populate the assets_list dict with the yield % for every week and current value
@@ -152,7 +171,7 @@ def generate_graphs():
 
     plt.savefig("app/static/sidx_value.png")
 
-    #Finally, a graph with the APY of every asset
+    # Graph with the APY of every asset
     columns = [] #List of assets
     rows = [] #List of APYs
     for asset in assets_list:
@@ -190,6 +209,19 @@ def generate_graphs():
     ax2.plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)  # bottom-right diagonal
     plt.savefig("app/static/assets_apy.png")
 
+    # Finally, a pie chart showing how SIDX liquidity is allocated between DEXs
+    labels = []
+    percentages = []
+    for DEX in sidx_liquidity:
+        if DEX != "Total USD value":
+            labels.append(DEX)
+            percentages.append(sidx_liquidity[DEX]["Percentage"])
+
+    fig1, ax1 = plt.subplots()
+    ax1.pie(percentages, labels=labels, autopct='%1.1f%%',
+            shadow=True, startangle=90)
+    ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+    plt.savefig("app/static/liquidity_allocation.png")
 def main():
     with open('data/SIDX_STATS.json') as sidx_stats_file:
         sidx_stats = json.load(sidx_stats_file)
