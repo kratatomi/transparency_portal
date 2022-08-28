@@ -38,22 +38,25 @@ def generate_graphs():
     # Adding all value in SIDX liquidity pools
     for DEX in current_liquidity:
         if DEX not in sidx_liquidity:
-            sidx_liquidity[DEX] = {"Value": 0}
+            sidx_liquidity[DEX] = {"Value": 0, "Reward value": 0}
+        sidx_liquidity[DEX]["Reward value"] += current_liquidity[DEX]["Reward value"]
         for coin in current_liquidity[DEX]:
             if coin not in ("Reward", "Reward value"):
                 sidx_liquidity[DEX]["Value"] += current_liquidity[DEX][coin]["Current value"]
                 sidx_liquidity["Total USD value"] += current_liquidity[DEX][coin]["Current value"]
     for DEX in current_extra_liquidity:
         if DEX not in sidx_liquidity:
-            sidx_liquidity[DEX] = {"Value": 0}
+            sidx_liquidity[DEX] = {"Value": 0, "Reward value": 0}
+        sidx_liquidity[DEX]["Reward value"] += current_extra_liquidity[DEX]["Reward value"]
         for coin in current_extra_liquidity[DEX]:
             if coin not in ("Reward", "Reward value"):
                 sidx_liquidity[DEX]["Value"] += current_extra_liquidity[DEX][coin]["Current value"]
                 sidx_liquidity["Total USD value"] += current_extra_liquidity[DEX][coin]["Current value"]
-    # Calculating the percetage of liquidity per DEX
+    # Calculating the percentage of liquidity per DEX and their performance
     for DEX in sidx_liquidity:
         if DEX != "Total USD value":
             sidx_liquidity[DEX]["Percentage"] = (sidx_liquidity[DEX]["Value"] / sidx_liquidity["Total USD value"]) * 100
+            sidx_liquidity[DEX]["Reward performance"] = (sidx_liquidity[DEX]["Reward value"] / sidx_liquidity[DEX]["Value"]) * 100
     weeks = list(range(len(snapshots_dates)))
     value_per_sidx = []
     # Next, we will populate the assets_list dict with the yield % for every week and current value
@@ -209,19 +212,33 @@ def generate_graphs():
     ax2.plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)  # bottom-right diagonal
     plt.savefig("app/static/assets_apy.png")
 
-    # Finally, a pie chart showing how SIDX liquidity is allocated between DEXs
+    # A pie chart showing how SIDX liquidity is allocated between DEXs and a bar chart for DEX yields (%) based on liquidity USD value. Labels are the same as the former graph.
     labels = []
     percentages = []
+    reward_performance = []
     for DEX in sidx_liquidity:
         if DEX != "Total USD value":
             labels.append(DEX)
             percentages.append(sidx_liquidity[DEX]["Percentage"])
+            reward_performance.append(sidx_liquidity[DEX]["Reward performance"])
 
     fig1, ax1 = plt.subplots()
     ax1.pie(percentages, labels=labels, autopct='%1.1f%%',
             shadow=True, startangle=90)
     ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
     plt.savefig("app/static/liquidity_allocation.png")
+
+    # Here starts the rewards performance bar chart
+    fig, ax = plt.subplots()
+    ax.bar(labels, reward_performance)
+    ax.set(xlabel='DEX',
+           ylabel='Reward percentage based on total USD value locked',
+           title='Weekly reward percentage of SIDX liquidity pools by DEX')
+    plt.savefig("app/static/sidx_liquidity_rewards.png")
+
+
+
+
 def main():
     with open('data/SIDX_STATS.json') as sidx_stats_file:
         sidx_stats = json.load(sidx_stats_file)
