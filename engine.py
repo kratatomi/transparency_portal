@@ -65,8 +65,8 @@ initial_pool_balances = {
 }
 
 extra_pool_balances = {
-    "Mistswap": {"CA": "0x7E1B9F1e286160A80ab9B04D228C02583AeF90B5", "token0": 4.9425, "token1": 2163.41},
-    "Tangoswap": {"CA": "0x4509Ff66a56cB1b80a6184DB268AD9dFBB79DD53", "token0": 4.4572, "token1": 1593.11},
+    "Mistswap": {"CA": "0x7E1B9F1e286160A80ab9B04D228C02583AeF90B5", "token0": 4.9875, "token1": 2187.24},
+    "Tangoswap": {"CA": "0x4509Ff66a56cB1b80a6184DB268AD9dFBB79DD53", "token0": 4.5022, "token1": 1617.22},
     "Emberswap": {"CA": "0x97dEAeB1A9A762d97Ac565cD3Ff7629CD6d55D09", "token0": 206618, "token1": 612.9}
     }  # Token0 is WBCH/EMBER, Token1 is SIDX
 
