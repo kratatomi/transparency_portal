@@ -32,9 +32,11 @@ def generate_graphs():
     for DEX in current_farms:
         for i in range(len(current_farms[DEX]["farms"])):
             coins_pair = []
+            current_USD_value = 0
             for coin in current_farms[DEX]["farms"][i]["Coins"]:
                 coins_pair.append(coin)
-            farms_list[current_farms[DEX]["farms"][i]["lp_CA"]] = {"name": f"{DEX}-{coins_pair[0]}-{coins_pair[1]}", "Yields": [], "USD total value": [], "Weeks tracked": 0}
+                current_USD_value += current_farms[DEX]["farms"][i]["Coins"][coin]["Current value"]
+            farms_list[current_farms[DEX]["farms"][i]["lp_CA"]] = {"name": f"{DEX}-{coins_pair[0]}-{coins_pair[1]}", "Yields": [], "USD total value": [], "USD current value": current_USD_value,"Weeks tracked": 0}
     # Adding all value in SIDX liquidity pools
     for DEX in current_liquidity:
         if DEX not in sidx_liquidity:
@@ -212,32 +214,20 @@ def generate_graphs():
     ax2.plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)  # bottom-right diagonal
     plt.savefig("app/static/assets_apy.png")
 
-    # A pie chart showing how SIDX liquidity is allocated between DEXs and a bar chart for DEX yields (%) based on liquidity USD value. Labels are the same as the former graph.
+    # Here starts the rewards performance bar chart for SIDX farms
     labels = []
-    percentages = []
     reward_performance = []
     for DEX in sidx_liquidity:
         if DEX != "Total USD value":
             labels.append(DEX)
-            percentages.append(sidx_liquidity[DEX]["Percentage"])
             reward_performance.append(sidx_liquidity[DEX]["Reward performance"])
 
-    fig1, ax1 = plt.subplots()
-    ax1.pie(percentages, labels=labels, autopct='%1.1f%%',
-            shadow=True, startangle=90)
-    ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
-    plt.savefig("app/static/liquidity_allocation.png")
-
-    # Here starts the rewards performance bar chart
     fig, ax = plt.subplots()
     ax.bar(labels, reward_performance)
     ax.set(xlabel='DEX',
            ylabel='Reward percentage based on total USD value locked',
            title='Weekly reward percentage of SIDX liquidity pools by DEX')
     plt.savefig("app/static/sidx_liquidity_rewards.png")
-
-
-
 
 def main():
     with open('data/SIDX_STATS.json') as sidx_stats_file:

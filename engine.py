@@ -1,8 +1,6 @@
 import json
 from web3 import Web3, exceptions
 import requests
-import matplotlib.pyplot as plt
-import numpy as np
 from time import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -131,6 +129,8 @@ farms = {"Mistswap": {"factory": "0x3A7B9D0ed49a90712da4E087b17eE4Ac1375a5D4",
 }
 
 pie_chart_data = {}
+farms_pie_chart_data = {}
+sidx_liquidity_pie_chart_data = {}
 
 
 def get_balances(bch_price):
@@ -364,6 +364,8 @@ def get_LP_balances(initial_pool_balances, wallet_address, bch_price, sidx_price
     LP_balances = {}
     for DEX in initial_pool_balances:
         LP_balances[DEX] = {}
+        if DEX not in sidx_liquidity_pie_chart_data:
+            sidx_liquidity_pie_chart_data[DEX] = 0
         # First, get current LP balance and rewards
         if DEX == "Mistswap":
             ABI = open("ABIs/MIST-Master-ABI.json", 'r')
@@ -428,6 +430,8 @@ def get_LP_balances(initial_pool_balances, wallet_address, bch_price, sidx_price
             LP_balances[DEX][token1_ticker]["Current"] * sidx_price, 2)
         total_liquid_value += LP_balances[DEX][token1_ticker]["Current value"]
         SIDX_LP_value += LP_balances[DEX][token1_ticker]["Current value"]
+        sidx_liquidity_pie_chart_data[DEX] += LP_balances[DEX][token0_ticker]["Current value"]
+        sidx_liquidity_pie_chart_data[DEX] += LP_balances[DEX][token1_ticker]["Current value"]
         LP_balances[DEX][token0_ticker]["Difference"] = round(
             LP_balances[DEX][token0_ticker]["Current"] - LP_balances[DEX][token0_ticker]["Initial"], 2)
         LP_balances[DEX][token1_ticker]["Difference"] = round(LP_balances[DEX][token1_ticker]["Current"] - \
@@ -603,6 +607,10 @@ def get_farms(bch_price):
             farms[DEX]["farms"][i]["Coins"][token1_ticker]["Difference"] = round(
                 farms[DEX]["farms"][i]["Coins"][token1_ticker]["Current"] - \
                 farms[DEX]["farms"][i]["Coins"][token1_ticker]["Initial amount"], 2)
+            farm_name = f"{DEX}-{token0_ticker}-{token1_ticker}"
+            total_USD_value = farms[DEX]["farms"][i]["Coins"][token0_ticker]["Current value"] + \
+                              farms[DEX]["farms"][i]["Coins"][token1_ticker]["Current value"]
+            farms_pie_chart_data[farm_name] = total_USD_value
             # Now, it's time to get the rewards
             ABI_path = "ABIs/" + farms[DEX]["factory_ABI"]
             ABI = open(ABI_path, "r")  # Factory contract ABI
@@ -616,18 +624,29 @@ def get_farms(bch_price):
                 total_rewards_value += farms[DEX]["farms"][i]["reward value"]
 
 
-def make_pie_chart():
+def make_pie_chart(data, chart_name):
+    import matplotlib.pyplot as plt
+
     labels = []
-    values = []
-    for asset in pie_chart_data:
+    percentages = []
+    total_USD_value = 0
+
+    # Get accumulated USD value
+    for asset in data:
+        total_USD_value += data[asset]
+
+    # Get list of percentages
+
+    for asset in data:
         labels.append(asset)
-        values.append(pie_chart_data[asset])
+        percentages.append((data[asset]/total_USD_value) * 100)
 
-    y = np.array(values)
-
-    plt.pie(y, labels=labels)
-    plt.savefig("app/static/pie_chart.png")
-
+    fig1, ax1 = plt.subplots()
+    plt.rcParams.update({'font.size': 8})
+    ax1.pie(percentages, labels=labels, autopct='%1.1f%%', startangle=90)
+    ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+    plt.tight_layout()
+    plt.savefig(f"app/static/{chart_name}.png")
 
 def start_celery_stake():
     if not check_bch_balance(portfolio_address):
@@ -1169,8 +1188,10 @@ def main():
     LP_balances = get_LP_balances(initial_pool_balances, portfolio_address, bch_price, sidx_price)
     extra_LP_balances = get_LP_balances(extra_pool_balances, punk_wallets[1], bch_price, sidx_price)
     get_law_rewards(bch_price)
-    make_pie_chart()
     get_farms(bch_price)
+    make_pie_chart(pie_chart_data, "assets_pie_chart")
+    make_pie_chart(farms_pie_chart_data, "farms_pie_chart")
+    make_pie_chart(sidx_liquidity_pie_chart_data, "liquidity_allocation")
     ETF_portfolio = get_ETF_assets_allocation(farms)
     global_portfolio_stats = {"total_liquid_value": round(total_liquid_value, 2),
                               "total_illiquid_value": round(total_illiquid_value, 2),
