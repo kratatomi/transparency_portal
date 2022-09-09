@@ -1118,6 +1118,40 @@ def add_liquidity(tokens_dictionary, LP_CA, router, *account, min_amount_percent
          })
     send_transaction(f"Adding liquidity: at least {token0_min_amount} of {tokens_dictionary['token0']['CA']} and {token1_min_amount} of {tokens_dictionary['token1']['CA']} in account {address}", add_liquidity_tx, *account)
 
+def remove_liquidity(percentage_to_withdraw, LP_CA, router, *account, min_amount_percentage=1):
+    if not account:
+        address = portfolio_address
+        priv_key_env = 'PORTFOLIO_PRIV_KEY'
+    else:
+        address, priv_key_env = account
+    # First, let's get the balance of the LP token
+    ABI = open("ABIs/UniswapV2Pair.json", "r")
+    abi = json.loads(ABI.read())
+    contract = w3.eth.contract(address=LP_CA, abi=abi)
+    LP_token_balance = contract.functions.balanceOf(address).call()
+    amount_to_withdraw = (LP_token_balance * percentage_to_withdraw) / 100 # Liquidity parameter in removeLiquidity function
+    token0_reserves, token1_reserves = [contract.functions.getReserves().call()[i] for i in (0, 1)]
+    token0_address = contract.functions.token0().call()
+    token1_address = contract.functions.token1().call()
+    LP_total_supply = contract.functions.totalSupply().call()
+    token0_amount = (amount_to_withdraw / LP_total_supply) * token0_reserves
+    token1_amount = (amount_to_withdraw / LP_total_supply) * token1_reserves
+    # Router must be allowed to spend the LP token
+    asset_allowance(LP_CA, router, amount="all", *account)
+    # Now we can construct the removeLiquidity() function
+    token0_min_amount = int(round(token0_amount * ((100 - min_amount_percentage) / 100)))
+    token1_min_amount = int(round(token1_amount * ((100 - min_amount_percentage) / 100)))
+    ABI = open("ABIs/UniswapV2Router.json", "r")
+    abi = json.loads(ABI.read())
+    contract = w3.eth.contract(address=router, abi=abi)
+    deadline = int(time()) + 60
+    add_liquidity_tx = contract.functions.removeLiquidity(token0_address, token1_address, amount_to_withdraw, token0_min_amount, token1_min_amount, address, deadline).buildTransaction(
+        {'chainId': 10000,
+         'from': address,
+         'gasPrice': w3.toWei('1.05', 'gwei')
+         })
+    send_transaction(f"Removing liquidity: at least {token0_min_amount} of {token0_address} and {token1_min_amount} of {token1_address} in account {address}", add_liquidity_tx, *account)
+
 def wrap_BCH(amount, *account):
     amount = int(amount)
     if not account:
@@ -1135,6 +1169,23 @@ def wrap_BCH(amount, *account):
          'gasPrice': w3.toWei('1.05', 'gwei')
          })
     send_transaction(f'Wrapping {amount} BCH from account {address}', wrap_bch_tx, *account)
+
+def unwrap_BCH(amount, *account):
+    amount = int(amount)
+    if not account:
+        address = portfolio_address
+        priv_key_env = 'PORTFOLIO_PRIV_KEY'
+    else:
+        address, priv_key_env = account
+    ABI = open("ABIs/WBCH-ABI.json", "r")
+    abi = json.loads(ABI.read())
+    contract = w3.eth.contract(address=WBCH_CA, abi=abi)
+    unwrap_bch_tx = contract.functions.withdraw(int(amount)).buildTransaction(
+        {'chainId': 10000,
+         'from': address,
+         'gasPrice': w3.toWei('1.05', 'gwei')
+         })
+    send_transaction(f'Unwrapping {amount} BCH from account {address}', unwrap_bch_tx, *account)
 
 def get_SEP20_balance(token_CA, wallet):
     ABI = open("ABIs/ERC20-ABI.json")
