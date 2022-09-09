@@ -9,6 +9,8 @@ import logging
 from logging.handlers import SMTPHandler, RotatingFileHandler
 import os
 import server_settings
+from flask_apscheduler import APScheduler # pip install Flask-APScheduler
+import watchdog
 
 app = Flask(__name__)
 bootstrap = Bootstrap(app)
@@ -16,7 +18,13 @@ app.config.from_object(Config)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db, render_as_batch=True)
 login = LoginManager(app)
+scheduler = APScheduler()
+scheduler.init_app(app)
+scheduler.start()
 
+@scheduler.task('interval', id='ETF_watchdog', seconds=5, misfire_grace_time=900)
+def ETF_watchdog():
+    watchdog.main()
 @app.before_request
 def before_request():
     session.permanent = True
