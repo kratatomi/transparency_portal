@@ -285,6 +285,7 @@ def main():
         email.send_email_to_admin(f'Function harvest_farms_rewards failed. Exception: {e}')
     else:
         # We have to take the profits from the BCH/bcBCH and flexUSD/BCH farms and swap them for bcUSDT (proposal #42)
+        # With proposal #50, the only farm left is BCH/bcBCH.
         amount_to_swap = 0
         for farm in farms["Mistswap"]["farms"]:
             if farm["pool_id"] in (1, 60):

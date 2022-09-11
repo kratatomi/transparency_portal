@@ -72,27 +72,7 @@ extra_pool_balances = {
 
 farms = {"Mistswap": {"factory": "0x3A7B9D0ed49a90712da4E087b17eE4Ac1375a5D4",
                       "factory_ABI": "MIST-Master-ABI.json",
-                      "farms": [{"lp_CA": "0x1D5A7bea34EE984D54aF6Ff355A1Cb54c29eb546",
-                                 "pool_id": 47,
-                                 "lp_token_amount": 188.882290723925139574 * 10 ** 18,
-                                 "initial_token0_amount": 237.61,  # LAW
-                                 "token_0_bch_pair": "0xd55a9A41666108d10d31BAeEea5D6CdF3be6C5DD",
-                                 "token_0_assets_position": (0, 1),
-                                 "initial_token1_amount": 154.06,  # LawUSD
-                                 "token_1_bch_pair": "0xFEdfE67b179b2247053797d3b49d167a845a933e",
-                                 "token_1_assets_position": (1, 0),
-                                 "reward coin": "MistToken"},
-                                {"lp_CA": "0x20943aD7855bdE06Dd41BB89C9D2efE05DB329EC",
-                                 "pool_id": 32,
-                                 "lp_token_amount": 17618193073021479641,
-                                 "initial_token0_amount": 0.498718,  # WBCH
-                                 "token_0_bch_pair": "0x3743eC0673453E5009310C727Ba4eaF7b3a1cc04", #Get price from pool will just return BCH price
-                                 "token_0_assets_position": (0, 1),
-                                 "initial_token1_amount": 758.67058,  # JOY
-                                 "token_1_bch_pair": "0x20943aD7855bdE06Dd41BB89C9D2efE05DB329EC",
-                                 "token_1_assets_position": (1, 0),
-                                 "reward coin": "MistToken"},
-                                {"lp_CA": "0xde5D57B31cB67d5Aed93c26940394796953961cb",
+                      "farms": [{"lp_CA": "0xde5D57B31cB67d5Aed93c26940394796953961cb",
                                  "pool_id": 60,
                                  "lp_token_amount": 1322867557150664581,
                                  "initial_token0_amount": 1.419,  # WBCH
@@ -102,16 +82,6 @@ farms = {"Mistswap": {"factory": "0x3A7B9D0ed49a90712da4E087b17eE4Ac1375a5D4",
                                  "token_1_bch_pair": "0xde5D57B31cB67d5Aed93c26940394796953961cb",
                                  "token_1_assets_position": (1, 0),
                                  "reward coin": "MistToken"},
-                                {"lp_CA": "0x24f011f12Ea45AfaDb1D4245bA15dCAB38B43D13",
-                                 "pool_id": 1,
-                                 "lp_token_amount": 15.66541 * 10**18,
-                                 "initial_token0_amount": 0.92,  # WBCH
-                                 "token_0_bch_pair": "0x3743eC0673453E5009310C727Ba4eaF7b3a1cc04", #Get price from pool will just return BCH price
-                                 "token_0_assets_position": (0, 1),
-                                 "initial_token1_amount": 332.51,  # flexUSD
-                                 "token_1_bch_pair": "0x24f011f12Ea45AfaDb1D4245bA15dCAB38B43D13",
-                                 "token_1_assets_position": (1, 0),
-                                 "reward coin": "MistToken"}
                                 ]},
         "Tangoswap": {"factory": "0x38cC060DF3a0498e978eB756e44BD43CC4958aD9",
                       "factory_ABI": "MIST-Master-ABI.json",
