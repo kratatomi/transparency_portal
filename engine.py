@@ -916,9 +916,9 @@ def harvest_tango_sidx_farm(*account):
     contract = w3.eth.contract(address=LP_CA, abi=abi)
     LP_balance = int(contract.functions.balanceOf(address).call())
     if LP_balance == 0:
-        logger.error(f'No liquidity to add to SIDX/BCH Tango farm. Error is {e}.')
+        logger.error(f'No liquidity to add to SIDX/BCH Tango farm. LP balance is 0.')
         import app.email as email
-        email.send_email_to_admin(f'No liquidity to add to SIDX/BCH Tango farm. Error is {e}.')
+        email.send_email_to_admin(f'No liquidity to add to SIDX/BCH Tango farm. LP balance is 0.')
         return
     # Finally, LP tokens are deposited on the farm
     ABI = open("ABIs/MIST-Master-ABI.json", "r")
