@@ -98,6 +98,27 @@ farms = {"Mistswap": {"factory": "0x3A7B9D0ed49a90712da4E087b17eE4Ac1375a5D4",
                                  "token_1_assets_position": (1, 0),
                                  "reward coin": "Tango"}]
          },
+         "BlockNG-Kudos": {"farms": [{"lp_CA": "0x6239142dB6980e2663d49F67E99B1625Ee0A9c54",
+                                      "lp_token_amount": 3.024777 * 10 ** 18,
+                                      "initial_token0_amount": 98.7302,  #LAW
+                                      "token_0_bch_pair": "0x54AA3B2250A0e1f9852b4a489Fe1C20e7C71fd88",
+                                      "token_0_assets_position": (0, 1),
+                                      "initial_token1_amount": 0.09596, #bcBNB
+                                      "token_1_bch_pair": "0x7Cf25179b4968dd7Da5A2f35689361f6555C76b6",
+                                      "token_1_assets_position": (1, 0),
+                                      "reward coin": "LAW",
+                                      "CA": "0xB571042A440838e2D794ce54992D7b6c4cFFAfE1"},
+                                    {"lp_CA": "0x58B006A8380Cc4807b1d58C5a339A0E6f2338F1A",
+                                      "lp_token_amount": 191.8265 * 10 ** 18,
+                                      "initial_token0_amount": 355.715,  #LAW
+                                      "token_0_bch_pair": "0x54AA3B2250A0e1f9852b4a489Fe1C20e7C71fd88",
+                                      "token_0_assets_position": (0, 1),
+                                      "initial_token1_amount": 109.112, #LawUSD
+                                      "token_1_bch_pair": "0xFEdfE67b179b2247053797d3b49d167a845a933e",
+                                      "token_1_assets_position": (1, 0),
+                                      "reward coin": "LAW",
+                                      "CA": "0x44E64014BDAFbcb4542Ed9fE8Dfcf4320071B192"}
+                                     ]},
 }
 
 pie_chart_data = {}
@@ -585,17 +606,23 @@ def get_farms(bch_price):
                               farms[DEX]["farms"][i]["Coins"][token1_ticker]["Current value"]
             farms_pie_chart_data[farm_name] = total_USD_value
             # Now, it's time to get the rewards
-            ABI_path = "ABIs/" + farms[DEX]["factory_ABI"]
-            ABI = open(ABI_path, "r")  # Factory contract ABI
-            abi = json.loads(ABI.read())
-            contract = w3.eth.contract(address=farms[DEX]["factory"], abi=abi)
-            reward = contract.functions.pendingSushi(farms[DEX]["farms"][i]["pool_id"], portfolio_address).call()
-            farms[DEX]["farms"][i]["reward"] = round((reward / 10 ** 18), 2)
+            if DEX == "BlockNG-Kudos":
+                ABI = open("ABIs/BlockNG-farm.json", 'r')
+                abi = json.loads(ABI.read())
+                contract = w3.eth.contract(address="0xdB8Fc051ec6956f1c8D018F033E6788f959313d1", abi=abi)
+                reward = contract.caller().gaugeStakedDetailNonView(farms[DEX]["farms"][i]["CA"], portfolio_address, assets_balances["LAW"]["CA"])[5]
+                farms[DEX]["farms"][i]["reward"] = round((reward / 10 ** 18), 2)
+            else:
+                ABI_path = "ABIs/" + farms[DEX]["factory_ABI"]
+                ABI = open(ABI_path, "r")  # Factory contract ABI
+                abi = json.loads(ABI.read())
+                contract = w3.eth.contract(address=farms[DEX]["factory"], abi=abi)
+                reward = contract.functions.pendingSushi(farms[DEX]["farms"][i]["pool_id"], portfolio_address).call()
+                farms[DEX]["farms"][i]["reward"] = round((reward / 10 ** 18), 2)
             if farms[DEX]["farms"][i]["reward coin"] in assets_balances:
                 asset_price = get_price_from_pool(farms[DEX]["farms"][i]["reward coin"], bch_price)
                 farms[DEX]["farms"][i]["reward value"] = round((farms[DEX]["farms"][i]["reward"] * asset_price), 2)
                 total_rewards_value += farms[DEX]["farms"][i]["reward value"]
-
 
 def make_pie_chart(data, chart_name):
     import matplotlib.pyplot as plt
