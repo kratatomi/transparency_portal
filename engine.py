@@ -119,6 +119,27 @@ farms = {"Mistswap": {"factory": "0x3A7B9D0ed49a90712da4E087b17eE4Ac1375a5D4",
                                       "reward coin": "LAW",
                                       "CA": "0x44E64014BDAFbcb4542Ed9fE8Dfcf4320071B192"}
                                      ]},
+         "BlockNG-Beam": {"farms": [{"lp_CA": "0xB82FF56E3E91c102a5dAf9Aa31BaE4c8c63F53A5",
+                                      "lp_token_amount": 2.49976779 * 10 ** 18,
+                                      "initial_token0_amount": 0.218,  #bcBCH
+                                      "token_0_bch_pair": "0xde5D57B31cB67d5Aed93c26940394796953961cb",
+                                      "token_0_assets_position": (0, 1),
+                                      "initial_token1_amount": 30.43, #LawUSD
+                                      "token_1_bch_pair": "0xFEdfE67b179b2247053797d3b49d167a845a933e",
+                                      "token_1_assets_position": (1, 0),
+                                      "reward coin": "LAW",
+                                      "CA": "0x5a6b3a1B16794D492Fa9B72092C94468ae74901D"},
+                                    {"lp_CA": "0x43205613aD09aeF94fE0396F34c2C93eBc6D1b7E",
+                                     "lp_token_amount": 28.2342 * 10 ** 18,
+                                     "initial_token0_amount": 28.29,  # bcUSDT
+                                     "token_0_bch_pair": "0x27580618797a2CE02FDFBbee948388a50a823611",
+                                     "token_0_assets_position": (1, 0),
+                                     "initial_token1_amount": 30.21,  # LawUSD
+                                     "token_1_bch_pair": "0xFEdfE67b179b2247053797d3b49d167a845a933e",
+                                     "token_1_assets_position": (1, 0),
+                                     "reward coin": "LAW",
+                                     "CA": "0xAfAca05002412b6200B2e24e3044E63713c9bcD3"}
+                                    ]}
 }
 
 pie_chart_data = {}
@@ -611,6 +632,12 @@ def get_farms(bch_price):
                 abi = json.loads(ABI.read())
                 contract = w3.eth.contract(address="0xdB8Fc051ec6956f1c8D018F033E6788f959313d1", abi=abi)
                 reward = contract.caller().gaugeStakedDetailNonView(farms[DEX]["farms"][i]["CA"], portfolio_address, assets_balances["LAW"]["CA"])[5]
+                farms[DEX]["farms"][i]["reward"] = round((reward / 10 ** 18), 2)
+            elif DEX == "BlockNG-Beam":
+                ABI = open("ABIs/BlockNG-Beam-farm.json", 'r')
+                abi = json.loads(ABI.read())
+                contract = w3.eth.contract(address=farms[DEX]["farms"][i]["CA"], abi=abi)
+                reward = contract.functions.earned(portfolio_address).call()
                 farms[DEX]["farms"][i]["reward"] = round((reward / 10 ** 18), 2)
             else:
                 ABI_path = "ABIs/" + farms[DEX]["factory_ABI"]
