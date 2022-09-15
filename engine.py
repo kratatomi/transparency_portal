@@ -23,14 +23,16 @@ law_punks_CA = w3.toChecksumAddress("0xff48aAbDDACdc8A6263A2eBC6C1A68d8c46b1bf7"
 law_punks_market = w3.toChecksumAddress("0xc062bf9FaBE930FF8061f72b908AB1b702b3FdD6")
 law_level_address = w3.toChecksumAddress("0x9E9eACB7E5dCc374d3108598054787ccae967544")
 law_rewards = w3.toChecksumAddress("0xbeAAe3E87Bf71C97e458e2b9C84467bdc3b871c6")
+law_salary = "0xe0ACACCFf2cDa66C8cFcA3bf86e7310748c70727"
+law_rights = {"453": {"LAW": 71.609}, "457": {"LAW": 128.591}, "459": {"LAW": 163.35}} # TokenID: LAW locked
 punk_wallets = [portfolio_address,  # Punks wallet 1
                 "0x3484f575A3d3b4026B4708997317797925A236ae",  # Punks wallet 2
                 "0x57BB80fdab3ca9FDBC690F4b133010d8615e77b3"]  # Punks wallet 3
 
 WBCH_CA = "0x3743eC0673453E5009310C727Ba4eaF7b3a1cc04"
 
-with open("data/PUNKS_BALANCES.json", "r") as file:
-    punks_owned = json.load(file)
+with open("data/NFTs.json", "r") as file:
+    NFTs = json.load(file)
 
 assets_balances = {
     "MistToken": {"Initial": 226146.43, "Stacked": True, "CA": "0x5fA664f69c2A4A3ec94FaC3cBf7049BD9CA73129",
@@ -521,7 +523,7 @@ def update_punks_balance():
         print(i)
         if owner in punk_wallets:
             punks_balance["Wallets"][owner]["Punks"].append(i)
-    with open("data/PUNKS_BALANCES.json", "w") as file:
+    with open("data/NFTs.json", "w") as file:
         json.dump(punks_balance, file, indent=4)
     main()
 
@@ -530,22 +532,23 @@ def get_law_rewards(bch_price):
     global total_liquid_value
     global total_illiquid_value
     global total_rewards_value
+    # First, let's get Punks rewards
     law_pending = 0
     punks_number = 0
     ABI = open("ABIs/LAW_rewards-ABI.json", "r")
     abi = json.loads(ABI.read())
     contract = w3.eth.contract(address=law_rewards, abi=abi)
-    for wallet in punks_owned["Wallets"]:
+    for wallet in NFTs["PUNKS"]["Wallets"]:
         pending_reward = contract.functions.earned(wallet).call() / 10 ** 18
-        punks_owned["Wallets"][wallet]["LAW rewards"] = round(pending_reward, 2)
+        NFTs["PUNKS"]["Wallets"][wallet]["LAW rewards"] = round(pending_reward, 2)
         law_pending += pending_reward
-        for punk in punks_owned["Wallets"][wallet]["Punks"]:
+        for punk in NFTs["PUNKS"]["Wallets"][wallet]["Punks"]:
             punks_number += 1
-    punks_owned["Total LAW pending"] = round(law_pending, 2)
+    NFTs["PUNKS"]["Total LAW pending"] = round(law_pending, 2)
     law_price = get_price_from_pool("LAW", bch_price)
-    punks_owned["LAW pending in USD"] = round(punks_owned["Total LAW pending"] * law_price, 2)
-    total_liquid_value += punks_owned["LAW pending in USD"]
-    total_rewards_value += punks_owned["LAW pending in USD"]
+    NFTs["PUNKS"]["LAW pending in USD"] = round(NFTs["PUNKS"]["Total LAW pending"] * law_price, 2)
+    total_liquid_value += NFTs["PUNKS"]["LAW pending in USD"]
+    total_rewards_value += NFTs["PUNKS"]["LAW pending in USD"]
     # Now get punk's floor price using selenium library
     url = "https://blockng.money/#/punks"
     opts = FirefoxOptions()
@@ -559,25 +562,43 @@ def get_law_rewards(bch_price):
         status = wait.until(EC.text_to_be_present_in_element((By.CLASS_NAME, "punks-market-info-item-num.BCH"), "."))
         element = driver.find_element(By.CLASS_NAME, 'punks-market-info-item-num.BCH')
         floor_price = float(element.text.split()[0])
-        punks_owned["Floor price"] = floor_price  # In BCH
-        punks_owned["Total floor value"] = round(floor_price * punks_number * bch_price, 2)  # In USD
-        total_illiquid_value += punks_owned["Total floor value"]
+        NFTs["PUNKS"]["Floor price"] = floor_price  # In BCH
+        NFTs["PUNKS"]["Total floor value"] = round(floor_price * punks_number * bch_price, 2)  # In USD
+        total_illiquid_value += NFTs["PUNKS"]["Total floor value"]
     except Exception as e:
         element = driver.find_element(By.CLASS_NAME, 'punks-market-info-item-num.BCH')
         if element.text.split()[0].isnumeric():
             floor_price = float(element.text.split()[0])
-            punks_owned["Floor price"] = floor_price  # In BCH
-            punks_owned["Total floor value"] = round(floor_price * punks_number * bch_price, 2)  # In USD
-            total_illiquid_value += punks_owned["Total floor value"]
+            NFTs["PUNKS"]["Floor price"] = floor_price  # In BCH
+            NFTs["PUNKS"]["Total floor value"] = round(floor_price * punks_number * bch_price, 2)  # In USD
+            total_illiquid_value += NFTs["PUNKS"]["Total floor value"]
         else:
             logger.info(f'Error found trying to get punks floor price: {e}')
             import app.email as email
             email.send_email_to_admin(f'Error found trying to get punks floor price: {e}')
-            total_illiquid_value += punks_owned["Total floor value"]
+            total_illiquid_value += NFTs["PUNKS"]["Total floor value"]
     finally:
         driver.quit()
-
-
+    # Next step is to get LawRights salaries
+    NFTs["LAW Rights"]["tokens"] = law_rights
+    law_pending = 0
+    law_locked = 0
+    ABI = open("ABIs/LAW_rewards-ABI.json", "r")
+    abi = json.loads(ABI.read())
+    contract = w3.eth.contract(address=law_salary, abi=abi)
+    for tokenID in NFTs["LAW Rights"]["tokens"]:
+        pending_reward = contract.functions.claimable(int(tokenID)).call() / 10 ** 18
+        NFTs["LAW Rights"]["tokens"][tokenID]["LAW rewards"] = round(pending_reward, 2)
+        law_pending += pending_reward
+        law_locked += NFTs["LAW Rights"]["tokens"][tokenID]["LAW"]
+    NFTs["LAW Rights"]["Total LAW pending"] = round(law_pending, 2)
+    law_price = get_price_from_pool("LAW", bch_price)
+    NFTs["LAW Rights"]["LAW pending in USD"] = round(NFTs["LAW Rights"]["Total LAW pending"] * law_price, 2)
+    NFTs["LAW Rights"]["Total LAW locked"] = round(law_locked, 2)
+    NFTs["LAW Rights"]["LAW locked in USD"] = round(NFTs["LAW Rights"]["Total LAW locked"] * law_price, 2)
+    total_liquid_value += NFTs["LAW Rights"]["LAW pending in USD"]
+    total_rewards_value += NFTs["LAW Rights"]["LAW pending in USD"]
+    total_illiquid_value += NFTs["LAW Rights"]["LAW locked in USD"]
 def get_farms(bch_price):
     global total_liquid_value
     global total_illiquid_value
@@ -637,7 +658,7 @@ def get_farms(bch_price):
                 ABI = open("ABIs/BlockNG-Beam-farm.json", 'r')
                 abi = json.loads(ABI.read())
                 contract = w3.eth.contract(address=farms[DEX]["farms"][i]["CA"], abi=abi)
-                reward = contract.functions.earned(portfolio_address).call()
+                reward = contract.functions.earned(portfolio_address).call() #earnedEasily for LAW earned using referral codes
                 farms[DEX]["farms"][i]["reward"] = round((reward / 10 ** 18), 2)
             else:
                 ABI_path = "ABIs/" + farms[DEX]["factory_ABI"]
@@ -1286,8 +1307,8 @@ def main():
         json.dump(LP_balances, file, indent=4)
     with open('data/EXTRA_LP_BALANCES.json', 'w') as file:
         json.dump(extra_LP_balances, file, indent=4)
-    with open('data/PUNKS_BALANCES.json', 'w') as file:
-        json.dump(punks_owned, file, indent=4)
+    with open('data/NFTs.json', 'w') as file:
+        json.dump(NFTs, file, indent=4)
     with open('data/FARMS.json', 'w') as file:
         json.dump(farms, file, indent=4)
     with open('data/GLOBAL_STATS.json', 'w') as file:
