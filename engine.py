@@ -89,14 +89,14 @@ farms = {"Mistswap": {"factory": "0x3A7B9D0ed49a90712da4E087b17eE4Ac1375a5D4",
                                 ]},
         "Tangoswap": {"factory": "0x38cC060DF3a0498e978eB756e44BD43CC4958aD9",
                       "factory_ABI": "MIST-Master-ABI.json",
-                      "farms": [{"lp_CA": "0xC01FC198B8c69857D112b6dD2BD3f3fb27e01418",
-                                 "pool_id": 35,
-                                 "lp_token_amount": 831.247 * 10 ** 18,
-                                 "initial_token0_amount": 8123.62, #TANGO
+                      "farms": [{"lp_CA": "0xC849ccDA62Af9f638B849f6116e3B0c9A17a637c",
+                                 "pool_id": 37,
+                                 "lp_token_amount": 20.04828 * 10 ** 18,
+                                 "initial_token0_amount": 10913.8, #TANGO
                                  "token_0_bch_pair": "0x4b773a2ea30C6A77564E4FaE60204e7Bc0a81A90",
                                  "token_0_assets_position": (1, 0),
-                                 "initial_token1_amount": 85.19, #bcUSDT
-                                 "token_1_bch_pair": "0x27580618797a2CE02FDFBbee948388a50a823611",
+                                 "initial_token1_amount": 0.0369945, #bcETH
+                                 "token_1_bch_pair": "0xE8Dd3C0E136Ed71A00b104C21656aE5a642D3369",
                                  "token_1_assets_position": (1, 0),
                                  "reward coin": "Tango"}]
          },
