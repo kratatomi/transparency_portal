@@ -1,62 +1,163 @@
 {% extends "base.html" %}
 
 {% block app_content %}
+
+<style>
+
+    body {
+        background-color: #3f627c;
+    }
+
+    .navbar {
+        background-color: #253a49;
+        color: #f8fdff;
+    }
+    .logo-image {
+        vertical-align: middle;
+        display: flex;
+        align-items: center;
+        /* height: 4.75rem; */
+        margin: 0 0.5rem;
+        padding: 0
+    }
+    .small-navbar-text {
+        font-size: 0.75rem;
+    }
+
+    .flex-container {
+        display: flex;
+    }
+    .wrapper {
+        margin: auto;
+        max-width: 1200px;
+    }
+
+    .card {
+        background-color: #253a49;
+        color: #f8fdff;
+        /* opacity: 0.2; */
+        margin: 1rem;
+    }
+
+    a {
+        color: #0ac18e
+    }
+
+    .blank_row{
+        height: 0.75rem !important; /* overwrites any other rules */
+    }
+  
+</style>
+
 {% if date %}
 <div class="container"><center><H2>Yields report taken at {{ date }}</H2></center></div>
 {% endif %}
-<div style="float:left; width:50%;">
-            <div class="container">
-            <H2>SEP20 tokens balance in the portfolio:</H2>
-            <ul id="SEP20_tokens">
-                {% for key, value in sep20_balances.items() %}
-                {% if key != "Total value" %}
-                <li>{{ key }} : {{ value["Current"] }}
-                {% if value["Current value"] is defined %}
-                    (Value: {{ value["Current value"] }} USD)
-                {% else %}
-                    (USD value not available)</li>
-                {% endif %}
-                {% endif %}
-                {% endfor %}
-            </ul>
-            <b>Total value: {{ sep20_balances["Total value"] }} USD</b>
-    </div>
-    <br>
-    <div class="container">
-        <H2>Staked tokens balance in the portfolio:</H2>
-        <ul id="staked_tokens">
-            {% for key, value in stacked_assets.items() %}
-            {% if (key != "Total value") and (key != "Total yield value") %}
-            <li>{{ key }}
-                <ul>
-                    <li>Initial amount: {{ value["Initial"] }}</li>
-                    <li>Current amount: {{ value["Current"] }}
+
+    <div class="card-columns">
+
+        {% if global_stats %}
+        <div class="card">
+            <div class="card-header"><H3>Global Portfolio Statistics</H3></div>
+                <div class="card-body">
+                    <table id="global_stats" style="width: 100%;">
+                        <tr>
+                            <th>Total value in liquid assets:</th>
+                            <td style="text-align: right;">${{ global_stats["total_liquid_value"] }}</td>
+                        </tr>
+                        <tr>
+                            <th>Total value in illiquid assets:</th>
+                            <td style="text-align: right;">${{ global_stats["total_illiquid_value"] }}</td>
+                        </tr>
+                        <tr>
+                            <th>Value per SIDX:</th>
+                            <td style="text-align: right;">${{ global_stats["value_per_sidx"] }}</td>
+                        </tr>
+                        <tr>
+                            <th><b>Total value:</b></th>
+                            <td style="text-align: right;">${{ global_stats["total_portfolio_balance"] }}</td>
+                        </tr>
+                        <!-- <li>Total value in liquid assets: {{ global_stats["total_liquid_value"] }} USD</li>
+                        <li>Total value in illiquid assets: {{ global_stats["total_illiquid_value"] }} USD</li>
+                        <li>Value per SIDX: {{ global_stats["value_per_sidx"] }} USD</li>
+                        <li><b>Total value:</b> {{ global_stats["total_portfolio_balance"] }} USD</li> -->
+                    </table>
+                </div>
+        </div>
+        {% endif %}
+
+        <div class="card">
+            <div class="card-header"><h3>SEP20 Tokens Held</h3></div>
+            <div class="card-body">
+                <table id="SEP20_tokens" style="width: 100%;">
+                    <tr>
+                    <th style="width: 50%">Token</th>
+                    <th style="width: 25%">Amount</th>
+                    <th style="width: 25%; text-align: right;">Value in USD</th>
+                    </tr>
+                    {% for key, value in sep20_balances.items() %}
+                    {% if key != "Total value" %}
+                    <tr>
+                    <td>{{ key }}</td>
+                    <td>{{ value["Current"] }}</td>
+                    <td style="text-align: right;">
                     {% if value["Current value"] is defined %}
-                        (Value: {{ value["Current value"] }} USD)
+                        ${{ value["Current value"] }}
                     {% else %}
                         (USD value not available)</li>
                     {% endif %}
-                    <li>Yield: {{ value["Yield"] }} ({{ value["Yield value"] }} USD)</li>
-                    {% if key == "Celery" %}
-                        {% if "Mode" in value %}
-                            <li>Current mode: {{ value["Mode"] }}
-                            <small>See <a href="https://transparency.smartindex.cash/proposals/16">proposal #16</a></small></li>
+                    </td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                    <tr class="blank_row">
+                        <td colspan="3"></td>
+                    </tr>
+                    <tr>
+                        <th colspan="2">Total Value:</th>
+                        <th style="text-align: right;">${{ sep20_balances["Total value"] }}</th>
+                    </tr>
+                    </table>
+            </div>
+        </div>
+        <br>
+        <div class="card">
+            <div class="card-header"><H2>Staked tokens balance in the portfolio:</H2></div>
+            <div class="card-body">
+            <ul id="staked_tokens">
+                {% for key, value in stacked_assets.items() %}
+                {% if (key != "Total value") and (key != "Total yield value") %}
+                <li>{{ key }}
+                    <ul>
+                        <li>Initial amount: {{ value["Initial"] }}</li>
+                        <li>Current amount: {{ value["Current"] }}
+                        {% if value["Current value"] is defined %}
+                            (Value: {{ value["Current value"] }} USD)
+                        {% else %}
+                            (USD value not available)</li>
                         {% endif %}
-                    {% endif %}
-                    {% endif %}
-                </ul>
-            </li>
-            {% endfor %}
-        </ul>
-        <b>Total value: {{  stacked_assets["Total value"] }} USD</b>
-        <b>Total yield: {{ stacked_assets["Total yield value"] }} USD</b>
-    </div>
-    {% if title == "Portfolio tracker" %}
+                        <li>Yield: {{ value["Yield"] }} ({{ value["Yield value"] }} USD)</li>
+                        {% if key == "Celery" %}
+                            {% if "Mode" in value %}
+                                <li>Current mode: {{ value["Mode"] }}
+                                <small>See <a href="https://transparency.smartindex.cash/proposals/16">proposal #16</a></small></li>
+                            {% endif %}
+                        {% endif %}
+                        {% endif %}
+                    </ul>
+                </li>
+                {% endfor %}
+            </ul>
+            <b>Total value: {{  stacked_assets["Total value"] }} USD</b>
+            <b>Total yield: {{ stacked_assets["Total yield value"] }} USD</b>
+            </div>
+        </div>
+    <!-- {% if title == "Portfolio tracker" %}
     <img src="{{ url_for('static', filename='assets_pie_chart.png') }}" style="max-width: 100%;" alt="Assets distribution in the portfolio by value">
-    {% endif %}
-        <div class="container">
-        {% if farms %}
-        <H2>Farms:</H2>
+    {% endif %} -->
+    {% if farms %}
+        <div class="card">
+        <div class="card-header"><H2>Farms:</H2></div>
+        <div class="card-body">
         <ul id="farms">
             {% for key, value in farms.items() %}
             <li><b>{{ key }}</b>
@@ -78,14 +179,14 @@
             {% endfor %}
         </ul>
         {% endif %}
+        </div>
     </div>
-    {% if title == "Portfolio tracker" %}
+    <!-- {% if title == "Portfolio tracker" %}
     <img src="{{ url_for('static', filename='farms_pie_chart.png') }}" style="max-width: 100%;" alt="Farms distribution in the portfolio by USD value">
-    {% endif %}
-</div>
-<div style="float:right; width:50%;">
-        <div class="container">
-        <H2>SIDX initial liquidity pools:</H2>
+    {% endif %} -->
+        <div class="card">
+        <div class="card-header"><H2>SIDX initial liquidity pools:</H2></div>
+        <div class="card-body">
         <ul id="SIDX_liquidity_pools">
             {% for key, value in lp_balances.items() %}
             <li><b>{{ key }}</b>
@@ -129,10 +230,13 @@
             </li>
             {% endfor %}
         </ul>
+        </div>
     </div>
+
     {% if extra_lp_balances %}
-    <div class="container">
-        <H2>Extra SIDX liquidity pools:</H2>
+    <div class="card">
+        <div class="card-header"><H2>Extra SIDX liquidity pools:</H2></div>
+        <div class="card-body">
         <small>See <a href="https://transparency.smartindex.cash/proposals/10">proposal #10</a>, <a href="https://transparency.smartindex.cash/proposals/19">#19</a> and <a href="https://transparency.smartindex.cash/proposals/21">#21</a></small>
         <ul id="extra_SIDX_liquidity_pools">
             {% for key, value in extra_lp_balances.items() %}
@@ -168,13 +272,15 @@
             </li>
             {% endfor %}
         </ul>
+        </div>
     </div>
-    {% if title == "Portfolio tracker" %}
+    <!-- {% if title == "Portfolio tracker" %}
         <img src="{{ url_for('static', filename='liquidity_allocation.png') }}" style="max-width: 100%;" alt="Value SIDX liquidity allocation by DEX">
+    {% endif %} -->
     {% endif %}
-    {% endif %}
-    <div class="container">
-        <H2>LAW Punks:</H2>
+    <div class="card">
+        <div class="card-header"><H2>LAW Punks:</H2></div>
+        <div class="card-body">
         <ul id="law_punks">
             {% for key, value in punks["Wallets"].items() %}
             <li>Wallet: <a href="https://www.smartscan.cash/address/{{key}}">{{key}}</a> LAW earned: {{ value["LAW rewards"] }}</li>
@@ -189,17 +295,7 @@
             <br>Punks floor price: {{ punks["Floor price"] }} BCH - <b>Total floor value: {{ punks["Total floor value"] }} USD</b>
             {% endif %}
         </ul>
+        </div>
     </div>
-</div>
-{% if global_stats %}
-<div class="container">
-        <H2>Global portfolio statistics</H2>
-        <ul id="global_stats">
-            <li>Total value in liquid assets: {{ global_stats["total_liquid_value"] }} USD</li>
-            <li>Total value in illiquid assets: {{ global_stats["total_illiquid_value"] }} USD</li>
-            <li>Value per SIDX: {{ global_stats["value_per_sidx"] }} USD</li>
-            <li><b>Total value:</b> {{ global_stats["total_portfolio_balance"] }} USD</li>
-        </ul>
-    </div>
-{% endif %}
+
 {% endblock %}

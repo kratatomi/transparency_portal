@@ -10,46 +10,42 @@
 {% endblock %}
 
 {% block navbar %}
-    <nav class="navbar navbar-default">
-        <div class="container">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                <a class="navbar-brand">
-                    <img class="mr-3" src="{{ url_for('static', filename='logo.svg') }}" width="50" height="50" alt="SmartIndex Logo">
-                </a>
-                <a class="navbar-brand" href="{{ url_for('index') }}">SmartIndex transparency portal</a>
-            </div>
-            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-                <ul class="nav navbar-nav">
-                    <li><a href="https://smartindex.cash">Website</a></li>
-                    <li><a href="{{ url_for('index') }}">Portfolio tracker</a></li>
-                    <li><a href="{{ url_for('proposals') }}">Proposals</a></li>
-                    <li><a href="{{ url_for('yields') }}">Weekly yield</a></li>
-                    {% if current_user.is_authenticated %}
-                        <li><a href="{{ url_for('submit_proposal') }}">Submit proposal</a></li>
-                        <li><a href="{{ url_for('logout') }}">Logout</a></li>
-                    {% endif %}
-                </ul>
-                <ul class="nav navbar-nav navbar-right">
-                <table align="right">
-                    <tr><th>SIDX token stats</th></tr>
-                    {% for key, value in sidx_stats.items() %}
-                    <tr><td>{{ key }} : {{ value }}</td></tr>
-                    {% endfor %}
-                </table>
-                </ul>
-            </div>
-        </div>
-    </nav>
+<nav class="navbar navbar-expand-xl navbar-dark">
+    <a class="navbar-brand mb-0" href="/" style="padding: 0; margin: 0 0.5rem; vertical-align: middle; display: flex; align-items: center;">
+        <img class="mr-3 logo-img" src="{{ url_for('static', filename='logo.svg') }}" style="height: 6rem; margin: 0 0.5rem; padding: 0" alt="SmartIndex Logo">
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item"><a class="nav-link" href="https://smartindex.cash">Website</a></li>
+            <li class="nav-item"><a class="nav-link"  href="{{ url_for('index') }}">Portfolio tracker</a></li>
+            <li class="nav-item"><a class="nav-link"  href="{{ url_for('proposals') }}">Proposals</a></li>
+            <li class="nav-item"><a class="nav-link"  href="{{ url_for('yields') }}">Weekly yield</a></li>
+            {% if current_user.is_authenticated %}
+                <li class="nav-item"><a class="nav-link"  href="{{ url_for('submit_proposal') }}">Submit proposal</a></li>
+                <li class="nav-item"><a class="nav-link"  href="{{ url_for('logout') }}">Logout</a></li>
+            {% endif %}
+        </ul>
+        <ul class="nav navbar-nav navbar-right small-navbar-text">
+            <table align="right">
+                <tr><th>SIDX token stats</th></tr>
+                {% for key, value in sidx_stats.items() %}
+                <tr><td>{{ key }} : {{ value }}</td></tr>
+                {% endfor %}
+            </table>
+            </ul>
+    </div>
+  </nav>
 {% endblock %}
 
+
+
 {% block content %}
-<div class="container">
-    {% block app_content %}{% endblock %}
+<div class="flex-container wrapper">
+    <div>
+        {% block app_content %}{% endblock %}
+    </div>
 </div>
 {% endblock %}
