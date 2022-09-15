@@ -190,18 +190,20 @@
             {% endif %}
         </ul>
     </div>
-    <div class="container">
-        <H2>LAW Rights:</H2>
-        <ul id="law_rights">
-            {% for key, value in law_rights["tokens"].items() %}
-                <li>LAW right ID #{{key}}: LAW locked: {{ value["LAW"] }} - LAW earned: {{ value["LAW rewards"] }}</li>
-            {% endfor %}
-            <br>
-            <b>Total LAW earned:  {{ law_rights["Total LAW pending"] }} LAW - {{ law_rights["LAW pending in USD"] }} USD</b>
-            <br>
-            <b>Total LAW locked:  {{ law_rights["Total LAW locked"] }} LAW - {{ law_rights["LAW locked in USD"] }} USD</b>
-        </ul>
-    </div>
+    {% if law_rights %}
+        <div class="container">
+            <H2>LAW Rights:</H2>
+            <ul id="law_rights">
+                {% for key, value in law_rights["tokens"].items() %}
+                    <li>LAW right ID #{{key}}: LAW locked: {{ value["LAW"] }} - LAW earned: {{ value["LAW rewards"] }}</li>
+                {% endfor %}
+                <br>
+                <b>Total LAW earned:  {{ law_rights["Total LAW pending"] }} LAW - {{ law_rights["LAW pending in USD"] }} USD</b>
+                <br>
+                <b>Total LAW locked:  {{ law_rights["Total LAW locked"] }} LAW - {{ law_rights["LAW locked in USD"] }} USD</b>
+            </ul>
+        </div>
+    {% endif %}
 </div>
 {% if global_stats %}
 <div class="container">
