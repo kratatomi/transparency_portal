@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 
 {% block app_content %}
+<style>.inline {
+  display: inline-block;
+}</style>
 
 {% with messages=get_flashed_messages() %}
     {% if messages %}
