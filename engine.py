@@ -24,7 +24,7 @@ law_punks_market = w3.toChecksumAddress("0xc062bf9FaBE930FF8061f72b908AB1b702b3F
 law_level_address = w3.toChecksumAddress("0x9E9eACB7E5dCc374d3108598054787ccae967544")
 law_rewards = w3.toChecksumAddress("0xbeAAe3E87Bf71C97e458e2b9C84467bdc3b871c6")
 law_salary = "0xe0ACACCFf2cDa66C8cFcA3bf86e7310748c70727"
-law_rights = {"453": {"LAW": 71.609}, "457": {"LAW": 128.591}, "459": {"LAW": 163.35}} # TokenID: LAW locked
+law_rights = {"453": {}, "457": {}, "459": {}} # TokenID: {LAW locked, salary}
 punk_wallets = [portfolio_address,  # Punks wallet 1
                 "0x3484f575A3d3b4026B4708997317797925A236ae",  # Punks wallet 2
                 "0x57BB80fdab3ca9FDBC690F4b133010d8615e77b3"]  # Punks wallet 3
@@ -579,17 +579,22 @@ def get_law_rewards(bch_price):
             total_illiquid_value += NFTs["PUNKS"]["Total floor value"]
     finally:
         driver.quit()
-    # Next step is to get LawRights salaries
+    # Next step is to get LAW locked in LawRights and salaries
     NFTs["LAW Rights"]["tokens"] = law_rights
     law_pending = 0
     law_locked = 0
-    ABI = open("ABIs/LAW_rewards-ABI.json", "r")
-    abi = json.loads(ABI.read())
-    contract = w3.eth.contract(address=law_salary, abi=abi)
+    veLAWRights_ABI = open("ABIs/veLawRightsProxyed.json", "r")
+    veLAWRights_abi = json.loads(veLAWRights_ABI.read())
+    LAW_rights_contract = w3.eth.contract(address="0xe24Ed1C92feab3Bb87cE7c97Df030f83E28d9667", abi=veLAWRights_abi)
+    LAW_rewards_ABI = open("ABIs/LAW_rewards-ABI.json", "r")
+    LAW_rewards_abi = json.loads(LAW_rewards_ABI.read())
+    salary_contract = w3.eth.contract(address=law_salary, abi=LAW_rewards_abi)
+    current_block = w3.eth.get_block_number()
     for tokenID in NFTs["LAW Rights"]["tokens"]:
-        pending_reward = contract.functions.claimable(int(tokenID)).call() / 10 ** 18
+        NFTs["LAW Rights"]["tokens"][tokenID]["LAW"] = round(LAW_rights_contract.functions.balanceOfAtNFT(int(tokenID), current_block).call() / 10 ** 18, 2)
+        pending_reward = salary_contract.functions.claimable(int(tokenID)).call() / 10 ** 18
         NFTs["LAW Rights"]["tokens"][tokenID]["LAW rewards"] = round(pending_reward, 2)
-        law_pending += pending_reward
+        law_pending += NFTs["LAW Rights"]["tokens"][tokenID]["LAW rewards"]
         law_locked += NFTs["LAW Rights"]["tokens"][tokenID]["LAW"]
     NFTs["LAW Rights"]["Total LAW pending"] = round(law_pending, 2)
     law_price = get_price_from_pool("LAW", bch_price)
