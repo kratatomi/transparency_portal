@@ -24,7 +24,7 @@ law_punks_market = w3.toChecksumAddress("0xc062bf9FaBE930FF8061f72b908AB1b702b3F
 law_level_address = w3.toChecksumAddress("0x9E9eACB7E5dCc374d3108598054787ccae967544")
 law_rewards = w3.toChecksumAddress("0xbeAAe3E87Bf71C97e458e2b9C84467bdc3b871c6")
 law_salary = "0xe0ACACCFf2cDa66C8cFcA3bf86e7310748c70727"
-law_rights = {"453": {"LAW": 71.609}, "457": {"LAW": 128.591}, "459": {"LAW": 163.35}} # TokenID: LAW locked
+law_rights = {"453": {}, "457": {}, "459": {}} # TokenID: {LAW locked, salary}
 punk_wallets = [portfolio_address,  # Punks wallet 1
                 "0x3484f575A3d3b4026B4708997317797925A236ae",  # Punks wallet 2
                 "0x57BB80fdab3ca9FDBC690F4b133010d8615e77b3"]  # Punks wallet 3
@@ -149,7 +149,7 @@ farms_pie_chart_data = {}
 sidx_liquidity_pie_chart_data = {}
 
 
-def get_balances(bch_price):
+def get_balances(bch_price, portfolio_address=portfolio_address):
     stacked_assets = {}
     SEP20_tokens = {}
     total_value_SEP20_tokens = 0
@@ -584,17 +584,22 @@ def get_law_rewards(bch_price):
             total_illiquid_value += NFTs["PUNKS"]["Total floor value"]
     finally:
         driver.quit()
-    # Next step is to get LawRights salaries
+    # Next step is to get LAW locked in LawRights and salaries
     NFTs["LAW Rights"]["tokens"] = law_rights
     law_pending = 0
     law_locked = 0
-    ABI = open("ABIs/LAW_rewards-ABI.json", "r")
-    abi = json.loads(ABI.read())
-    contract = w3.eth.contract(address=law_salary, abi=abi)
+    veLAWRights_ABI = open("ABIs/veLawRightsProxyed.json", "r")
+    veLAWRights_abi = json.loads(veLAWRights_ABI.read())
+    LAW_rights_contract = w3.eth.contract(address="0xe24Ed1C92feab3Bb87cE7c97Df030f83E28d9667", abi=veLAWRights_abi)
+    LAW_rewards_ABI = open("ABIs/LAW_rewards-ABI.json", "r")
+    LAW_rewards_abi = json.loads(LAW_rewards_ABI.read())
+    salary_contract = w3.eth.contract(address=law_salary, abi=LAW_rewards_abi)
+    current_block = w3.eth.get_block_number()
     for tokenID in NFTs["LAW Rights"]["tokens"]:
-        pending_reward = contract.functions.claimable(int(tokenID)).call() / 10 ** 18
+        NFTs["LAW Rights"]["tokens"][tokenID]["LAW"] = round(LAW_rights_contract.functions.balanceOfAtNFT(int(tokenID), current_block).call() / 10 ** 18, 2)
+        pending_reward = salary_contract.functions.claimable(int(tokenID)).call() / 10 ** 18
         NFTs["LAW Rights"]["tokens"][tokenID]["LAW rewards"] = round(pending_reward, 2)
-        law_pending += pending_reward
+        law_pending += NFTs["LAW Rights"]["tokens"][tokenID]["LAW rewards"]
         law_locked += NFTs["LAW Rights"]["tokens"][tokenID]["LAW"]
     NFTs["LAW Rights"]["Total LAW pending"] = round(law_pending, 2)
     law_price = get_price_from_pool("LAW", bch_price)
@@ -604,7 +609,7 @@ def get_law_rewards(bch_price):
     total_liquid_value += NFTs["LAW Rights"]["LAW pending in USD"]
     total_rewards_value += NFTs["LAW Rights"]["LAW pending in USD"]
     total_illiquid_value += NFTs["LAW Rights"]["LAW locked in USD"]
-def get_farms(bch_price):
+def get_farms(bch_price, farms=farms):
     global total_liquid_value
     global total_illiquid_value
     global total_rewards_value
@@ -870,7 +875,7 @@ def harvest_pools_rewards(pool_name, amount=0):
     if pool_name == "FlexUSD":
         swap_assets("0x7b2B3C5308ab5b2a1d9a94d20D35CCDf61e05b72", "0x0000000000000000000000000000000000000000", amount)
 
-def send_transaction(identifier, tx, *account):
+def send_transaction(identifier, tx,*account):
     # identifier is just a string to help the admin to identify the tx if it fails.
     # account contains the address and the private key env location
     if not account:
@@ -911,6 +916,7 @@ def send_transaction(identifier, tx, *account):
         logger.info(f'TXID {hex_TXID} sent, identifier is {identifier}')
         try:
             receipt = w3.eth.wait_for_transaction_receipt(TXID)
+            logger.info(f'Receipt is {receipt}')
             if receipt.status == 0:
                 import app.email as email
                 email.send_email_to_admin(f"Harvesting failed for {identifier}, TXID is {TXID}")
@@ -923,6 +929,7 @@ def send_transaction(identifier, tx, *account):
             logger.error(f'Failed to get TX status, error is {e}, TXID is {hex_TXID}, identifier is {identifier}')
             import app.email as email
             email.send_email_to_admin(f'Failed to get TX status, error is {e}, TXID is {hex_TXID}, identifier is {identifier}')
+    return receipt
 
 def harvest_farms_rewards():
     # Harvest all the rewards for every farm
@@ -1042,8 +1049,9 @@ def get_ETF_assets_allocation(farms):
     total_percentage = 0
     total_value = 0
     for asset in pie_chart_data:
-        portfolio["Standalone assets"][asset] = pie_chart_data[asset]
-        total_value += portfolio["Standalone assets"][asset]
+        if assets_balances[asset]["Liquid"]:
+            portfolio["Standalone assets"][asset] = pie_chart_data[asset]
+            total_value += portfolio["Standalone assets"][asset]
     for DEX in farms:
         portfolio["Farms"][DEX] = {}
         for i in range(len(farms[DEX]['farms'])):
@@ -1170,8 +1178,13 @@ def add_liquidity(tokens_dictionary, LP_CA, router, *account, min_amount_percent
          'from': address,
          'gasPrice': w3.toWei('1.05', 'gwei')
          })
-    send_transaction(f"Adding liquidity: at least {token0_min_amount} of {tokens_dictionary['token0']['CA']} and {token1_min_amount} of {tokens_dictionary['token1']['CA']} in account {address}", add_liquidity_tx, *account)
-
+    receipt = send_transaction(f"Adding liquidity: at least {token0_min_amount} of {tokens_dictionary['token0']['CA']} and {token1_min_amount} of {tokens_dictionary['token1']['CA']} in account {address}", add_liquidity_tx, *account)
+    if receipt:
+        ABI = open("ABIs/UniswapV2Pair.json", "r")
+        abi = json.loads(ABI.read())
+        contract = w3.eth.contract(address=LP_CA, abi=abi)
+        addLiquidity_event = contract.events.Mint().processReceipt(receipt)
+        logger.info(f'Liquidity added: {addLiquidity_event[0]["args"]["amount0"]} of token0 and {addLiquidity_event[0]["args"]["amount1"]} of token1')
 def remove_liquidity(percentage_to_withdraw, LP_CA, router, *account, min_amount_percentage=1):
     if not account:
         address = portfolio_address
