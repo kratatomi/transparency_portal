@@ -7,21 +7,20 @@
 <link rel="stylesheet" href="../static/style.css" />
 
 
-<div class="container" style="color: #f8fdff">
-  <H2>SmartIndex proposals:</H2>
+<div class="card">
+  <div class="card-header"><H2>SmartIndex Proposals:</H2></div>
+  <div class="card-body">
     {% if not current_user.is_authenticated %}
         <H3>You need to log in to vote and submit proposals.</H3>
     {% endif %}
-    <H4>Click on any proposal to see its respective voting instructions. Remember that dates are in UTC time. Current UTC hour is <div id="clock" class="inline"></div>.</H4>
+    <h5>Click on any proposal to see its respective voting instructions. Remember that dates are in UTC time.</h5>
+    <h5 style="display: inline">Current UTC hour is <div id="clock" style="color: #0ac18e;" class="inline"></div>.</h5>
+      <div id="msg" class="alert alert-success" style="display: none"></div>
+        {% if not current_user.is_authenticated %}
+          <button class="btn btn-success" style="float: right;" id="login" disabled onclick='login()'>Login</button>
+        {% endif %}
+  </div>
 </div>
-
-<div class="container" align="right">
-    <div id="msg" class="alert alert-primary" style="display: none"></div>
-    {% if not current_user.is_authenticated %}
-        <br><button class="btn btn-primary" id="login" disabled onclick='login()'>Login</button>
-    {% endif %}
-</div>
-
 <br>
 
 {% with messages=get_flashed_messages() %}
@@ -33,64 +32,63 @@
 {% endwith %}
 
 {% for proposal in proposals %}
-<div class="list-group">
-  <a href="proposals/{{ proposal.id }}" class="list-group-item list-group-item-action flex-column align-items-start active">
-    <div class="d-flex w-100 justify-content-between">
-      <h5 class="mb-1">Proposal #{{ proposal.id }}</h5>
-        {% if proposal.open %}
-        <b><p style="color:rgb(0,200,0);">Open</p></b>
-        {% else %}
-            <b><p style="color:rgb(250,0,0);">Closed</p></b>
-            <H3><p class="text-right">Final result:</p></H3>
-            <H3><p class="text-right">{{ proposal.result }}</p></H3>
-        {% endif %}
+<div class="card proposal">
+  <a href="proposals/{{ proposal.id }}" class="flex-column align-items-start active">
+    <div class="card-header" style="padding: 0.75rem 1.25rem ;">
+      <div style="display: inline-block">
+        <h5 class="mb-1" style="margin-bottom: 0.25rem;">Proposal #{{ proposal.id }}</h5><br />
+          {% if proposal.open %}
+            <b><p style="color:rgb(0,200,0); margin-bottom: 0.25rem;">Open</p></b>
+          {% else %}
+              <b><p style="color:rgb(250,0,0); margin-bottom: 0.25rem;">Closed</p></b>
+      </div>
+      <div style="float: right;">
+          <H3><p class="text-right" style="margin-bottom: 0.25rem;">Final result:</p></H3>
+          <H4><p class="text-right" style="margin-bottom: 0.25rem; color: #0ac18e;">{{ proposal.result }}</p></H4>
+          {% endif %}
+      </div>
     </div>
-      <p class="mb-1"><b>Proposal description:</b> {{ proposal.proposal }}</p>
-      <small><b>Author:</b> {{ proposal.proposal_author }}</small>
-      <small><b>Start date:</b> {{ proposal.start_time }} - <b>Deadline:</b> {{ proposal.end_time }} UTC Time</small>
-  </a>
+    <div class="card-body">
+        <p class="mb-1"><b>Proposal description:</b> {{ proposal.proposal }}</p>
+        <small><b>Author:</b> {{ proposal.proposal_author }}</small>
+        <small><b>Start date:</b> {{ proposal.start_time }} - <b>Deadline:</b> {{ proposal.end_time }} UTC Time</small>
+    </div>
   {% if proposal.option_a_tag %}
-          <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
-            <div class="d-flex w-100 justify-content-between">
-              <h5 class="mb-1">{{ proposal.option_a_tag }}</h5>
-            </div>
-            <p class="mb-1">{{'%0.2f'|format(proposal.option_a_votes|float)}} [OPTION: A]</p>
-          </a>
+    <div class="card-header">
+      <h5 class="mb-1">{{ proposal.option_a_tag }}</h5>
+      <p class="mb-1">{{'%0.2f'|format(proposal.option_a_votes|float)}} [OPTION: A]</p>
+    </div>
   {% endif %}
   {% if proposal.option_b_tag %}
-          <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
-            <div class="d-flex w-100 justify-content-between">
-              <h5 class="mb-1">{{ proposal.option_b_tag }}</h5>
-            </div>
-            <p class="mb-1">{{'%0.2f'|format(proposal.option_b_votes|float)}} [OPTION: B]</p>
-          </a>
+    <div class="card-header">
+      <h5 class="mb-1">{{ proposal.option_b_tag }}</h5>
+      <p class="mb-1">{{'%0.2f'|format(proposal.option_b_votes|float)}} [OPTION: B]</p>
+    </div>
   {% endif %}
     {% if proposal.option_c_tag %}
-          <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
-            <div class="d-flex w-100 justify-content-between">
-              <h5 class="mb-1">{{ proposal.option_c_tag }}</h5>
-            </div>
-            <p class="mb-1">{{'%0.2f'|format(proposal.option_c_votes|float)}} [OPTION: C]</p>
-          </a>
+    <div class="card-header">
+      <h5 class="mb-1">{{ proposal.option_c_tag }}</h5>
+      <p class="mb-1">{{'%0.2f'|format(proposal.option_c_votes|float)}} [OPTION: C]</p>
+    </div>
   {% endif %}
-            <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
-            <div class="d-flex w-100 justify-content-between">
-              <h5 class="mb-1">REJECT</h5>
-            </div>
-            <p class="mb-1">{{'%0.2f'|format(proposal.reject_votes|float)}} [OPTION: {{ proposal.reject_option }}]</p>
-          </a>
+    <div class="card-header">
+      <h5 class="mb-1">REJECT</h5>
+      <p class="mb-1">{{'%0.2f'|format(proposal.reject_votes|float)}} [OPTION: {{ proposal.reject_option }}]</p>
+    </div>
+  </a>
 </div>
 {% endfor %}
 <hr>
-<div class="container" align="center">
+<div style="text-align: center;">
     {% if prev_url %}
-        <div class="inline"><a href="{{ prev_url }}" class="badge"><h5>Newer proposals</h5></a></div>
+        <button class="btn btn-outline-success" href="{{ prev_url }}">Newer proposals</button>
     {% endif %}
     {% if next_url %}
-        <div class="inline"><a href="{{ next_url }}" class="badge"><h5>Older proposals</h5></a></div>
+        <button class="btn btn-outline-success" href="{{ next_url }}">Older proposals</button>
     {% endif %}
 </div>
-<br>
+<br />
+
 <script>
 function startTime() {
   var today = new Date();

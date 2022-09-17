@@ -133,3 +133,74 @@ a:hover{
       background-color: #0ac18e;
       color: rgba(0, 0, 0, 0.87);
     }
+
+    .btn-success {
+        background-color: #0ac18e;
+        border-color: #0ac18e;
+      }
+      .btn-success:hover {
+        background-color: #0ac18e;
+        border-color: #0ac18e;
+      }
+      .btn-success:focus,
+      .btn-success.focus {
+        background-color: #0ac18e;
+        border-color: #0ac18e;
+        box-shadow: 0 0 0 .2rem rgba(10, 193, 142, 0.5);
+      }
+      .btn-success:disabled {
+        background-color: #0ac18e;
+        border-color: #0ac18e;
+      }
+      .btn-success:not(:disabled):not(.disabled):active,
+      .btn-success:not(:disabled):not(.disabled).active,
+      .show>.btn-success.dropdown-toggle {
+        background-color: #0ac18e;
+        border-color: #0ac18e;
+      }
+      .btn-success:not(:disabled):not(.disabled):active:focus,
+      .btn-success:not(:disabled):not(.disabled).active:focus,
+      .show>.btn-success.dropdown-toggle:focus {
+        background-color: #0ac18e;
+        border-color: #0ac18e;
+        box-shadow: 0 0 0 .2rem rgba(10, 193, 142, 0.5);
+      }
+      .btn-outline-success {
+        color: #0ac18e;
+        border-color: #0ac18e;
+      }
+      .btn-outline-success:hover {
+        color: #f8fdff;
+        background-color: #0ac18e;
+        border-color: #0ac18e;
+      }
+      .btn-outline-success:focus,
+      .btn-outline-success.focus {
+        box-shadow: 0 0 0 .2rem #0ac18e;
+      }
+      .btn-outline-success.disabled,
+      .btn-outline-success:disabled {
+        color: #0ac18e;
+        background-color: transparent
+      }
+      .btn-outline-success:not(:disabled):not(.disabled):active,
+      .btn-outline-success:not(:disabled):not(.disabled).active,
+      .show>.btn-outline-success.dropdown-toggle {
+        color: #f8fdff;
+        background-color: #0ac18e;
+        border-color: #0ac18e;
+      }
+      .btn-outline-success:not(:disabled):not(.disabled):active:focus,
+      .btn-outline-success:not(:disabled):not(.disabled).active:focus,
+      .show>.btn-outline-success.dropdown-toggle:focus {
+        box-shadow: 0 0 0 .2rem rgba(10, 193, 142, 0.5);
+      }
+
+    .proposal a,
+    .proposal a:link, 
+    .proposal a:visited, 
+    .proposal a:hover, 
+    .proposal a:active {
+        color: #f8fdff;
+        text-decoration: none;
+    }
