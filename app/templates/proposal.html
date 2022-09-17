@@ -21,13 +21,13 @@
         <b><p style="color:rgb(0,200,0);">Open</p></b>
         {% else %}
             <b><p style="color:rgb(250,0,0);">Closed</p></b>
-            <H3><p class="text-right">Final result:</p></H3>
-            <H3><p class="text-right">{{ proposal.result }}</p></H3>
+            <H3><p style="text-align: right">Final result:</p></H3>
+            <H3><p style="text-align: right">{{ proposal.result }}</p></H3>
         {% endif %}
     </div>
       <p class="mb-1"><b>Proposal description:</b> {{ proposal.proposal | safe }}</p>
       <small><b>Author:</b> {{ proposal.proposal_author }}</small>
-      <small><b>Start date:</b> {{ proposal.start_time }} - <b>Deadline:</b> {{ proposal.end_time }} UTC Time <p class="text-right"><b><a href="https://transparency.smartindex.cash/static/calendar/Proposal{{proposal.id}}.ics">Add to your calendar</a></b></p></small>
+      <small><b>Start date:</b> {{ proposal.start_time }} - <b>Deadline:</b> {{ proposal.end_time }} UTC Time <p style="text-align: right"><b><a href="https://transparency.smartindex.cash/static/calendar/Proposal{{proposal.id}}.ics">Add to your calendar</a></b></p></small>
   </a>
   {% if proposal.option_a_tag %}
           <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">

@@ -4,12 +4,10 @@
 <script src="static/ethers-5.4.umd.min.js"
         type="application/javascript"></script>
 <script src="static/app.js" type="application/javascript"></script>
+<link rel="stylesheet" href="../static/style.css" />
 
-<style>.inline {
-  display: inline-block;
-}</style>
 
-<div class="container">
+<div class="container" style="color: #f8fdff">
   <H2>SmartIndex proposals:</H2>
     {% if not current_user.is_authenticated %}
         <H3>You need to log in to vote and submit proposals.</H3>
@@ -18,7 +16,7 @@
 </div>
 
 <div class="container" align="right">
-    <div id="msg" class="alert alert-primary"></div>
+    <div id="msg" class="alert alert-primary" style="display: none"></div>
     {% if not current_user.is_authenticated %}
         <br><button class="btn btn-primary" id="login" disabled onclick='login()'>Login</button>
     {% endif %}
@@ -86,10 +84,10 @@
 <hr>
 <div class="container" align="center">
     {% if prev_url %}
-        <div style="display: inline-block"><a href="{{ prev_url }}" class="badge"><h5>Newer proposals</h5></a></div>
+        <div class="inline"><a href="{{ prev_url }}" class="badge"><h5>Newer proposals</h5></a></div>
     {% endif %}
     {% if next_url %}
-        <div style="display: inline-block"><a href="{{ next_url }}" class="badge"><h5>Older proposals</h5></a></div>
+        <div class="inline"><a href="{{ next_url }}" class="badge"><h5>Older proposals</h5></a></div>
     {% endif %}
 </div>
 <br>
