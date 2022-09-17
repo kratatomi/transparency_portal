@@ -12,6 +12,14 @@
         background-color: #253a49;
         color: #f8fdff;
     }
+    .highlight-color1{
+        background-color: #2e475a;
+    }
+    .highlight-color2{
+        background-color: #0ac18e;
+        color: rgba(0, 0, 0, 0.87);
+    }
+
     .logo-image {
         vertical-align: middle;
         display: flex;
@@ -38,12 +46,46 @@
         /* opacity: 0.2; */
         margin: 1rem;
     }
+    th, td {
+        padding: 0.25rem;
+    }
+    tr.top th:first-child, tr.top td:first-child {
+        border-top-left-radius: 0.25rem;
+    }
+    tr.top th:last-child, tr.top td:last-child {
+        border-top-right-radius: 0.25rem;
+    }
+    tr.btm th:first-child, tr.btm td:first-child {
+        border-bottom-left-radius: 0.25rem;
+    }
+    tr.btm th:last-child, tr.btm td:last-child {
+        border-bottom-right-radius: 0.25rem;
+    }
+
+    @media screen and (min-width: 1200px) {
+    /* Not mobile */
+        .card-columns {
+            column-count: 2;
+        }
+    }
+    @media screen and (max-width: 1199px) {
+    /* Mobile */
+        .card-columns {
+            column-count: 1;
+            display: flex !important;
+            flex-direction: column;
+            align-items: center !important;
+        }
+        .card {
+            max-width: 700px;
+        }
+    }
 
     a {
-        color: #0ac18e
+        color: #0ac18e;
     }
     a:hover{
-        color: #0ac18e
+        color: #0ac18e;
     }
 
     .blank_row{
@@ -62,8 +104,9 @@
 </style>
 
 {% if date %}
-<div class="container"><center><H2>Yields report taken at {{ date }}</H2></center></div>
+<div class="container"><center><H2 style="color: #f8fdff; margin: 1.5rem 0">Yields report taken at {{ date }}</H2></center></div>
 {% endif %}
+
 
     <div class="card-columns">
 
@@ -72,21 +115,27 @@
             <div class="card-header"><H3>Global Portfolio Statistics</H3></div>
                 <div class="card-body">
                     <table id="global_stats" style="width: 100%;">
-                        <tr>
+                        <tr class="top highlight-color1">
                             <th>Current value in liquid assets:</th>
-                            <td style="text-align: right;">${{ global_stats["total_liquid_value"] }}</td>
+                            <td style="text-align: right;">$ {{ global_stats["total_liquid_value"] }}</td>
                         </tr>
-                        <tr>
+                        <tr class="btm highlight-color1">
                             <th>Current value in illiquid assets:</th>
-                            <td style="text-align: right;">${{ global_stats["total_illiquid_value"] }}</td>
+                            <td style="text-align: right;">$ {{ global_stats["total_illiquid_value"] }}</td>
                         </tr>
-                        <tr>
-                            <th>Value per SIDX:</th>
-                            <td style="text-align: right;">${{ global_stats["value_per_sidx"] }}</td>
+                        <tr class="blank_row"><td colspan="4"></td></tr>
+                        <tr class="top highlight-color1">
+                            <th>Portfolio Value per SIDX:</th>
+                            <td style="text-align: right;">$ {{ global_stats["value_per_sidx"] }}</td>
                         </tr>
-                        <tr>
+                        <tr class="btm highlight-color1">
+                            <th>Market/Portfolio Value:</th>
+                            <td style="text-align: right;">{{ global_stats["ratio"] }}</td>
+                        </tr>
+                        <tr class="blank_row"><td colspan="4"></td></tr>
+                        <tr class="top btm highlight-color1">
                             <th><b>Current value:</b></th>
-                            <td style="text-align: right;">${{ global_stats["total_portfolio_balance"] }}</td>
+                            <th style="text-align: right;">$ {{ global_stats["total_portfolio_balance"] }}</th>
                         </tr>
                         <!-- <li>Total value in liquid assets: {{ global_stats["total_liquid_value"] }} USD</li>
                         <li>Total value in illiquid assets: {{ global_stats["total_illiquid_value"] }} USD</li>
@@ -101,19 +150,23 @@
             <div class="card-header"><h3>SEP20 Tokens Held</h3></div>
             <div class="card-body">
                 <table id="SEP20_tokens" style="width: 100%;">
-                    <tr>
+                    <tr class="top highlight-color1">
                         <th style="width: 50%">Token</th>
                         <th style="width: 20%; text-align: right;">Amount</th>
                         <th style="width: 30%; text-align: right;">Value in USD</th>
                     </tr>
                     {% for key, value in sep20_balances.items() %}
                     {% if key != "Total value" %}
-                    <tr>
+                        {% if loop.index == loop|length - 1 %}
+                            <tr class="btm highlight-color1">
+                        {% else %}
+                            <tr class="highlight-color1">
+                        {% endif %}
                         <td>{{ key }}</td>
                         <td style="text-align: right;">{{ value["Current"] }}</td>
                         <td style="text-align: right;">
                         {% if value["Current value"] is defined %}
-                            ${{ value["Current value"] }}
+                            $ {{ value["Current value"] }}
                         {% else %}
                             (USD value not available)
                         {% endif %}
@@ -124,19 +177,24 @@
                     <tr class="blank_row">
                         <td colspan="3"></td>
                     </tr>
-                    <tr>
+                    <tr class="top btm highlight-color1">
                         <th colspan="2">Current Value:</th>
-                        <th style="text-align: right;">${{ sep20_balances["Total value"] }}</th>
+                        <th style="text-align: right;">$ {{ sep20_balances["Total value"] }}</th>
                     </tr>
                     </table>
             </div>
         </div>
         <br>
         <div class="card">
-            <div class="card-header"><H2>Staked tokens balance in the portfolio:</H2></div>
+            <div class="card-header">
+                <H3>Staked tokens balance in the portfolio:</H3>
+                <small>For information on Celery modes, see proposal  
+                    <a href="https://transparency.smartindex.cash/proposals/16">#16</a>
+                </small>
+            </div>
             <div class="card-body">
                 <table id="staked_tokens" style="width: 100%;">
-                    <tr>
+                    <tr class="top highlight-color1">
                         <th style="width: 30%">Token</th>
                         <th style="width: 30%;">Initial / Current</th>
                         <th style="width: 15%; text-align: right;">Value</th>
@@ -144,7 +202,7 @@
                     </tr>
                     {% for key, value in stacked_assets.items() %}
                     {% if (key != "Total value") and (key != "Total yield value") %}
-                    <tr>
+                    <tr class="highlight-color1">
                         <td>{{ key }}
                             {% if key == "Celery" %}
                                 {% if "Mode" in value %}
@@ -155,25 +213,25 @@
                         <td><small>{{ value["Initial"] }} / {{ value["Current"] }}</small></td>
                         <td style="text-align: right;">
                             {% if value["Current value"] is defined %}
-                                ${{ value["Current value"] }}
+                                $ {{ value["Current value"] }}
                             {% else %}
                                 (USD value not available)
                             {% endif %}
                         </td>
-                        <td style="text-align: right;">${{ value["Yield value"] }}</td>
+                        <td style="text-align: right;">$ {{ value["Yield value"] }}</td>
                     {% endif %}
                     </tr>
                     {% endfor %}
                     <tr class="blank_row">
                         <td colspan="4"></td>
                     </tr>
-                    <tr>
+                    <tr class="top highlight-color1">
                         <th colspan="3">Current Value:</th>
-                        <th style="text-align: right;">${{  stacked_assets["Total value"] }}</th>
+                        <th style="text-align: right;">$ {{  stacked_assets["Total value"] }}</th>
                     </tr>
-                    <tr>
+                    <tr class="btm highlight-color1">
                         <th colspan="3">Current Yield:</th>
-                        <th style="text-align: right;">${{ stacked_assets["Total yield value"] }}</th>
+                        <th style="text-align: right;">$ {{ stacked_assets["Total yield value"] }}</th>
                     </tr>
                 </table>
             </div>
@@ -183,7 +241,7 @@
     {% endif %} -->
     {% if farms %}
         <div class="card">
-            <div class="card-header"><H2>Farms:</H2></div>
+            <div class="card-header"><H3>Farms:</H3></div>
             <div class="card-body">
                 <table id="farms" style="width: 100%;">
                     {% for key, value in farms.items() %}
@@ -191,33 +249,37 @@
                             <tr class="blank_row"><td colspan="4"></td></tr>
                             <tr class="blank_row"><td colspan="4"></td></tr>
                         {% endif %}
-                        <tr><th colspan="4">{{ key }}</th></tr>
+                        <tr class="top btm highlight-color2"><th colspan="4">{{ key }}</th></tr>
                         <tr class="blank_row"><td colspan="4"></td></tr>
-                        <tr>
-                            <th style="width: 35%">Token</th>
+                        <tr class="top highlight-color1">
+                            <th style="width: 30%">Token</th>
                             <th style="width: 25%">Initial / Current</th>
                             <th style="width: 15%; text-align: right;">Difference</th>
-                            <th style="width: 15%; text-align: right;">Value</th>  
+                            <th style="width: 20%; text-align: right;">Value</th>  
                         </tr>
                             {% for farm in value["farms"] %}
                                 {% if loop.index > 1 %}
                                     <tr class="blank_row"><td colspan="4"></td></tr>
                                 {% endif %}
                                 {% for key, value in farm["Coins"].items() %}
-                                <tr>
+                                <tr class="highlight-color1">
                                     <td class="truncate">{{ key }}</td>
                                     <td><small>{{ value["Initial amount"] }} / {{ value["Current"] }}</small></td>
                                     <td style="text-align: right;">{{ value["Difference"] }}</td>
-                                    <td style="text-align: right;">${{ value["Current value"] }}</td>
+                                    <td style="text-align: right;">$ {{ value["Current value"] }}</td>
                                 </tr>
                                 {% endfor %}
-                                <tr>
+                                <tr class="highlight-color1">
+                                    <th colspan="2">Total Value:</th>
+                                    <th colspan="2" style="text-align: right;">$ {{ farm["Total LP Value"] }}</th>
+                                </tr>
+                                <tr class="highlight-color1">
                                     <th colspan="2">Reward Tokens:</th>
                                     <th colspan="2" style="text-align: right;">{{ farm["reward"] }}</th>
                                 </tr>
-                                <tr>
+                                <tr class="btm highlight-color1">
                                     <th colspan="2">Reward Value:</th>
-                                    <th colspan="2" style="text-align: right;">${{ farm["reward value"] }}</th>
+                                    <th colspan="2" style="text-align: right;">$ {{ farm["reward value"] }}</th>
                                 </tr>
                             {% endfor %}
                     {% endfor %}
@@ -229,93 +291,142 @@
     <img src="{{ url_for('static', filename='farms_pie_chart.png') }}" style="max-width: 100%;" alt="Farms distribution in the portfolio by USD value">
     {% endif %} -->
         <div class="card">
-        <div class="card-header"><H2>SIDX initial liquidity pools:</H2></div>
+        <div class="card-header"><H3>SIDX Initial Liquidity Pools:</H3></div>
         <div class="card-body">
-        <ul id="SIDX_liquidity_pools">
-            {% for key, value in lp_balances.items() %}
-            <li><b>{{ key }}</b>
-                <ul>
+            <table id="SIDX_liquidity_pools" style="width: 100%;">
+                {% for key, value in lp_balances.items() %}
+                    {% if loop.index > 1 %}
+                        <tr class="blank_row"><td colspan="4"></td></tr>
+                        <tr class="blank_row"><td colspan="4"></td></tr>
+                    {% endif %}
+                    <tr class="top btm highlight-color2"><th colspan="4">{{ key }}</th></tr>
+                    <tr class="blank_row"><td colspan="4"></td></tr>
+                    <tr class="top highlight-color1">
+                        <th style="width: 25%">Token</th>
+                        <th style="width: 30%">Initial / Current</th>
+                        <th style="width: 15%; text-align: right;">Difference</th>
+                        <th style="width: 20%; text-align: right;">Value</th>  
+                    </tr>
                     {% for key, value in value.items() %}
-                    {% if key == "Wrapped BCH" %}
-                    <li>{{ key }}</li>
-                    <ul>
-                        <li>Initial amount: {{ value["Initial"] }}</li>
-                        <li>Current amount: {{ value["Current"] }}</li>
-                        <li>Difference: {{ value["Difference"] }}</li>
-                        <li>Current value: {{ value["Current value"] }} USD</li>
-                    </ul>
-                    {% endif %}
-                    {% if key == "SmartIndex" %}
-                    <li>{{ key }}</li>
-                    <ul>
-                        <li>Initial amount: {{ value["Initial"] }}</li>
-                        <li>Current amount: {{ value["Current"] }}</li>
-                        <li>Difference: {{ value["Difference"] }}</li>
-                        <li>Current value: {{ value["Current value"] }} USD</li>
-                    </ul>
-                    {% endif %}
-                    {% if key == "LAWTOKEN" %}
-                    <li>{{ key }}</li>
-                    <ul>
-                        <li>Initial amount: {{ value["Initial"] }}</li>
-                        <li>Current amount: {{ value["Current"] }}</li>
-                        <li>Difference: {{ value["Difference"] }}</li>
-                        <li>Current value: {{ value["Current value"] }} USD</li>
-                    </ul>
-                    {% endif %}
-                    {% if key == "Reward" %}
-                        Reward: {{ value }} reward tokens
-                    {% endif %}
-                    {% if key == "Reward value" %}
-                        Value: {{ value }} USD
-                    {% endif %}
+                        {% if key == "Wrapped BCH" %}
+                        <tr class="highlight-color1">
+                            <td>{{ key }}</td>
+                            <td><small>{{ value["Initial"] }} / {{ value["Current"] }}</small></td>
+                            <td style="text-align: right;">{{ value["Difference"] }}</td>
+                            <td style="text-align: right;">$ {{ value["Current value"] }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if key == "SmartIndex" %}
+                        <tr class="highlight-color1">
+                            <td>{{ key }}</td>
+                            <td><small>{{ value["Initial"] }} / {{ value["Current"] }}</small></td>
+                            <td style="text-align: right;">{{ value["Difference"] }}</td>
+                            <td style="text-align: right;">$ {{ value["Current value"] }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if key == "LAWTOKEN" %}
+                        <tr class="highlight-color1">
+                            <td>{{ key }}</td>
+                            <td><small>{{ value["Initial"] }} / {{ value["Current"] }}</small></td>
+                            <td style="text-align: right;">{{ value["Difference"] }}</td>
+                            <td style="text-align: right;">$ {{ value["Current value"] }}</td>
+                        </tr>   
+                        {% endif %}
+                        {% if key == "Total LP Value" %}
+                        <tr class="highlight-color1">
+                            <th colspan="2">Total Value:</th>
+                            <th colspan="2" style="text-align: right;">$ {{ value }}</th>
+                        </tr>
+                        {% endif %}
+                        {% if key == "Reward" %}
+                            <tr class="highlight-color1">
+                                <th colspan="2">Reward Tokens:</th>
+                                <th colspan="2" style="text-align: right;">{{ value }}</th>
+                            </tr>
+                        {% endif %}
+                        {% if key == "Reward value" %}
+                            <tr class="btm highlight-color1">
+                                <th colspan="2">Reward Value:</th>
+                                <th colspan="2" style="text-align: right;">$ {{ value }}</th>
+                            </tr>
+                        {% endif %}
+                        {% endfor %}
                     {% endfor %}
-                </ul>
-            </li>
-            {% endfor %}
-        </ul>
+            </table>
         </div>
     </div>
 
     {% if extra_lp_balances %}
     <div class="card">
-        <div class="card-header"><H2>Extra SIDX liquidity pools:</H2></div>
+        <div class="card-header">
+            <H3>Extra SIDX liquidity pools:</H3>
+            <small>See proposals 
+                <a href="https://transparency.smartindex.cash/proposals/10">#10</a>, 
+                <a href="https://transparency.smartindex.cash/proposals/19">#19</a> and 
+                <a href="https://transparency.smartindex.cash/proposals/21">#21</a>
+            </small>
+        </div>
         <div class="card-body">
-        <small>See <a href="https://transparency.smartindex.cash/proposals/10">proposal #10</a>, <a href="https://transparency.smartindex.cash/proposals/19">#19</a> and <a href="https://transparency.smartindex.cash/proposals/21">#21</a></small>
-        <ul id="extra_SIDX_liquidity_pools">
-            {% for key, value in extra_lp_balances.items() %}
-            <li><b>{{ key }}</b>
-                <ul>
+            <table id="extra_SIDX_liquidity_pools" style="width: 100%;">
+                {% for key, value in extra_lp_balances.items() %}
+                    {% if loop.index > 1 %}
+                        <tr class="blank_row"><td colspan="4"></td></tr>
+                        <tr class="blank_row"><td colspan="4"></td></tr>
+                    {% endif %}
+                    <tr class="top btm highlight-color2"><th colspan="4">{{ key }}</th></tr>
+                    <tr class="blank_row"><td colspan="4"></td></tr>
+                    <tr class="top highlight-color1">
+                        <th style="width: 25%">Token</th>
+                        <th style="width: 30%">Initial / Current</th>
+                        <th style="width: 15%; text-align: right;">Difference</th>
+                        <th style="width: 20%; text-align: right;">Value</th>  
+                    </tr>
                     {% for key, value in value.items() %}
-                    {% if key == "Wrapped BCH" or key == "Ember Token" %}
-                    <li>{{ key }}</li>
-                    <ul>
-                        <li>Initial amount: {{ value["Initial"] }}</li>
-                        <li>Current amount: {{ value["Current"] }}</li>
-                        <li>Difference: {{ value["Difference"] }}</li>
-                        <li>Current value: {{ value["Current value"] }} USD</li>
-                    </ul>
-                    {% endif %}
-                    {% if key == "SmartIndex" %}
-                    <li>{{ key }}</li>
-                    <ul>
-                        <li>Initial amount: {{ value["Initial"] }}</li>
-                        <li>Current amount: {{ value["Current"] }}</li>
-                        <li>Difference: {{ value["Difference"] }}</li>
-                        <li>Current value: {{ value["Current value"] }} USD</li>
-                    </ul>
-                    {% endif %}
-                    {% if key == "Reward" %}
-                        Reward: {{ value }} farm tokens
-                    {% endif %}
-                    {% if key == "Reward value" %}
-                        Value: {{ value }} USD
-                    {% endif %}
+                        {% if key == "Wrapped BCH" %}
+                        <tr class="highlight-color1">
+                            <td>{{ key }}</td>
+                            <td><small>{{ value["Initial"] }} / {{ value["Current"] }}</small></td>
+                            <td style="text-align: right;">{{ value["Difference"] }}</td>
+                            <td style="text-align: right;">$ {{ value["Current value"] }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if key == "SmartIndex" %}
+                        <tr class="highlight-color1">
+                            <td>{{ key }}</td>
+                            <td><small>{{ value["Initial"] }} / {{ value["Current"] }}</small></td>
+                            <td style="text-align: right;">{{ value["Difference"] }}</td>
+                            <td style="text-align: right;">$ {{ value["Current value"] }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if key == "Ember Token" %}
+                        <tr class="highlight-color1">
+                            <td>{{ key }}</td>
+                            <td><small>{{ value["Initial"] }} / {{ value["Current"] }}</small></td>
+                            <td style="text-align: right;">{{ value["Difference"] }}</td>
+                            <td style="text-align: right;">$ {{ value["Current value"] }}</td>
+                        </tr>   
+                        {% endif %}
+                        {% if key == "Total LP Value" %}
+                        <tr class="highlight-color1">
+                            <th colspan="2">Total Value:</th>
+                            <th colspan="2" style="text-align: right;">$ {{ value }}</th>
+                        </tr>
+                        {% endif %}
+                        {% if key == "Reward" %}
+                            <tr class="highlight-color1">
+                                <th colspan="2">Reward Tokens:</th>
+                                <th colspan="2" style="text-align: right;">{{ value }}</th>
+                            </tr>
+                        {% endif %}
+                        {% if key == "Reward value" %}
+                            <tr class="btm highlight-color1">
+                                <th colspan="2">Reward Value:</th>
+                                <th colspan="2" style="text-align: right;">$ {{ value }}</th>
+                            </tr>
+                        {% endif %}
+                        {% endfor %}
                     {% endfor %}
-                </ul>
-            </li>
-            {% endfor %}
-        </ul>
+            </table>
         </div>
     </div>
     <!-- {% if title == "Portfolio tracker" %}
@@ -323,38 +434,95 @@
     {% endif %} -->
     {% endif %}
     <div class="card">
-        <div class="card-header"><H2>LAW Punks:</H2></div>
+        <div class="card-header"><H3>LAW Punks:</H3></div>
         <div class="card-body">
-        <ul id="law_punks">
+        <table id="law_punks" style="width: 100%;">
             {% for key, value in punks["Wallets"].items() %}
-            <li>Wallet: <a href="https://www.smartscan.cash/address/{{key}}">{{key}}</a> LAW earned: {{ value["LAW rewards"] }}</li>
-                Punks:
+                {% if loop.index > 1 %}
+                    <tr class="blank_row"><td colspan="4"></td></tr>
+                {% endif %}
+            <tr class="top highlight-color1"><th colspan="6">Wallet: <a href="https://www.smartscan.cash/address/{{key}}">{{key}}</a></th></tr>
+            <tr class="highlight-color1">
+                <td style="width: 5000px;">Punks: </td>
                 {% for id in value["Punks"] %}
-                    <a href="https://blockng.money/#/detail/{{id}}">Punk #{{id}}</a>
+                    <!-- False, large width for even spacing -->
+                    <td style="width: 5000px; text-align: center;"><a href="https://blockng.money/#/detail/{{id}}">#{{id}}</a></td>
+                    {% if loop.index < 5 and loop.index == loop|length %}
+                        {% for n in range (5 - loop.index) %}
+                            <td> </td>
+                        {% endfor %}
+                    {% endif %}
                 {% endfor %}
+            </tr>
+            <tr class="btm highlight-color1">
+                <td colspan="5">LAW earned:</td>
+                <td style="text-align: right;">{{ value["LAW rewards"] }} LAW</td>
+            </tr>
             {% endfor %}
-            <br>
-            <b>Total LAW earned:  {{ punks["Total LAW pending"] }} LAW - {{ punks["LAW pending in USD"] }} USD</b>
+            <tr class="blank_row"><td colspan="6"></td></tr>
+            <tr class="top highlight-color1">
+                <td colspan="4">Total LAW Earned:</td>
+                <td colspan="2" style="text-align: right;">{{ punks["Total LAW pending"] }} LAW</td>
+            </tr>
+            <tr class="btm highlight-color1">
+                <th colspan="4">Total USD Value:</th>
+                <th colspan="2" style="text-align: right;">$ {{ punks["LAW pending in USD"] }}</th>
+            </tr>
             {% if punks["Floor price"] %}
-            <br>Punks floor price: {{ punks["Floor price"] }} BCH - <b>Total floor value: {{ punks["Total floor value"] }} USD</b>
+            <tr class="blank_row"><td colspan="6"></td></tr>
+            <tr class="top highlight-color1">
+                <td colspan="4">Punks floor price:</td>
+                <td colspan="2" style="text-align: right;">{{ punks["Floor price"] }} BCH</td>
+            </tr>
+            <tr class="btm highlight-color1">
+                <th colspan="4">Total floor value:</th>
+                <th colspan="2" style="text-align: right;">$ {{ punks["Total floor value"] }}</th>
+            </tr>
             {% endif %}
-        </ul>
+            
+        </table>
     </div>
 </div>
     {% if law_rights %}
     <div class="card">
-        <div class="card-header"><H2>LAW Rights:</H2></div>
-            <ul id="law_rights">
+        <div class="card-header"><H3>LAW Rights:</H3></div>
+        <div class="card-body">
+            <table id="law_rights" style="width: 100%;">
+                <tr class="top highlight-color1">
+                    <th style="width: 25%">ID</th>
+                    <th style="width: 25%">Unlock Date</th>
+                    <th style="width: 25%; text-align: right;">LAW Locked</th>
+                    <th style="width: 25%; text-align: right;">LAW Salary</th>
+                </tr>
                 {% for key, value in law_rights["tokens"].items() %}
-                    <li>LAW right ID #{{key}}: LAW locked: {{ value["LAW"] }} - LAW earned: {{ value["LAW rewards"] }}</li>
+                    {% if loop.index == loop|length %}
+                        <tr class="btm highlight-color1">
+                    {% else %}
+                        <tr class="highlight-color1">
+                    {% endif %}
+                    <td><a href="https://oasis.cash/token/0xe24Ed1C92feab3Bb87cE7c97Df030f83E28d9667/{{key}}">#{{key}}</a></td>
+                    <td>June 13, 2056</td>
+                    <td style="text-align: right;">{{ value["LAW"] }}</td>
+                    <td style="text-align: right;">{{ value["LAW rewards"] }}</td>
+                </tr>
                 {% endfor %}
-                <br>
-                <b>Total LAW earned:  {{ law_rights["Total LAW pending"] }} LAW - {{ law_rights["LAW pending in USD"] }} USD</b>
-                <br>
-                <b>Total LAW locked:  {{ law_rights["Total LAW locked"] }} LAW - {{ law_rights["LAW locked in USD"] }} USD</b>
-            </ul>
+                <tr class="blank_row"><td colspan="4"></td></tr>
+                <tr class="top highlight-color1">
+                    <th>Totals:</th>
+                    <td></td>
+                    <th style="text-align: right;">{{ law_rights["Total LAW locked"] }}</th>
+                    <th style="text-align: right;">{{ law_rights["Total LAW pending"] }}</th>
+                </tr>
+                <tr class="btm highlight-color1">
+                    <th>Totals in USD:</th>
+                    <td></td>
+                    <th style="text-align: right;">$ {{ law_rights["LAW locked in USD"] }}</th>
+                    <th style="text-align: right;">$ {{ law_rights["LAW pending in USD"] }}</th>
+                </tr>
+            </table>
         </div>
     </div>
+</div>
     {% endif %}
 
 

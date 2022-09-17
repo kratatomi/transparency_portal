@@ -357,7 +357,8 @@ def get_SIDX_stats(bch_price):
     ABI = open("ABIs/ERC20-ABI.json", "r")  # Standard ABI for ERC20 tokens
     abi = json.loads(ABI.read())
     contract = w3.eth.contract(address=SIDX_CA, abi=abi)
-    SIDX_stats["Total supply"] = round(contract.functions.totalSupply().call() / 10 ** 18, 3)
+    total_supply = round(contract.functions.totalSupply().call() / 10 ** 18, 3)
+    SIDX_stats["Total supply"] = total_supply
     SIDX_stats["Admin balance"] = round(contract.functions.balanceOf(admin_wallet_address).call() / 10 ** 18, 3)
     SIDX_stats["Quorum"] = round((SIDX_stats["Total supply"] - SIDX_stats["Admin balance"]) * 0.1, 3)
     price = get_price_from_pool("0x7E1B9F1e286160A80ab9B04D228C02583AeF90B5", bch_price,
@@ -381,6 +382,7 @@ def get_LP_balances(initial_pool_balances, wallet_address, bch_price, sidx_price
     LP_balances = {}
     for DEX in initial_pool_balances:
         LP_balances[DEX] = {}
+        liquid_value = 0
         if DEX not in sidx_liquidity_pie_chart_data:
             sidx_liquidity_pie_chart_data[DEX] = 0
         # First, get current LP balance and rewards
@@ -440,12 +442,14 @@ def get_LP_balances(initial_pool_balances, wallet_address, bch_price, sidx_price
             LP_balances[DEX][token0_ticker]["Current value"] = round(LP_balances[DEX][token0_ticker]["Current"] * bch_price,
                                                                      2)
         total_liquid_value += LP_balances[DEX][token0_ticker]["Current value"]
+        liquid_value += LP_balances[DEX][token0_ticker]["Current value"]
         SIDX_LP_value += LP_balances[DEX][token0_ticker]["Current value"]
         LP_balances[DEX][token1_ticker]["Current"] = round(
             ((portfolio_LP_balance / LP_total_supply) * token1_reserves) / 10 ** token1_decimals, 2)
         LP_balances[DEX][token1_ticker]["Current value"] = round(
             LP_balances[DEX][token1_ticker]["Current"] * sidx_price, 2)
         total_liquid_value += LP_balances[DEX][token1_ticker]["Current value"]
+        liquid_value += LP_balances[DEX][token1_ticker]["Current value"]
         SIDX_LP_value += LP_balances[DEX][token1_ticker]["Current value"]
         sidx_liquidity_pie_chart_data[DEX] += LP_balances[DEX][token0_ticker]["Current value"]
         sidx_liquidity_pie_chart_data[DEX] += LP_balances[DEX][token1_ticker]["Current value"]
@@ -453,6 +457,7 @@ def get_LP_balances(initial_pool_balances, wallet_address, bch_price, sidx_price
             LP_balances[DEX][token0_ticker]["Current"] - LP_balances[DEX][token0_ticker]["Initial"], 2)
         LP_balances[DEX][token1_ticker]["Difference"] = round(LP_balances[DEX][token1_ticker]["Current"] - \
                                                               LP_balances[DEX][token1_ticker]["Initial"], 2)
+        LP_balances[DEX]["Total LP Value"] =  round(liquid_value, 2)
         LP_balances[DEX]["Reward"] = round(reward / 10 ** 18, 2)
         LP_balances[DEX]["Reward value"] = round(LP_balances[DEX]["Reward"] * asset_price, 2)
         total_rewards_value += LP_balances[DEX]["Reward value"]
@@ -646,6 +651,7 @@ def get_farms(bch_price):
             farm_name = f"{DEX}-{token0_ticker}-{token1_ticker}"
             total_USD_value = farms[DEX]["farms"][i]["Coins"][token0_ticker]["Current value"] + \
                               farms[DEX]["farms"][i]["Coins"][token1_ticker]["Current value"]
+            farms[DEX]["farms"][i]["Total LP Value"] = round(total_USD_value, 2)
             farms_pie_chart_data[farm_name] = total_USD_value
             # Now, it's time to get the rewards
             if DEX == "BlockNG-Kudos":
@@ -1297,6 +1303,10 @@ def main():
                               "total_portfolio_balance": round(total_liquid_value + total_illiquid_value, 2),
                               "total_rewards_value": round(total_rewards_value, 2), "value_per_sidx": round(
             round(total_liquid_value + total_illiquid_value, 2) / SIDX_stats["Total supply"], 2)}
+    
+    # Calculate the MarketValue/PortfilioValue ratio (less than 1 means 'underbacked')
+    global_portfolio_stats["ratio"] = round(float(SIDX_stats["Price"].split()[0]) / global_portfolio_stats["value_per_sidx"], 2)
+
     with open('data/SIDX_STATS.json', 'w') as file:
         json.dump(SIDX_stats, file, indent=4)
     with open('data/SEP20_BALANCES.json', 'w') as file:

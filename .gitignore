@@ -48,3 +48,6 @@ logs/transparency_portal.log.15
 logs/transparency_portal.log.16
 app/__pycache__/__init__.cpython-38.pyc
 requirements.txt
+scheduled.log
+/data/NFTs.json
+data/NFTs.json
