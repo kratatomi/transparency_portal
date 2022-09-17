@@ -149,7 +149,7 @@ farms_pie_chart_data = {}
 sidx_liquidity_pie_chart_data = {}
 
 
-def get_balances(bch_price):
+def get_balances(bch_price, portfolio_address=portfolio_address):
     stacked_assets = {}
     SEP20_tokens = {}
     total_value_SEP20_tokens = 0
@@ -604,7 +604,7 @@ def get_law_rewards(bch_price):
     total_liquid_value += NFTs["LAW Rights"]["LAW pending in USD"]
     total_rewards_value += NFTs["LAW Rights"]["LAW pending in USD"]
     total_illiquid_value += NFTs["LAW Rights"]["LAW locked in USD"]
-def get_farms(bch_price):
+def get_farms(bch_price, farms=farms):
     global total_liquid_value
     global total_illiquid_value
     global total_rewards_value
@@ -869,7 +869,7 @@ def harvest_pools_rewards(pool_name, amount=0):
     if pool_name == "FlexUSD":
         swap_assets("0x7b2B3C5308ab5b2a1d9a94d20D35CCDf61e05b72", "0x0000000000000000000000000000000000000000", amount)
 
-def send_transaction(identifier, tx, *account):
+def send_transaction(identifier, tx,*account):
     # identifier is just a string to help the admin to identify the tx if it fails.
     # account contains the address and the private key env location
     if not account:
@@ -910,6 +910,7 @@ def send_transaction(identifier, tx, *account):
         logger.info(f'TXID {hex_TXID} sent, identifier is {identifier}')
         try:
             receipt = w3.eth.wait_for_transaction_receipt(TXID)
+            logger.info(f'Receipt is {receipt}')
             if receipt.status == 0:
                 import app.email as email
                 email.send_email_to_admin(f"Harvesting failed for {identifier}, TXID is {TXID}")
@@ -922,6 +923,7 @@ def send_transaction(identifier, tx, *account):
             logger.error(f'Failed to get TX status, error is {e}, TXID is {hex_TXID}, identifier is {identifier}')
             import app.email as email
             email.send_email_to_admin(f'Failed to get TX status, error is {e}, TXID is {hex_TXID}, identifier is {identifier}')
+    return receipt
 
 def harvest_farms_rewards():
     # Harvest all the rewards for every farm
@@ -1041,8 +1043,9 @@ def get_ETF_assets_allocation(farms):
     total_percentage = 0
     total_value = 0
     for asset in pie_chart_data:
-        portfolio["Standalone assets"][asset] = pie_chart_data[asset]
-        total_value += portfolio["Standalone assets"][asset]
+        if assets_balances[asset]["Liquid"]:
+            portfolio["Standalone assets"][asset] = pie_chart_data[asset]
+            total_value += portfolio["Standalone assets"][asset]
     for DEX in farms:
         portfolio["Farms"][DEX] = {}
         for i in range(len(farms[DEX]['farms'])):
@@ -1169,8 +1172,13 @@ def add_liquidity(tokens_dictionary, LP_CA, router, *account, min_amount_percent
          'from': address,
          'gasPrice': w3.toWei('1.05', 'gwei')
          })
-    send_transaction(f"Adding liquidity: at least {token0_min_amount} of {tokens_dictionary['token0']['CA']} and {token1_min_amount} of {tokens_dictionary['token1']['CA']} in account {address}", add_liquidity_tx, *account)
-
+    receipt = send_transaction(f"Adding liquidity: at least {token0_min_amount} of {tokens_dictionary['token0']['CA']} and {token1_min_amount} of {tokens_dictionary['token1']['CA']} in account {address}", add_liquidity_tx, *account)
+    if receipt:
+        ABI = open("ABIs/UniswapV2Pair.json", "r")
+        abi = json.loads(ABI.read())
+        contract = w3.eth.contract(address=LP_CA, abi=abi)
+        addLiquidity_event = contract.events.Mint().processReceipt(receipt)
+        logger.info(f'Liquidity added: {addLiquidity_event[0]["args"]["amount0"]} of token0 and {addLiquidity_event[0]["args"]["amount1"]} of token1')
 def remove_liquidity(percentage_to_withdraw, LP_CA, router, *account, min_amount_percentage=1):
     if not account:
         address = portfolio_address
