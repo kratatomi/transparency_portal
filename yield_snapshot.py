@@ -8,14 +8,15 @@ from os.path import isfile, join, abspath
 from datetime import datetime
 import logging
 
-mpl.rcParams['text.color'] = 'w'
-mpl.rcParams['xtick.color'] = 'w'
-mpl.rcParams['ytick.color'] = 'w'
-mpl.rcParams['axes.labelcolor'] = 'w'
-mpl.rcParams['axes.edgecolor'] = 'w'
-mpl.rcParams['legend.labelcolor'] = 'w'
-mpl.rcParams['xtick.color'] = 'w'
-mpl.rcParams['ytick.color'] = 'w'
+# Globally set some graph params
+mpl.rcParams['text.color'] = '#f8fdff'
+mpl.rcParams['xtick.color'] = '#f8fdff'
+mpl.rcParams['ytick.color'] = '#f8fdff'
+mpl.rcParams['axes.labelcolor'] = '#f8fdff'
+mpl.rcParams['axes.edgecolor'] = '#f8fdff'
+mpl.rcParams['legend.labelcolor'] = '#f8fdff'
+mpl.rcParams['xtick.color'] = '#f8fdff'
+mpl.rcParams['ytick.color'] = '#f8fdff'
 mpl.rcParams['legend.facecolor'] = '#2e475a'
 
 
@@ -212,13 +213,13 @@ def generate_graphs():
            ylabel='Estimated APY',
            title='Estimated APY of staked assets in the portfolio')
 
-    ax.grid(visible=True, color='white',
+    ax.grid(visible=True, color='#f8fdff',
             linestyle='-.', linewidth=0.5,
             alpha=0.2)
 
     d = .015  # how big to make the diagonal lines in axes coordinates
     # arguments to pass to plot, just so we don't keep repeating them
-    kwargs = dict(transform=ax.transAxes, color='w', clip_on=False)
+    kwargs = dict(transform=ax.transAxes, color='#f8fdff', clip_on=False)
     ax.plot((-d, +d), (-d, +d), **kwargs)  # top-left diagonal
     ax.plot((1 - d, 1 + d), (-d, +d), **kwargs)  # top-right diagonal
 
