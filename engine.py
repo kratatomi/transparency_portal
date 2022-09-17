@@ -700,7 +700,7 @@ def make_pie_chart(data, chart_name):
     ax1.pie(percentages, labels=labels, autopct='%1.1f%%', startangle=90)
     ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
     plt.tight_layout()
-    plt.savefig(f"app/static/{chart_name}.png")
+    plt.savefig(f"app/static/{chart_name}.png", transparent=True)
 
 def start_celery_stake():
     if not check_bch_balance(portfolio_address):

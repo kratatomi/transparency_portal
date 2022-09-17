@@ -9,7 +9,7 @@
                     7571,
                     8571
                 ],
-                "LAW rewards": 4.02
+                "LAW rewards": 4.08
             },
             "0x3484f575A3d3b4026B4708997317797925A236ae": {
                 "Punks": [
@@ -19,20 +19,20 @@
                     9581,
                     9668
                 ],
-                "LAW rewards": 4.14
+                "LAW rewards": 4.2
             },
             "0x57BB80fdab3ca9FDBC690F4b133010d8615e77b3": {
                 "Punks": [
                     963,
                     4096
                 ],
-                "LAW rewards": 1.51
+                "LAW rewards": 1.53
             }
         },
-        "Total LAW pending": 9.67,
-        "LAW pending in USD": 2.43,
+        "Total LAW pending": 9.81,
+        "LAW pending in USD": 2.48,
         "Floor price": 1.35,
-        "Total floor value": 1943.14
+        "Total floor value": 1939.62
     },
     "LAW Rights": {
         "tokens": {
@@ -52,6 +52,6 @@
         "Total LAW pending": 0.98,
         "LAW pending in USD": 0.25,
         "Total LAW locked": 363.55,
-        "LAW locked in USD": 91.26
+        "LAW locked in USD": 91.81
     }
 }

@@ -1,5 +1,6 @@
 import json
 from datetime import date
+from turtle import color
 import matplotlib.pyplot as plt
 from os import listdir, getcwd
 from os.path import isfile, join, abspath
@@ -43,7 +44,7 @@ def generate_graphs():
             sidx_liquidity[DEX] = {"Value": 0, "Reward value": 0}
         sidx_liquidity[DEX]["Reward value"] += current_liquidity[DEX]["Reward value"]
         for coin in current_liquidity[DEX]:
-            if coin not in ("Reward", "Reward value"):
+            if coin not in ("Reward", "Reward value", "Total LP Value"):
                 sidx_liquidity[DEX]["Value"] += current_liquidity[DEX][coin]["Current value"]
                 sidx_liquidity["Total USD value"] += current_liquidity[DEX][coin]["Current value"]
     for DEX in current_extra_liquidity:
@@ -51,7 +52,7 @@ def generate_graphs():
             sidx_liquidity[DEX] = {"Value": 0, "Reward value": 0}
         sidx_liquidity[DEX]["Reward value"] += current_extra_liquidity[DEX]["Reward value"]
         for coin in current_extra_liquidity[DEX]:
-            if coin not in ("Reward", "Reward value"):
+            if coin not in ("Reward", "Reward value", "Total LP Value"):
                 sidx_liquidity[DEX]["Value"] += current_extra_liquidity[DEX][coin]["Current value"]
                 sidx_liquidity["Total USD value"] += current_extra_liquidity[DEX][coin]["Current value"]
     # Calculating the percentage of liquidity per DEX and their performance
@@ -124,7 +125,7 @@ def generate_graphs():
         ax.plot(weeks, assets_list[asset]["Yields"], label=asset)
 
     plt.legend()
-    plt.savefig("app/static/yields.png")
+    plt.savefig("app/static/yields.png", transparent=True)
 
     # Next, the yields graph for farms
     fig, ax = plt.subplots()
@@ -137,7 +138,7 @@ def generate_graphs():
         ax.plot(weeks, farms_list[farm]["Yields"], label=farms_list[farm]["name"])
 
     plt.legend()
-    plt.savefig("app/static/farms_yields.png")
+    plt.savefig("app/static/farms_yields.png", transparent=True)
 
     # Now, the total value graph for staked assets
     fig, ax = plt.subplots()
@@ -150,7 +151,7 @@ def generate_graphs():
         ax.plot(weeks, assets_list[asset]["USD total value"], label=asset)
 
     plt.legend()
-    plt.savefig("app/static/assets_value.png")
+    plt.savefig("app/static/assets_value.png", transparent=True)
 
     # And the total value graph for farms
     fig, ax = plt.subplots()
@@ -163,7 +164,7 @@ def generate_graphs():
         ax.plot(weeks, farms_list[farm]["USD total value"], label=farms_list[farm]["name"])
 
     plt.legend()
-    plt.savefig("app/static/farms_value.png")
+    plt.savefig("app/static/farms_value.png", transparent=True)
 
     #The graph showing price per SIDX evolution:
     fig, ax = plt.subplots()
@@ -174,7 +175,7 @@ def generate_graphs():
 
     ax.plot(weeks, value_per_sidx)
 
-    plt.savefig("app/static/sidx_value.png")
+    plt.savefig("app/static/sidx_value.png", transparent=True)
 
     # Graph with the APY of every asset
     columns = [] #List of assets
@@ -186,8 +187,8 @@ def generate_graphs():
 
     '''Broken axis method extracted from https://matplotlib.org/3.1.0/gallery/subplots_axes_and_figures/broken_axis.html'''
     f, (ax, ax2) = plt.subplots(2, 1, sharex=True, figsize=(16, 9))
-    ax.bar(columns, rows, color='maroon', width=0.4)
-    ax2.bar(columns, rows, color='maroon', width=0.4)
+    ax.bar(columns, rows, color='green', width=0.4)
+    ax2.bar(columns, rows, color='green', width=0.4)
     ax.set_ylim(200, 600)
     ax2.set_ylim(0, 100)
     ax.spines['bottom'].set_visible(False)
@@ -199,9 +200,26 @@ def generate_graphs():
            ylabel='Estimated APY',
            title='Estimated APY of staked assets in the portfolio')
 
-    ax.grid(visible=True, color='grey',
+    ax.grid(visible=True, color='white',
             linestyle='-.', linewidth=0.5,
             alpha=0.2)
+
+    ax.tick_params(axis='x', colors='white')
+    ax.tick_params(axis='y', colors='white')
+    ax.xaxis.label.set_color('white')
+    ax.yaxis.label.set_color('white')
+    ax.spines['left'].set_color('white')
+    ax.spines['top'].set_color('white')
+    ax.spines['bottom'].set_color('white')
+    ax.spines['right'].set_color('white')
+    ax2.tick_params(axis='x', colors='white')
+    ax2.tick_params(axis='y', colors='white')
+    ax2.xaxis.label.set_color('white')
+    ax2.yaxis.label.set_color('white')
+    ax2.spines['left'].set_color('white')
+    ax2.spines['top'].set_color('white')
+    ax2.spines['bottom'].set_color('white')
+    ax2.spines['right'].set_color('white')
 
     d = .015  # how big to make the diagonal lines in axes coordinates
     # arguments to pass to plot, just so we don't keep repeating them
@@ -212,7 +230,7 @@ def generate_graphs():
     kwargs.update(transform=ax2.transAxes)  # switch to the bottom axes
     ax2.plot((-d, +d), (1 - d, 1 + d), **kwargs)  # bottom-left diagonal
     ax2.plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)  # bottom-right diagonal
-    plt.savefig("app/static/assets_apy.png")
+    plt.savefig("app/static/assets_apy.png", transparent=True)
 
     # Here starts the rewards performance bar chart for SIDX farms
     labels = []
@@ -227,7 +245,7 @@ def generate_graphs():
     ax.set(xlabel='DEX',
            ylabel='Reward percentage based on total USD value locked',
            title='Weekly reward percentage of SIDX liquidity pools by DEX')
-    plt.savefig("app/static/sidx_liquidity_rewards.png")
+    plt.savefig("app/static/sidx_liquidity_rewards.png", transparent=True)
 
 def main():
     with open('data/SIDX_STATS.json') as sidx_stats_file:
@@ -265,6 +283,10 @@ def main():
         json.dump(weekly_stats, file, indent=4)
     file.close()
     generate_graphs()
+
+    # Need to remove, this was for Borracho testing
+    return
+    
     #Let's harvest the rewards from pools
     import engine
     engine.start_celery_stake() # Turning to staking mode harvest the CLY rewards
