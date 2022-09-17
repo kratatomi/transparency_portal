@@ -1,11 +1,23 @@
 import json
 from datetime import date
 from turtle import color
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 from os import listdir, getcwd
 from os.path import isfile, join, abspath
 from datetime import datetime
 import logging
+
+mpl.rcParams['text.color'] = 'w'
+mpl.rcParams['xtick.color'] = 'w'
+mpl.rcParams['ytick.color'] = 'w'
+mpl.rcParams['axes.labelcolor'] = 'w'
+mpl.rcParams['axes.edgecolor'] = 'w'
+mpl.rcParams['legend.labelcolor'] = 'w'
+mpl.rcParams['xtick.color'] = 'w'
+mpl.rcParams['ytick.color'] = 'w'
+mpl.rcParams['legend.facecolor'] = '#2e475a'
+
 
 logger = logging.getLogger("app.engine")
 def generate_graphs():
@@ -173,7 +185,7 @@ def generate_graphs():
            ylabel='USD value per SIDX token',
            title='Value per SIDX token')
 
-    ax.plot(weeks, value_per_sidx)
+    ax.plot(weeks, value_per_sidx, color='#0ac18e')
 
     plt.savefig("app/static/sidx_value.png", transparent=True)
 
@@ -187,8 +199,8 @@ def generate_graphs():
 
     '''Broken axis method extracted from https://matplotlib.org/3.1.0/gallery/subplots_axes_and_figures/broken_axis.html'''
     f, (ax, ax2) = plt.subplots(2, 1, sharex=True, figsize=(16, 9))
-    ax.bar(columns, rows, color='green', width=0.4)
-    ax2.bar(columns, rows, color='green', width=0.4)
+    ax.bar(columns, rows, color='#0ac18e', width=0.4)
+    ax2.bar(columns, rows, color='#0ac18e', width=0.4)
     ax.set_ylim(200, 600)
     ax2.set_ylim(0, 100)
     ax.spines['bottom'].set_visible(False)
@@ -204,26 +216,9 @@ def generate_graphs():
             linestyle='-.', linewidth=0.5,
             alpha=0.2)
 
-    ax.tick_params(axis='x', colors='white')
-    ax.tick_params(axis='y', colors='white')
-    ax.xaxis.label.set_color('white')
-    ax.yaxis.label.set_color('white')
-    ax.spines['left'].set_color('white')
-    ax.spines['top'].set_color('white')
-    ax.spines['bottom'].set_color('white')
-    ax.spines['right'].set_color('white')
-    ax2.tick_params(axis='x', colors='white')
-    ax2.tick_params(axis='y', colors='white')
-    ax2.xaxis.label.set_color('white')
-    ax2.yaxis.label.set_color('white')
-    ax2.spines['left'].set_color('white')
-    ax2.spines['top'].set_color('white')
-    ax2.spines['bottom'].set_color('white')
-    ax2.spines['right'].set_color('white')
-
     d = .015  # how big to make the diagonal lines in axes coordinates
     # arguments to pass to plot, just so we don't keep repeating them
-    kwargs = dict(transform=ax.transAxes, color='k', clip_on=False)
+    kwargs = dict(transform=ax.transAxes, color='w', clip_on=False)
     ax.plot((-d, +d), (-d, +d), **kwargs)  # top-left diagonal
     ax.plot((1 - d, 1 + d), (-d, +d), **kwargs)  # top-right diagonal
 
@@ -241,7 +236,7 @@ def generate_graphs():
             reward_performance.append(sidx_liquidity[DEX]["Reward performance"])
 
     fig, ax = plt.subplots()
-    ax.bar(labels, reward_performance)
+    ax.bar(labels, reward_performance, color='#0ac18e')
     ax.set(xlabel='DEX',
            ylabel='Reward percentage based on total USD value locked',
            title='Weekly reward percentage of SIDX liquidity pools by DEX')
