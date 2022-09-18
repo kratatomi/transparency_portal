@@ -24,7 +24,7 @@ law_punks_market = w3.toChecksumAddress("0xc062bf9FaBE930FF8061f72b908AB1b702b3F
 law_level_address = w3.toChecksumAddress("0x9E9eACB7E5dCc374d3108598054787ccae967544")
 law_rewards = w3.toChecksumAddress("0xbeAAe3E87Bf71C97e458e2b9C84467bdc3b871c6")
 law_salary = "0xe0ACACCFf2cDa66C8cFcA3bf86e7310748c70727"
-law_rights = {"453": {}, "457": {}, "459": {}} # TokenID: {LAW locked, salary}
+law_rights = {"453": {}, "457": {}, "459": {}, "460": {}} # TokenID: {LAW locked, salary}
 punk_wallets = [portfolio_address,  # Punks wallet 1
                 "0x3484f575A3d3b4026B4708997317797925A236ae",  # Punks wallet 2
                 "0x57BB80fdab3ca9FDBC690F4b133010d8615e77b3"]  # Punks wallet 3
