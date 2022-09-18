@@ -8,6 +8,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver import FirefoxOptions
 import logging
+import textwrap
 
 
 logger = logging.getLogger("app.engine")
@@ -697,7 +698,10 @@ def make_pie_chart(data, chart_name):
     # Get list of percentages
 
     for asset in data:
-        labels.append(asset)
+        truncate = asset
+        if len(truncate) > 15:
+            truncate = truncate[:12]+"..."
+        labels.append(truncate)
         percentages.append((data[asset]/total_USD_value) * 100)
 
     fig1, ax1 = plt.subplots()
