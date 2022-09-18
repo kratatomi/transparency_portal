@@ -698,6 +698,8 @@ def make_pie_chart(data, chart_name):
     # Get list of percentages
 
     for asset in data:
+        # Temporarily shortening the labels, should probably look into shortening further back, like MLP-BCH/bcBCH
+        #   and BNG-K-LawUSD/Law, etc. Maybe settingup enums would be a valid choice?
         truncate = asset
         if len(truncate) > 15:
             truncate = truncate[:12]+"..."
