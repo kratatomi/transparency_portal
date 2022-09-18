@@ -925,18 +925,30 @@ def send_transaction(identifier, tx,*account):
     return receipt
 
 def harvest_farms_rewards():
-    # Harvest all the rewards for every farm
+    # Harvest all the rewards for every farm except BlockNG Beam, which are considered illiquid.
     for DEX in farms:
-        ABI = open(f"ABIs/{farms[DEX]['factory_ABI']}", "r")
-        abi = json.loads(ABI.read())
-        contract = w3.eth.contract(address=farms[DEX]['factory'], abi=abi)
-        for i in range(len(farms[DEX]['farms'])):
-            harvest_tx = contract.functions.deposit(farms[DEX]['farms'][i]['pool_id'], 0).buildTransaction(
-                {'chainId': 10000,
-                 'from': portfolio_address,
-                 'gasPrice': w3.toWei('1.05', 'gwei')
-                 })
-            send_transaction(farms[DEX]['farms'][i]["lp_CA"], harvest_tx)
+        if DEX in ("Mistswap", "Tangoswap"):
+            ABI = open(f"ABIs/{farms[DEX]['factory_ABI']}", "r")
+            abi = json.loads(ABI.read())
+            contract = w3.eth.contract(address=farms[DEX]['factory'], abi=abi)
+            for i in range(len(farms[DEX]['farms'])):
+                harvest_tx = contract.functions.deposit(farms[DEX]['farms'][i]['pool_id'], 0).buildTransaction(
+                    {'chainId': 10000,
+                     'from': portfolio_address,
+                     'gasPrice': w3.toWei('1.05', 'gwei')
+                     })
+                send_transaction(farms[DEX]['farms'][i]["lp_CA"], harvest_tx)
+        if DEX == "BlockNG-Kudos":
+            ABI = open("ABIs/BlockNG-farm.json", "r")
+            abi = json.loads(ABI.read())
+            for i in range(len(farms[DEX]['farms'])):
+                contract = w3.eth.contract(address=farms[DEX]["farms"][i]["CA"])
+                harvest_tx = contract.functions.getReward(portfolio_address, [assets_balances["LAW"]["CA"]]).buildTransaction(
+                    {'chainId': 10000,
+                     'from': portfolio_address,
+                     'gasPrice': w3.toWei('1.05', 'gwei')
+                     })
+                send_transaction(f"Harvesting BlockNG Kudos farm {farms[DEX]['farms'][i]['lp_CA']}", harvest_tx)
 
 def harvest_tango_sidx_farm(*account):
     address, priv_key_env = account
