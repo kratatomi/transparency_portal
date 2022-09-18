@@ -8,8 +8,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver import FirefoxOptions
 import logging
-import textwrap
-
 
 logger = logging.getLogger("app.engine")
 
