@@ -257,7 +257,7 @@ def main():
                     "LP_BALANCES": lp_balances,
                     "EXTRA_LP_BALANCES": extra_lp_balances,
                     "PUNKS_BALANCES": NFTs["PUNKS"],
-                    "LAW RIGTHS": NFTs["LAW Rights"],
+                    "LAW RIGHTS": NFTs["LAW Rights"],
                     "FARMS": farms,
                     "GLOBAL_STATS": global_stats}
 
