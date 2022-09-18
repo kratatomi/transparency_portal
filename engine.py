@@ -910,7 +910,6 @@ def send_transaction(identifier, tx,*account):
         logger.info(f'TXID {hex_TXID} sent, identifier is {identifier}')
         try:
             receipt = w3.eth.wait_for_transaction_receipt(TXID)
-            logger.info(f'Receipt is {receipt}')
             if receipt.status == 0:
                 import app.email as email
                 email.send_email_to_admin(f"Harvesting failed for {identifier}, TXID is {TXID}")
