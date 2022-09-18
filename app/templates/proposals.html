@@ -81,10 +81,10 @@
 <hr>
 <div style="text-align: center;">
     {% if prev_url %}
-        <button class="btn btn-outline-success" href="{{ prev_url }}">Newer Proposals</button>
+      <a href="{{ prev_url }}"><button class="btn btn-outline-success">Newer Proposals</button></a>
     {% endif %}
     {% if next_url %}
-        <button class="btn btn-outline-success" href="{{ next_url }}">Older Proposals</button>
+      <a href="{{ next_url }}"><button class="btn btn-outline-success">Older Proposals</button></a>
     {% endif %}
 </div>
 <br />
