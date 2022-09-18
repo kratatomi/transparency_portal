@@ -150,7 +150,11 @@ def weekly_report(name):
             global_stats = weekly_report["GLOBAL_STATS"]
         else:
             global_stats = None
-        return render_template("index.html", title=f"Earnings report at {name}", sidx_stats=sidx_stats,  date=date, sep20_balances=sep20_balances, stacked_assets=stacked_assets, lp_balances=lp_balances, extra_lp_balances=extra_lp_balances, punks=punks, farms=farms, global_stats=global_stats)
+        if "LAW RIGHTS" in weekly_report:
+            law_rights = weekly_report["LAW RIGHTS"]
+        else:
+            law_rights = None
+        return render_template("index.html", title=f"Earnings report at {name}", sidx_stats=sidx_stats,  date=date, sep20_balances=sep20_balances, stacked_assets=stacked_assets, lp_balances=lp_balances, extra_lp_balances=extra_lp_balances, punks=punks, law_rights=law_rights,farms=farms, global_stats=global_stats)
 
 
 @app.route('/login', methods=['POST', 'GET'])
