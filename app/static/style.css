@@ -61,6 +61,10 @@ tr.btm th:last-child, tr.btm td:last-child {
     border-bottom-right-radius: 0.25rem;
 }
 
+.radius {
+  border-radius: 0.25rem;
+}
+
 @media screen and (min-width: 1200px) {
 /* Not mobile */
     .card-columns {

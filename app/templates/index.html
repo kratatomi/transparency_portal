@@ -414,15 +414,15 @@
 {% if title == "Portfolio tracker" %}
 <div class="card" style="text-align: center">
     <div class="card-header" style="text-align: center;"><h3>Portfolio Charts</h3></div>
-    <div class="card-header">Portfolio-owned Liquidity Allocation</div>
+    <div class="card-header highlight-color2 radius">Portfolio-owned Liquidity Allocation</div>
     <div class="card-body">
         <img src="{{ url_for('static', filename='liquidity_allocation.png') }}" style="max-width: 100%;" alt="Value SIDX liquidity allocation by DEX">
     </div>
-    <div class="card-header">Portfolio Staked and Held Tokens Allocation</div>
+    <div class="card-header highlight-color2 radius">Portfolio Staked and Held Tokens Allocation</div>
     <div class="card-body">
         <img src="{{ url_for('static', filename='assets_pie_chart.png') }}" style="max-width: 100%;" alt="Assets distribution in the portfolio by value">
     </div>
-    <div class="card-header">Portfolio-owned Farms Allocation</div>
+    <div class="card-header highlight-color2 radius">Portfolio-owned Farms Allocation</div>
     <div class="card-body">
         <img src="{{ url_for('static', filename='farms_pie_chart.png') }}" style="max-width: 100%;" alt="Farms distribution in the portfolio by USD value">
     </div>
