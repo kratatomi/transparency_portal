@@ -1058,13 +1058,15 @@ def get_ETF_assets_allocation(farms):
             portfolio["Standalone assets"][asset] = pie_chart_data[asset]
             total_value += portfolio["Standalone assets"][asset]
     for DEX in farms:
-        portfolio["Farms"][DEX] = {}
-        for i in range(len(farms[DEX]['farms'])):
-            lp_CA = farms[DEX]['farms'][i]['lp_CA']
-            portfolio["Farms"][DEX][lp_CA] = 0
-            for coin in farms[DEX]['farms'][i]['Coins']:
-                portfolio["Farms"][DEX][lp_CA] += farms[DEX]['farms'][i]['Coins'][coin]['Current value']
-            total_value += portfolio["Farms"][DEX][lp_CA]
+        # BlockNG Beam farms are removed because they're considered illiquid
+        if DEX != "BlockNG-Beam":
+            portfolio["Farms"][DEX] = {}
+            for i in range(len(farms[DEX]['farms'])):
+                lp_CA = farms[DEX]['farms'][i]['lp_CA']
+                portfolio["Farms"][DEX][lp_CA] = 0
+                for coin in farms[DEX]['farms'][i]['Coins']:
+                    portfolio["Farms"][DEX][lp_CA] += farms[DEX]['farms'][i]['Coins'][coin]['Current value']
+                total_value += portfolio["Farms"][DEX][lp_CA]
     #It's time to compute the allocation of each asset
     for asset in portfolio["Standalone assets"]:
         portfolio["Standalone assets"][asset] = (portfolio["Standalone assets"][asset] / total_value) * 100
