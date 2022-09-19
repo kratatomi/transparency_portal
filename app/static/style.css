@@ -134,6 +134,17 @@ a:hover{
       color: rgba(0, 0, 0, 0.87);
     }
 
+    textarea, input, .uneditable-input, select {
+      background: #3f627c !important;
+      color: #f8fdff !important;
+    }
+
+    textarea:focus, input:focus, .uneditable-input:focus {   
+      border-color: #0ac18e !important;
+      box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 8px #0ac18e!important;
+      outline: 0 none !important;
+  }
+
     .btn-success {
         background-color: #0ac18e;
         border-color: #0ac18e;

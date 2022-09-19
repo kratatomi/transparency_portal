@@ -56,23 +56,26 @@
   </a>
 </div>
 
-<div style="text-align: center;">
 {% if form %}
-    <div style="display: inline-block">
-      <form action="" method="post" novalidate>
-        <div class="form-group">
-            {{ form.hidden_tag() }}
-            Pick your choice: {{ form.choice }}
-            <button type="submit" class="btn btn-success" id="submit" name="submit" value="Vote">Vote</button>
-        </div>
-      </form>
-    </div>
-{% endif %}
+  <div class="card">
+    <div class="card-body" style="text-align: center;">
+      <div style="display: inline-block;">
+        <form action="" method="post" novalidate>
+          <div class="form-group">
+              {{ form.hidden_tag() }}
+              Pick your choice: {{ form.choice }}
+              <button type="submit" class="btn btn-success" id="submit" name="submit" value="Vote">Vote</button>
+          </div>
+        </form>
+      </div>
+      {% endif %}
 
-{% if user_balance %}
-    <div style="display: inline-block"><b>You have {{ user_balance }} SIDX tokens for voting in this proposal.</b></div>
-{% endif %}
-</div>
+      {% if user_balance %}
+        <br />
+        <div style="display: inline-block"><b>You have <span style="color: #0ac18e;">{{ user_balance }} SIDX</span> tokens for voting in this proposal.</b></div>
+      {% endif %}
+    </div>
+  </div>
 
 <div class="card">
     <div class="card-header"><H2>Considerations about voting</H2></div>
@@ -85,7 +88,7 @@
           <li>All votes are notarized on the BCH blockchain and can be seen at <a href="https://memo.cash/profile/16F133RGB3mw9XvBsmRuE9dJ3BAxfzGEdf">SmartIndex's memo.cash profile.</a></li>
       </ul>
     </div>
-</div>
+
 <hr>
 <h3 style="text-align: center;">Go back to <a href="{{ url_for('proposals') }}">Proposals page</a>.</h3>
 {% endblock %}

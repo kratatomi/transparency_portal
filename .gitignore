@@ -8,7 +8,6 @@
 /server_settings.py
 /app/static/calendar/
 /logs/transparency_portal.log
-<<<<<<< HEAD
 /server_settings.py
 geckodriver.log
 json
@@ -52,6 +51,7 @@ requirements.txt
 scheduled.log
 /data/NFTs.json
 data/NFTs.json
-=======
-
->>>>>>> b0dd02a03a4a3db5fa1e3d4a0145fba035275337
+voting_platform
+app/__pycache__/routes.cpython-38.pyc
+app/__pycache__/routes.cpython-38.pyc
+app/__pycache__/routes.cpython-38.pyc
