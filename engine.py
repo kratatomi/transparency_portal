@@ -148,6 +148,7 @@ farms = {"Mistswap": {"factory": "0x3A7B9D0ed49a90712da4E087b17eE4Ac1375a5D4",
 pie_chart_data = {}
 farms_pie_chart_data = {}
 sidx_liquidity_pie_chart_data = {}
+global_stats_pie_chart_data = {}
 
 
 def get_balances(bch_price, portfolio_address=portfolio_address):
@@ -339,6 +340,8 @@ def get_balances(bch_price, portfolio_address=portfolio_address):
     SEP20_tokens["Total value"] = round(total_value_SEP20_tokens, 2)
     stacked_assets["Total value"] = round(total_value_stacked_assets, 2)
     stacked_assets["Total yield value"] = round(total_value_yield, 2)
+    global_stats_pie_chart_data["Liquid Assets"] = total_liquid_value
+    global_stats_pie_chart_data["Illiquid Assets"] = total_illiquid_value
     return SEP20_tokens, stacked_assets
 
 
@@ -1323,6 +1326,7 @@ def main():
     make_pie_chart(pie_chart_data, "assets_pie_chart")
     make_pie_chart(farms_pie_chart_data, "farms_pie_chart")
     make_pie_chart(sidx_liquidity_pie_chart_data, "liquidity_allocation")
+    make_pie_chart(global_stats_pie_chart_data, "global_stats")
     ETF_portfolio = get_ETF_assets_allocation(farms)
     global_portfolio_stats = {"total_liquid_value": round(total_liquid_value, 2),
                               "total_illiquid_value": round(total_illiquid_value, 2),

@@ -55,3 +55,4 @@ voting_platform
 app/__pycache__/routes.cpython-38.pyc
 app/__pycache__/routes.cpython-38.pyc
 app/__pycache__/routes.cpython-38.pyc
+app/static/global_stats.png

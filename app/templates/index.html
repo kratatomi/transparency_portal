@@ -28,7 +28,7 @@
                             <td style="text-align: right;">$ {{ global_stats["value_per_sidx"] }}</td>
                         </tr>
                         <tr class="btm highlight-color1">
-                            <th>Market/Portfolio Value:</th>
+                            <th>Market Price/Portfolio Value Ratio:</th>
                             <td style="text-align: right;">{{ global_stats["ratio"] }}</td>
                         </tr>
                         <tr class="blank_row"><td colspan="4"></td></tr>
@@ -417,6 +417,10 @@
 {% if title == "Portfolio tracker" %}
 <div class="card" style="text-align: center">
     <div class="card-header" style="text-align: center;"><h3>Portfolio Charts</h3></div>
+    <div class="card-header highlight-color2 radius">Liquid/Illiquid Allocation</div>
+    <div class="card-body">
+        <img src="{{ url_for('static', filename='global_stats.png') }}" style="max-width: 100%;" alt="Portfolio value by liquidity type">
+    </div>
     <div class="card-header highlight-color2 radius">Portfolio-owned Liquidity Allocation</div>
     <div class="card-body">
         <img src="{{ url_for('static', filename='liquidity_allocation.png') }}" style="max-width: 100%;" alt="Value SIDX liquidity allocation by DEX">
