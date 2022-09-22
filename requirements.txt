@@ -62,6 +62,7 @@ filelock==3.4.0
 Flask==1.1.1
 Flask-APScheduler==1.12.4
 Flask-Bootstrap==3.3.7.1
+Flask-Bootstrap4==4.0.2
 Flask-Login==0.5.0
 Flask-Mail==0.9.1
 Flask-Migrate==3.1.0
