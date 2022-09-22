@@ -279,9 +279,6 @@ def main():
         json.dump(weekly_stats, file, indent=4)
     file.close()
     generate_graphs()
-
-    # Need to remove, this was for Borracho testing
-    return
     
     #Let's harvest the rewards from pools
     import engine
