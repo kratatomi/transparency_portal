@@ -7,7 +7,9 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver import FirefoxOptions
+from datetime import datetime
 import logging
+
 
 logger = logging.getLogger("app.engine")
 
@@ -587,6 +589,7 @@ def get_law_rewards(bch_price):
     NFTs["LAW Rights"]["tokens"] = law_rights
     law_pending = 0
     law_locked = 0
+    vote_power = 0
     veLAWRights_ABI = open("ABIs/veLawRightsProxyed.json", "r")
     veLAWRights_abi = json.loads(veLAWRights_ABI.read())
     LAW_rights_contract = w3.eth.contract(address="0xe24Ed1C92feab3Bb87cE7c97Df030f83E28d9667", abi=veLAWRights_abi)
@@ -595,12 +598,17 @@ def get_law_rewards(bch_price):
     salary_contract = w3.eth.contract(address=law_salary, abi=LAW_rewards_abi)
     current_block = w3.eth.get_block_number()
     for tokenID in NFTs["LAW Rights"]["tokens"]:
-        NFTs["LAW Rights"]["tokens"][tokenID]["LAW"] = round(LAW_rights_contract.functions.balanceOfAtNFT(int(tokenID), current_block).call() / 10 ** 18, 2)
+        NFTs["LAW Rights"]["tokens"][tokenID]["LAW"] = round(LAW_rights_contract.functions.locked(int(tokenID)).call()[3] / 10 ** 18, 2)
+        # get the end date of LawRight in seconds and convert to datetime then format to string
+        NFTs["LAW Rights"]["tokens"][tokenID]["Unlock Date"] = str(datetime.fromtimestamp(LAW_rights_contract.functions.locked(int(tokenID)).call()[4]).strftime('%b %d, %Y'))
+        NFTs["LAW Rights"]["tokens"][tokenID]["Vote Power"] = round(LAW_rights_contract.functions.balanceOfAtNFT(int(tokenID), current_block).call() / 10 ** 18, 2)
         pending_reward = salary_contract.functions.claimable(int(tokenID)).call() / 10 ** 18
         NFTs["LAW Rights"]["tokens"][tokenID]["LAW rewards"] = round(pending_reward, 2)
+        vote_power += NFTs["LAW Rights"]["tokens"][tokenID]["Vote Power"]
         law_pending += NFTs["LAW Rights"]["tokens"][tokenID]["LAW rewards"]
         law_locked += NFTs["LAW Rights"]["tokens"][tokenID]["LAW"]
     NFTs["LAW Rights"]["Total LAW pending"] = round(law_pending, 2)
+    NFTs["LAW Rights"]["Total Vote Power"] = round(vote_power, 2)
     law_price = get_price_from_pool("LAW", bch_price)
     NFTs["LAW Rights"]["LAW pending in USD"] = round(NFTs["LAW Rights"]["Total LAW pending"] * law_price, 2)
     NFTs["LAW Rights"]["Total LAW locked"] = round(law_locked, 2)
@@ -608,6 +616,7 @@ def get_law_rewards(bch_price):
     total_liquid_value += NFTs["LAW Rights"]["LAW pending in USD"]
     total_rewards_value += NFTs["LAW Rights"]["LAW pending in USD"]
     total_illiquid_value += NFTs["LAW Rights"]["LAW locked in USD"]
+    
 def get_farms(bch_price, farms=farms):
     global total_liquid_value
     global total_illiquid_value

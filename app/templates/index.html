@@ -375,10 +375,11 @@
         <div class="card-body">
             <table id="law_rights" style="width: 100%;">
                 <tr class="top highlight-color1">
-                    <th style="width: 25%">ID</th>
-                    <th style="width: 25%">Unlock Date</th>
-                    <th style="width: 25%; text-align: right;">LAW Locked</th>
-                    <th style="width: 25%; text-align: right;">LAW Salary</th>
+                    <th style="width: 20%">ID</th>
+                    <th style="width: 20%">Unlock Date</th>
+                    <th style="width: 20%; text-align: right;">Vote Power</th>
+                    <th style="width: 20%; text-align: right;">LAW Locked</th>
+                    <th style="width: 20%; text-align: right;">LAW Salary</th>
                 </tr>
                 {% for key, value in law_rights["tokens"].items() %}
                     {% if loop.index == loop|length %}
@@ -387,20 +388,22 @@
                         <tr class="highlight-color1">
                     {% endif %}
                     <td><a href="https://oasis.cash/token/0xe24Ed1C92feab3Bb87cE7c97Df030f83E28d9667/{{key}}">#{{key}}</a></td>
-                    <td>June 13, 2056</td>
+                    <td>{{ value["Unlock Date"] }}</td>
+                    <td style="text-align: right;">{{ value["Vote Power"] }}</td>
                     <td style="text-align: right;">{{ value["LAW"] }}</td>
                     <td style="text-align: right;">{{ value["LAW rewards"] }}</td>
                 </tr>
                 {% endfor %}
-                <tr class="blank_row"><td colspan="4"></td></tr>
+                <tr class="blank_row"><td colspan="6"></td></tr>
                 <tr class="top highlight-color1">
                     <th>Totals:</th>
                     <td></td>
+                    <th style="text-align: right;">{{ law_rights["Total Vote Power"] }}</th>
                     <th style="text-align: right;">{{ law_rights["Total LAW locked"] }}</th>
                     <th style="text-align: right;">{{ law_rights["Total LAW pending"] }}</th>
                 </tr>
                 <tr class="btm highlight-color1">
-                    <th>Totals in USD:</th>
+                    <th colspan="2">Totals in USD:</th>
                     <td></td>
                     <th style="text-align: right;">$ {{ law_rights["LAW locked in USD"] }}</th>
                     <th style="text-align: right;">$ {{ law_rights["LAW pending in USD"] }}</th>
