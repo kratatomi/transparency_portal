@@ -27,10 +27,12 @@
                             <th>Portfolio Value per SIDX:</th>
                             <td style="text-align: right;">$ {{ '%0.2f'| format(global_stats["value_per_sidx"]|float) }}</td>
                         </tr>
+                        {% if "ratio" in global_stats %}
                         <tr class="btm highlight-color1">
                             <th>Market Price/Portfolio Value Ratio:</th>
                             <td style="text-align: right;">{{ '%0.2f'| format(global_stats["ratio"]|float) }}</td>
                         </tr>
+                        {% endif %}
                         <tr class="blank_row"><td colspan="4"></td></tr>
                         <tr class="top btm highlight-color1">
                             <th><b>Current value:</b></th>
@@ -160,11 +162,13 @@
                                 <td style="text-align: right;">{{ '%0.2f'| format(value["Difference"]|float) }}</td>
                                 <td style="text-align: right;">$ {{ '%0.2f'| format(value["Current value"]|float) }}</td>
                             </tr>
-                            {% endfor %}
+                            {% endfor %}"
+                            {% if "Total LP Value" in farm %}
                             <tr class="highlight-color1">
                                 <th colspan="2">Total Value:</th>
                                 <th colspan="2" style="text-align: right;">$ {{ '%0.2f'| format(farm["Total LP Value"]|float) }}</th>
                             </tr>
+                            {% endif %}
                             <tr class="highlight-color1">
                                 <th colspan="2">Reward Tokens:</th>
                                 <th colspan="2" style="text-align: right;">{{ '%0.2f'| format(farm["reward"]|float) }}</th>
@@ -392,7 +396,11 @@
                     {% endif %}
                     <td><a href="https://oasis.cash/token/0xe24Ed1C92feab3Bb87cE7c97Df030f83E28d9667/{{key}}">#{{key}}</a></td>
                     <td>{{ value["Unlock Date"] }}</td>
-                    <td style="text-align: right;">{{ '%0.2f'| format(value["Vote Power"]|float) }}</td>
+                    {% if "Vote Power" in value %}
+                        <td style="text-align: right;">{{ '%0.2f'| format(value["Vote Power"]|float) }}</td>
+                    {% else %}
+                        <td style="text-align: right;">Vote power not available</td>
+                    {% endif %}
                     <td style="text-align: right;">{{ '%0.2f'| format(value["LAW"]|float) }}</td>
                     <td style="text-align: right;">{{ '%0.2f'| format(value["LAW rewards"]|float) }}</td>
                 </tr>
@@ -401,7 +409,11 @@
                 <tr class="top highlight-color1">
                     <th>Totals:</th>
                     <td></td>
-                    <th style="text-align: right;">{{ '%0.2f'| format(law_rights["Total Vote Power"]|float) }}</th>
+                    {% if "Total Vote Power" in value %}
+                        <th style="text-align: right;">{{ '%0.2f'| format(law_rights["Total Vote Power"]|float) }}</th>
+                    {% else %}
+                        <th style="text-align: right;">Total vote power not available</th>
+                    {% endif %}
                     <th style="text-align: right;">{{ '%0.2f'| format(law_rights["Total LAW locked"]|float) }}</th>
                     <th style="text-align: right;">{{ '%0.2f'| format(law_rights["Total LAW pending"]|float) }}</th>
                 </tr>
