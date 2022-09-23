@@ -1,6 +1,5 @@
 import json
 from datetime import date
-from turtle import color
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from os import listdir, getcwd
