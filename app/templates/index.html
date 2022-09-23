@@ -16,25 +16,25 @@
                     <table id="global_stats" style="width: 100%;">
                         <tr class="top highlight-color1">
                             <th>Current value in liquid assets:</th>
-                            <td style="text-align: right;">$ {{ global_stats["total_liquid_value"] }}</td>
+                            <td style="text-align: right;">$ {{ '%0.2f'| format(global_stats["total_liquid_value"]|float) }}</td>
                         </tr>
                         <tr class="btm highlight-color1">
                             <th>Current value in illiquid assets:</th>
-                            <td style="text-align: right;">$ {{ global_stats["total_illiquid_value"] }}</td>
+                            <td style="text-align: right;">$ {{ '%0.2f'| format(global_stats["total_illiquid_value"]|float) }}</td>
                         </tr>
                         <tr class="blank_row"><td colspan="4"></td></tr>
                         <tr class="top highlight-color1">
                             <th>Portfolio Value per SIDX:</th>
-                            <td style="text-align: right;">$ {{ global_stats["value_per_sidx"] }}</td>
+                            <td style="text-align: right;">$ {{ '%0.2f'| format(global_stats["value_per_sidx"]|float) }}</td>
                         </tr>
                         <tr class="btm highlight-color1">
                             <th>Market Price/Portfolio Value Ratio:</th>
-                            <td style="text-align: right;">{{ global_stats["ratio"] }}</td>
+                            <td style="text-align: right;">{{ '%0.2f'| format(global_stats["ratio"]|float) }}</td>
                         </tr>
                         <tr class="blank_row"><td colspan="4"></td></tr>
                         <tr class="top btm highlight-color1">
                             <th><b>Current value:</b></th>
-                            <th style="text-align: right;">$ {{ global_stats["total_portfolio_balance"] }}</th>
+                            <th style="text-align: right;">$ {{ '%0.2f'| format(global_stats["total_portfolio_balance"]|float) }}</th>
                         </tr>
                     </table>
                 </div>
@@ -58,10 +58,10 @@
                             <tr class="highlight-color1">
                             {% endif %}
                                 <td>{{ key }}</td>
-                                <td style="text-align: right;">{{ value["Current"] }}</td>
+                                <td style="text-align: right;">{{ '%0.2f'| format(value["Current"]|float) }}</td>
                                 <td style="text-align: right;">
                                     {% if value["Current value"] is defined %}
-                                        $ {{ value["Current value"] }}
+                                        $ {{ '%0.2f'| format(value["Current value"]|float) }}
                                     {% else %}
                                         (USD value not available)
                                     {% endif %}
@@ -72,7 +72,7 @@
                     <tr class="blank_row"><td colspan="3"></td></tr>
                     <tr class="top btm highlight-color1">
                         <th colspan="2">Current Value:</th>
-                        <th style="text-align: right;">$ {{ sep20_balances["Total value"] }}</th>
+                        <th style="text-align: right;">$ {{ '%0.2f'| format(sep20_balances["Total value"]|float) }}</th>
                     </tr>
                 </table>
             </div>
@@ -103,29 +103,29 @@
                                     {% endif %}
                                 {% endif %}
                             </td>
-                            <td><small>{{ value["Initial"] }} / {{ value["Current"] }}</small></td>
+                            <td><small>{{ '%0.2f'| format(value["Initial"]|float) }} / {{ '%0.2f'| format(value["Current"]|float) }}</small></td>
                             <td style="text-align: right;">
                                 {% if value["Current value"] is defined %}
-                                    $ {{ value["Current value"] }}
+                                    $ {{ '%0.2f'| format(value["Current value"]|float) }}
                                 {% else %}
                                     (USD value not available)
                                 {% endif %}
                             </td>
-                            <td style="text-align: right;">$ {{ value["Yield value"] }}</td>
+                            <td style="text-align: right;">$ {{ '%0.2f'| format(value["Yield value"]|float) }}</td>
                         </tr>
                         {% endif %}
                     {% endfor %}
                     <tr class="blank_row"><td colspan="4"></td></tr>
                     <tr class="top btm highlight-color1">
                         <th colspan="3">Current Value:</th>
-                        <th style="text-align: right;">$ {{  stacked_assets["Total value"] }}</th>
+                        <th style="text-align: right;">$ {{ '%0.2f'| format(stacked_assets["Total value"]|float) }}</th>
                     </tr>
                     <tr class="blank_row">
                         <td colspan="4"></td>
                     </tr>
                     <tr class="top btm highlight-color1">
                         <th colspan="3">Current Yield:</th>
-                        <th style="text-align: right;">$ {{ stacked_assets["Total yield value"] }}</th>
+                        <th style="text-align: right;">$ {{ '%0.2f'| format(stacked_assets["Total yield value"]|float) }}</th>
                     </tr>
                 </table>
             </div>
@@ -156,22 +156,22 @@
                             {% for key, value in farm["Coins"].items() %}
                             <tr class="highlight-color1">
                                 <td class="truncate">{{ key }}</td>
-                                <td><small>{{ value["Initial amount"] }} / {{ value["Current"] }}</small></td>
-                                <td style="text-align: right;">{{ value["Difference"] }}</td>
-                                <td style="text-align: right;">$ {{ value["Current value"] }}</td>
+                                <td><small>{{ '%0.2f'| format(value["Initial amount"]|float) }} / {{ '%0.2f'| format(value["Current"]|float) }}</small></td>
+                                <td style="text-align: right;">{{ '%0.2f'| format(value["Difference"]|float) }}</td>
+                                <td style="text-align: right;">$ {{ '%0.2f'| format(value["Current value"]|float) }}</td>
                             </tr>
                             {% endfor %}
                             <tr class="highlight-color1">
                                 <th colspan="2">Total Value:</th>
-                                <th colspan="2" style="text-align: right;">$ {{ farm["Total LP Value"] }}</th>
+                                <th colspan="2" style="text-align: right;">$ {{ '%0.2f'| format(farm["Total LP Value"]|float) }}</th>
                             </tr>
                             <tr class="highlight-color1">
                                 <th colspan="2">Reward Tokens:</th>
-                                <th colspan="2" style="text-align: right;">{{ farm["reward"] }}</th>
+                                <th colspan="2" style="text-align: right;">{{ '%0.2f'| format(farm["reward"]|float) }}</th>
                             </tr>
                             <tr class="btm highlight-color1">
                                 <th colspan="2">Reward Value:</th>
-                                <th colspan="2" style="text-align: right;">$ {{ farm["reward value"] }}</th>
+                                <th colspan="2" style="text-align: right;">$ {{ '%0.2f'| format(farm["reward value"]|float) }}</th>
                             </tr>
                         {% endfor %}
                 {% endfor %}
@@ -201,43 +201,43 @@
                         {% if key == "Wrapped BCH" %}
                         <tr class="highlight-color1">
                             <td>{{ key }}</td>
-                            <td><small>{{ value["Initial"] }} / {{ value["Current"] }}</small></td>
-                            <td style="text-align: right;">{{ value["Difference"] }}</td>
-                            <td style="text-align: right;">$ {{ value["Current value"] }}</td>
+                            <td><small>{{ '%0.2f'| format(value["Initial"]|float) }} / {{ '%0.2f'| format(value["Current"]|float) }}</small></td>
+                            <td style="text-align: right;">{{ '%0.2f'| format(value["Difference"]|float) }}</td>
+                            <td style="text-align: right;">$ {{ '%0.2f'| format(value["Current value"]|float) }}</td>
                         </tr>
                         {% endif %}
                         {% if key == "SmartIndex" %}
                         <tr class="highlight-color1">
                             <td>{{ key }}</td>
-                            <td><small>{{ value["Initial"] }} / {{ value["Current"] }}</small></td>
-                            <td style="text-align: right;">{{ value["Difference"] }}</td>
-                            <td style="text-align: right;">$ {{ value["Current value"] }}</td>
+                            <td><small>{{ '%0.2f'| format(value["Initial"]|float) }} / {{ '%0.2f'| format(value["Current"]|float) }}</small></td>
+                            <td style="text-align: right;">{{ '%0.2f'| format(value["Difference"]|float) }}</td>
+                            <td style="text-align: right;">$ {{ '%0.2f'| format(value["Current value"]|float) }}</td>
                         </tr>
                         {% endif %}
                         {% if key == "LAWTOKEN" %}
                         <tr class="highlight-color1">
                             <td>{{ key }}</td>
-                            <td><small>{{ value["Initial"] }} / {{ value["Current"] }}</small></td>
-                            <td style="text-align: right;">{{ value["Difference"] }}</td>
-                            <td style="text-align: right;">$ {{ value["Current value"] }}</td>
+                            <td><small>{{ '%0.2f'| format(value["Initial"]|float) }} / {{ '%0.2f'| format(value["Current"]|float) }}</small></td>
+                            <td style="text-align: right;">{{ '%0.2f'| format(value["Difference"]|float) }}</td>
+                            <td style="text-align: right;">$ {{ '%0.2f'| format(value["Current value"]|float) }}</td>
                         </tr>   
                         {% endif %}
                         {% if key == "Total LP Value" %}
                         <tr class="highlight-color1">
                             <th colspan="2">Total Value:</th>
-                            <th colspan="2" style="text-align: right;">$ {{ value }}</th>
+                            <th colspan="2" style="text-align: right;">$ {{ '%0.2f'| format(value|float) }}</th>
                         </tr>
                         {% endif %}
                         {% if key == "Reward" %}
                             <tr class="highlight-color1">
                                 <th colspan="2">Reward Tokens:</th>
-                                <th colspan="2" style="text-align: right;">{{ value }}</th>
+                                <th colspan="2" style="text-align: right;">{{ '%0.2f'| format(value|float) }}</th>
                             </tr>
                         {% endif %}
                         {% if key == "Reward value" %}
                             <tr class="btm highlight-color1">
                                 <th colspan="2">Reward Value:</th>
-                                <th colspan="2" style="text-align: right;">$ {{ value }}</th>
+                                <th colspan="2" style="text-align: right;">$ {{ '%0.2f'| format(value|float) }}</th>
                             </tr>
                         {% endif %}
                         {% endfor %}
@@ -275,43 +275,43 @@
                         {% if key == "Wrapped BCH" %}
                         <tr class="highlight-color1">
                             <td>{{ key }}</td>
-                            <td><small>{{ value["Initial"] }} / {{ value["Current"] }}</small></td>
-                            <td style="text-align: right;">{{ value["Difference"] }}</td>
-                            <td style="text-align: right;">$ {{ value["Current value"] }}</td>
+                            <td><small>{{ '%0.2f'| format(value["Initial"]|float) }} / {{ '%0.2f'| format(value["Current"]|float) }}</small></td>
+                            <td style="text-align: right;">{{ '%0.2f'| format(value["Difference"]|float) }}</td>
+                            <td style="text-align: right;">$ {{ '%0.2f'| format(value["Current value"]|float) }}</td>
                         </tr>
                         {% endif %}
                         {% if key == "SmartIndex" %}
                         <tr class="highlight-color1">
                             <td>{{ key }}</td>
-                            <td><small>{{ value["Initial"] }} / {{ value["Current"] }}</small></td>
-                            <td style="text-align: right;">{{ value["Difference"] }}</td>
-                            <td style="text-align: right;">$ {{ value["Current value"] }}</td>
+                            <td><small>{{ '%0.2f'| format(value["Initial"]|float) }} / {{ '%0.2f'| format(value["Current"]|float) }}</small></td>
+                            <td style="text-align: right;">{{ '%0.2f'| format(value["Difference"]|float) }}</td>
+                            <td style="text-align: right;">$ {{ '%0.2f'| format(value["Current value"]|float) }}</td>
                         </tr>
                         {% endif %}
                         {% if key == "Ember Token" %}
                         <tr class="highlight-color1">
                             <td>{{ key }}</td>
-                            <td><small>{{ value["Initial"] }} / {{ value["Current"] }}</small></td>
-                            <td style="text-align: right;">{{ value["Difference"] }}</td>
-                            <td style="text-align: right;">$ {{ value["Current value"] }}</td>
+                            <td><small>{{ '%0.2f'| format(value["Initial"]|float) }} / {{ '%0.2f'| format(value["Current"]|float) }}</small></td>
+                            <td style="text-align: right;">{{ '%0.2f'| format(value["Difference"]|float) }}</td>
+                            <td style="text-align: right;">$ {{ '%0.2f'| format(value["Current value"]|float) }}</td>
                         </tr>   
                         {% endif %}
                         {% if key == "Total LP Value" %}
                         <tr class="highlight-color1">
                             <th colspan="2">Total Value:</th>
-                            <th colspan="2" style="text-align: right;">$ {{ value }}</th>
+                            <th colspan="2" style="text-align: right;">$ {{ '%0.2f'| format(value|float) }}</th>
                         </tr>
                         {% endif %}
                         {% if key == "Reward" %}
                             <tr class="highlight-color1">
                                 <th colspan="2">Reward Tokens:</th>
-                                <th colspan="2" style="text-align: right;">{{ value }}</th>
+                                <th colspan="2" style="text-align: right;">{{ '%0.2f'| format(value|float) }}</th>
                             </tr>
                         {% endif %}
                         {% if key == "Reward value" %}
                             <tr class="btm highlight-color1">
                                 <th colspan="2">Reward Value:</th>
-                                <th colspan="2" style="text-align: right;">$ {{ value }}</th>
+                                <th colspan="2" style="text-align: right;">$ {{ '%0.2f'| format(value|float) }}</th>
                             </tr>
                         {% endif %}
                         {% endfor %}
@@ -344,27 +344,27 @@
             </tr>
             <tr class="btm highlight-color1">
                 <td colspan="5">LAW earned:</td>
-                <td style="text-align: right;">{{ value["LAW rewards"] }} LAW</td>
+                <td style="text-align: right;">{{ '%0.2f'| format(value["LAW rewards"]|float) }} LAW</td>
             </tr>
             {% endfor %}
             <tr class="blank_row"><td colspan="6"></td></tr>
             <tr class="top highlight-color1">
                 <td colspan="4">Total LAW Earned:</td>
-                <td colspan="2" style="text-align: right;">{{ punks["Total LAW pending"] }} LAW</td>
+                <td colspan="2" style="text-align: right;">{{ '%0.2f'| format(punks["Total LAW pending"]|float) }} LAW</td>
             </tr>
             <tr class="btm highlight-color1">
                 <th colspan="4">Total USD Value:</th>
-                <th colspan="2" style="text-align: right;">$ {{ punks["LAW pending in USD"] }}</th>
+                <th colspan="2" style="text-align: right;">$ {{ '%0.2f'| format(punks["LAW pending in USD"]|float) }}</th>
             </tr>
             {% if punks["Floor price"] %}
             <tr class="blank_row"><td colspan="6"></td></tr>
             <tr class="top highlight-color1">
                 <td colspan="4">Punks floor price:</td>
-                <td colspan="2" style="text-align: right;">{{ punks["Floor price"] }} BCH</td>
+                <td colspan="2" style="text-align: right;">{{ '%0.2f'| format(punks["Floor price"]|float) }} BCH</td>
             </tr>
             <tr class="btm highlight-color1">
                 <th colspan="4">Total floor value:</th>
-                <th colspan="2" style="text-align: right;">$ {{ punks["Total floor value"] }}</th>
+                <th colspan="2" style="text-align: right;">$ {{ '%0.2f'| format(punks["Total floor value"]|float) }}</th>
             </tr>
             {% endif %}
             
@@ -392,24 +392,24 @@
                     {% endif %}
                     <td><a href="https://oasis.cash/token/0xe24Ed1C92feab3Bb87cE7c97Df030f83E28d9667/{{key}}">#{{key}}</a></td>
                     <td>{{ value["Unlock Date"] }}</td>
-                    <td style="text-align: right;">{{ value["Vote Power"] }}</td>
-                    <td style="text-align: right;">{{ value["LAW"] }}</td>
-                    <td style="text-align: right;">{{ value["LAW rewards"] }}</td>
+                    <td style="text-align: right;">{{ '%0.2f'| format(value["Vote Power"]|float) }}</td>
+                    <td style="text-align: right;">{{ '%0.2f'| format(value["LAW"]|float) }}</td>
+                    <td style="text-align: right;">{{ '%0.2f'| format(value["LAW rewards"]|float) }}</td>
                 </tr>
                 {% endfor %}
                 <tr class="blank_row"><td colspan="6"></td></tr>
                 <tr class="top highlight-color1">
                     <th>Totals:</th>
                     <td></td>
-                    <th style="text-align: right;">{{ law_rights["Total Vote Power"] }}</th>
-                    <th style="text-align: right;">{{ law_rights["Total LAW locked"] }}</th>
-                    <th style="text-align: right;">{{ law_rights["Total LAW pending"] }}</th>
+                    <th style="text-align: right;">{{ '%0.2f'| format(law_rights["Total Vote Power"]|float) }}</th>
+                    <th style="text-align: right;">{{ '%0.2f'| format(law_rights["Total LAW locked"]|float) }}</th>
+                    <th style="text-align: right;">{{ '%0.2f'| format(law_rights["Total LAW pending"]|float) }}</th>
                 </tr>
                 <tr class="btm highlight-color1">
                     <th colspan="2">Totals in USD:</th>
                     <td></td>
-                    <th style="text-align: right;">$ {{ law_rights["LAW locked in USD"] }}</th>
-                    <th style="text-align: right;">$ {{ law_rights["LAW pending in USD"] }}</th>
+                    <th style="text-align: right;">$ {{ '%0.2f'| format(law_rights["LAW locked in USD"]|float) }}</th>
+                    <th style="text-align: right;">$ {{ '%0.2f'| format(law_rights["LAW pending in USD"]|float) }}</th>
                 </tr>
             </table>
         </div>
