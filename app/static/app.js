@@ -39,8 +39,11 @@ ethereum.request({method: 'eth_requestAccounts'}).then(async function (accounts)
 
   const network = await provider.getNetwork();
   if (network["chainId"] !== 10000) {
+    document.getElementById("msg").display = "inline-block";
     document.getElementById("msg").textContent = "Switch to SmartBCH!";
     return;
+  } else {
+    document.getElementById("msg").display = "none";
   }
 
   // okay, confirmed we're on mainnet

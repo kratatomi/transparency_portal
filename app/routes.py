@@ -16,7 +16,7 @@ from app.models import Proposal, Users
 from app.forms import ProposalForm, VoteForm
 from app.email import send_new_proposal_email, send_email_to_admin
 
-from voting_platform import send_memo
+# from voting_platform import send_memo
 from bitcash.wallet import Key
 
 @app.route('/favicon.ico')

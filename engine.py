@@ -7,6 +7,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver import FirefoxOptions
+from datetime import datetime
 import logging
 
 
@@ -147,6 +148,7 @@ farms = {"Mistswap": {"factory": "0x3A7B9D0ed49a90712da4E087b17eE4Ac1375a5D4",
 pie_chart_data = {}
 farms_pie_chart_data = {}
 sidx_liquidity_pie_chart_data = {}
+global_stats_pie_chart_data = {}
 
 
 def get_balances(bch_price, portfolio_address=portfolio_address):
@@ -338,6 +340,8 @@ def get_balances(bch_price, portfolio_address=portfolio_address):
     SEP20_tokens["Total value"] = round(total_value_SEP20_tokens, 2)
     stacked_assets["Total value"] = round(total_value_stacked_assets, 2)
     stacked_assets["Total yield value"] = round(total_value_yield, 2)
+    global_stats_pie_chart_data["Liquid Assets"] = total_liquid_value
+    global_stats_pie_chart_data["Illiquid Assets"] = total_illiquid_value
     return SEP20_tokens, stacked_assets
 
 
@@ -357,7 +361,8 @@ def get_SIDX_stats(bch_price):
     ABI = open("ABIs/ERC20-ABI.json", "r")  # Standard ABI for ERC20 tokens
     abi = json.loads(ABI.read())
     contract = w3.eth.contract(address=SIDX_CA, abi=abi)
-    SIDX_stats["Total supply"] = round(contract.functions.totalSupply().call() / 10 ** 18, 3)
+    total_supply = round(contract.functions.totalSupply().call() / 10 ** 18, 3)
+    SIDX_stats["Total supply"] = total_supply
     SIDX_stats["Admin balance"] = round(contract.functions.balanceOf(admin_wallet_address).call() / 10 ** 18, 3)
     SIDX_stats["Quorum"] = round((SIDX_stats["Total supply"] - SIDX_stats["Admin balance"]) * 0.1, 3)
     price = get_price_from_pool("0x7E1B9F1e286160A80ab9B04D228C02583AeF90B5", bch_price,
@@ -381,6 +386,7 @@ def get_LP_balances(initial_pool_balances, wallet_address, bch_price, sidx_price
     LP_balances = {}
     for DEX in initial_pool_balances:
         LP_balances[DEX] = {}
+        liquid_value = 0
         if DEX not in sidx_liquidity_pie_chart_data:
             sidx_liquidity_pie_chart_data[DEX] = 0
         # First, get current LP balance and rewards
@@ -440,12 +446,14 @@ def get_LP_balances(initial_pool_balances, wallet_address, bch_price, sidx_price
             LP_balances[DEX][token0_ticker]["Current value"] = round(LP_balances[DEX][token0_ticker]["Current"] * bch_price,
                                                                      2)
         total_liquid_value += LP_balances[DEX][token0_ticker]["Current value"]
+        liquid_value += LP_balances[DEX][token0_ticker]["Current value"]
         SIDX_LP_value += LP_balances[DEX][token0_ticker]["Current value"]
         LP_balances[DEX][token1_ticker]["Current"] = round(
             ((portfolio_LP_balance / LP_total_supply) * token1_reserves) / 10 ** token1_decimals, 2)
         LP_balances[DEX][token1_ticker]["Current value"] = round(
             LP_balances[DEX][token1_ticker]["Current"] * sidx_price, 2)
         total_liquid_value += LP_balances[DEX][token1_ticker]["Current value"]
+        liquid_value += LP_balances[DEX][token1_ticker]["Current value"]
         SIDX_LP_value += LP_balances[DEX][token1_ticker]["Current value"]
         sidx_liquidity_pie_chart_data[DEX] += LP_balances[DEX][token0_ticker]["Current value"]
         sidx_liquidity_pie_chart_data[DEX] += LP_balances[DEX][token1_ticker]["Current value"]
@@ -453,6 +461,7 @@ def get_LP_balances(initial_pool_balances, wallet_address, bch_price, sidx_price
             LP_balances[DEX][token0_ticker]["Current"] - LP_balances[DEX][token0_ticker]["Initial"], 2)
         LP_balances[DEX][token1_ticker]["Difference"] = round(LP_balances[DEX][token1_ticker]["Current"] - \
                                                               LP_balances[DEX][token1_ticker]["Initial"], 2)
+        LP_balances[DEX]["Total LP Value"] =  round(liquid_value, 2)
         LP_balances[DEX]["Reward"] = round(reward / 10 ** 18, 2)
         LP_balances[DEX]["Reward value"] = round(LP_balances[DEX]["Reward"] * asset_price, 2)
         total_rewards_value += LP_balances[DEX]["Reward value"]
@@ -583,6 +592,7 @@ def get_law_rewards(bch_price):
     NFTs["LAW Rights"]["tokens"] = law_rights
     law_pending = 0
     law_locked = 0
+    vote_power = 0
     veLAWRights_ABI = open("ABIs/veLawRightsProxyed.json", "r")
     veLAWRights_abi = json.loads(veLAWRights_ABI.read())
     LAW_rights_contract = w3.eth.contract(address="0xe24Ed1C92feab3Bb87cE7c97Df030f83E28d9667", abi=veLAWRights_abi)
@@ -591,12 +601,17 @@ def get_law_rewards(bch_price):
     salary_contract = w3.eth.contract(address=law_salary, abi=LAW_rewards_abi)
     current_block = w3.eth.get_block_number()
     for tokenID in NFTs["LAW Rights"]["tokens"]:
-        NFTs["LAW Rights"]["tokens"][tokenID]["LAW"] = round(LAW_rights_contract.functions.balanceOfAtNFT(int(tokenID), current_block).call() / 10 ** 18, 2)
+        NFTs["LAW Rights"]["tokens"][tokenID]["LAW"] = round(LAW_rights_contract.functions.locked(int(tokenID)).call()[3] / 10 ** 18, 2)
+        # get the end date of LawRight in seconds and convert to datetime then format to string
+        NFTs["LAW Rights"]["tokens"][tokenID]["Unlock Date"] = str(datetime.fromtimestamp(LAW_rights_contract.functions.locked(int(tokenID)).call()[4]).strftime('%b %d, %Y'))
+        NFTs["LAW Rights"]["tokens"][tokenID]["Vote Power"] = round(LAW_rights_contract.functions.balanceOfAtNFT(int(tokenID), current_block).call() / 10 ** 18, 2)
         pending_reward = salary_contract.functions.claimable(int(tokenID)).call() / 10 ** 18
         NFTs["LAW Rights"]["tokens"][tokenID]["LAW rewards"] = round(pending_reward, 2)
+        vote_power += NFTs["LAW Rights"]["tokens"][tokenID]["Vote Power"]
         law_pending += NFTs["LAW Rights"]["tokens"][tokenID]["LAW rewards"]
         law_locked += NFTs["LAW Rights"]["tokens"][tokenID]["LAW"]
     NFTs["LAW Rights"]["Total LAW pending"] = round(law_pending, 2)
+    NFTs["LAW Rights"]["Total Vote Power"] = round(vote_power, 2)
     law_price = get_price_from_pool("LAW", bch_price)
     NFTs["LAW Rights"]["LAW pending in USD"] = round(NFTs["LAW Rights"]["Total LAW pending"] * law_price, 2)
     NFTs["LAW Rights"]["Total LAW locked"] = round(law_locked, 2)
@@ -604,6 +619,7 @@ def get_law_rewards(bch_price):
     total_liquid_value += NFTs["LAW Rights"]["LAW pending in USD"]
     total_rewards_value += NFTs["LAW Rights"]["LAW pending in USD"]
     total_illiquid_value += NFTs["LAW Rights"]["LAW locked in USD"]
+    
 def get_farms(bch_price, farms=farms):
     global total_liquid_value
     global total_illiquid_value
@@ -651,6 +667,7 @@ def get_farms(bch_price, farms=farms):
             farm_name = f"{DEX}-{token0_ticker}-{token1_ticker}"
             total_USD_value = farms[DEX]["farms"][i]["Coins"][token0_ticker]["Current value"] + \
                               farms[DEX]["farms"][i]["Coins"][token1_ticker]["Current value"]
+            farms[DEX]["farms"][i]["Total LP Value"] = round(total_USD_value, 2)
             farms_pie_chart_data[farm_name] = total_USD_value
             # Now, it's time to get the rewards
             if DEX == "BlockNG-Kudos":
@@ -691,7 +708,12 @@ def make_pie_chart(data, chart_name):
     # Get list of percentages
 
     for asset in data:
-        labels.append(asset)
+        # Temporarily shortening the labels, should probably look into shortening further back, like MLP-BCH/bcBCH
+        #   and BNG-K-LawUSD/Law, etc. Maybe settingup enums would be a valid choice?
+        truncate = asset
+        if len(truncate) > 15:
+            truncate = truncate[:12]+"..."
+        labels.append(truncate)
         percentages.append((data[asset]/total_USD_value) * 100)
 
     fig1, ax1 = plt.subplots()
@@ -699,7 +721,7 @@ def make_pie_chart(data, chart_name):
     ax1.pie(percentages, labels=labels, autopct='%1.1f%%', startangle=90)
     ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
     plt.tight_layout()
-    plt.savefig(f"app/static/{chart_name}.png")
+    plt.savefig(f"app/static/{chart_name}.png", transparent=True)
 
 def start_celery_stake():
     if not check_bch_balance(portfolio_address):
@@ -1317,12 +1339,17 @@ def main():
     make_pie_chart(pie_chart_data, "assets_pie_chart")
     make_pie_chart(farms_pie_chart_data, "farms_pie_chart")
     make_pie_chart(sidx_liquidity_pie_chart_data, "liquidity_allocation")
+    make_pie_chart(global_stats_pie_chart_data, "global_stats")
     ETF_portfolio = get_ETF_assets_allocation(farms)
     global_portfolio_stats = {"total_liquid_value": round(total_liquid_value, 2),
                               "total_illiquid_value": round(total_illiquid_value, 2),
                               "total_portfolio_balance": round(total_liquid_value + total_illiquid_value, 2),
                               "total_rewards_value": round(total_rewards_value, 2), "value_per_sidx": round(
             round(total_liquid_value + total_illiquid_value, 2) / SIDX_stats["Total supply"], 2)}
+    
+    # Calculate the MarketValue/PortfilioValue ratio (less than 1 means 'underbacked')
+    global_portfolio_stats["ratio"] = round(float(SIDX_stats["Price"].split()[0]) / global_portfolio_stats["value_per_sidx"], 2)
+
     with open('data/SIDX_STATS.json', 'w') as file:
         json.dump(SIDX_stats, file, indent=4)
     with open('data/SEP20_BALANCES.json', 'w') as file:

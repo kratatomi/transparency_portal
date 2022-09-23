@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <center><h1>Page Not Found, go <a href="{{ url_for('index') }}">back to Index</a></h1></center>
+    <div style="height: 80vh; display: flex; vertical-align: middle; align-items: center; justify-content: center; margin: auto;" >
+        <h1>Oops! That page was not found, please return to the <a href="{{ url_for('index') }}">Index</a></h1>
+    </div>
 {% endblock %}

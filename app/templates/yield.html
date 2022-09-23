@@ -2,37 +2,25 @@
 
 {% block app_content %}
 
-<style>
-    /* Track */
-    ::-webkit-scrollbar-track {
-        background: #f1f1f1;
-    }
-
-    /* Handle */
-    ::-webkit-scrollbar-thumb {
-        background: #888;
-    }
-
-    /* Handle on hover */
-    ::-webkit-scrollbar-thumb:hover {
-        background: #555;
-    }
-
-    .scroll {
-        display: block;
-        border: 2px solid grey;
-        padding: 5px;
-        margin-top: 5px;
-        width: 100%;
-        height: 300px;
-        overflow-y: scroll;
-    }
-</style>
-
-<div class="container">
-  <H2>SmartIndex weekly yields</H2>
-  <H3>Every week, yields given by the managed portfolio will be used to add liquidity to the SIDX/BCH pair in Mistswap (see <a href="proposals/10">Proposal #10</a>). A snapshot of the yields is taken every sunday at 12:00 UTC.
-  In this section, you can check every snapshot taken.</H3>
+<div class="card">
+  <div class="card-header"><H2>SmartIndex weekly yields</H2></div>
+  <div class="card-body">
+    <h4>Every week, a snapshot of the yields given by the managed portfolio is taken Sunday at 12:00 UTC. In this section, you can check every snapshot taken since the inception of SmartIndex.</h4>
+    <h5>The profits from the yields will be used in the following ways:</h5>
+    <ul>
+      <li>All staked tokens will have their profits swapped for SIDX/BCH liquidity on Mistswap</li>
+      <li>For each LP and farm, the profits will be swapped for SIDX liquidty, paired with either BCH or the DEX's native token, whichever option is available, to boost the SIDX liquidty on 
+        <a href="https://www.marketcap.cash/" target="_blank">MarketCap.cash</a>. Any exceptions to this rule are:
+      </li>
+        <ul>
+          <li>The profits from the BCH/bcBCH farm on Mistswap are currently swapped for bcUSDT to give the portfolio a stablecoin holding.</li>
+          <li>The BlockNG Beam pools have a 1% burn for harvesting and withdrawl, therefore they are left unharvested until acted on by a proposal.</li>
+        </ul>
+      <li>Celery is on a payout schedule of 5 days of staking and 2 days of payout (<a href="https://transparency.smartindex.cash/proposals/16">Proposal #16</a>), 
+        to give a steady source of income like the other staked tokens in the portfolio.
+      </li>
+    </ul>
+  </div>
 </div>
 
 <div class="scroll">
@@ -41,12 +29,14 @@
   {% endfor %}
 </div>
 
-<div class="container" align="center"><img src="{{ url_for('static', filename='assets_apy.png') }}" style="max-width: 100%;" alt="Estimated APY of portfolio assets">
-  <img src="{{ url_for('static', filename='yields.png') }}" style="max-width: 100%;" alt="Weekly yields of stacked assets (percentage)">
-  <img src="{{ url_for('static', filename='farms_yields.png') }}" style="max-width: 100%;" alt="Weekly yields of non-SIDX farms (percentage)">
-  <img src="{{ url_for('static', filename='sidx_liquidity_rewards.png') }}" style="max-width: 100%;" alt="Weekly reward percentage of SIDX liquidity pools by DEX (percentage)">
-<img src="{{ url_for('static', filename='assets_value.png') }}" style="max-width: 100%;" alt="Value evolution of stacked assets">
-  <img src="{{ url_for('static', filename='farms_value.png') }}" style="max-width: 100%;" alt="Value evolution of assets in farms">
-<img src="{{ url_for('static', filename='sidx_value.png') }}" style="max-width: 100%;" alt="Value per SIDX token"></div>
+<div class="card" style="align-items: center;">
+  <div><img src="{{ url_for('static', filename='assets_apy.png') }}" style="max-width: 100%;" alt="Estimated APY of portfolio assets"></div>
+  <div><img src="{{ url_for('static', filename='yields.png') }}" style="max-width: 100%;" alt="Weekly yields of stacked assets (percentage)"></div>
+  <div><img src="{{ url_for('static', filename='farms_yields.png') }}" style="max-width: 100%;" alt="Weekly yields of non-SIDX farms (percentage)"></div>
+  <div><img src="{{ url_for('static', filename='sidx_liquidity_rewards.png') }}" style="max-width: 100%;" alt="Weekly reward percentage of SIDX liquidity pools by DEX (percentage)"></div>
+  <div><img src="{{ url_for('static', filename='assets_value.png') }}" style="max-width: 100%;" alt="Value evolution of stacked assets"></div>
+  <div><img src="{{ url_for('static', filename='farms_value.png') }}" style="max-width: 100%;" alt="Value evolution of assets in farms"></div>
+  <div><img src="{{ url_for('static', filename='sidx_value.png') }}" style="max-width: 100%;" alt="Value per SIDX token"></div>
+</div>
 
 {% endblock %}
