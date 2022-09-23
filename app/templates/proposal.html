@@ -14,16 +14,17 @@
   <a class="flex-column align-items-start active">
     <div class="card-header" style="padding: 0.75rem 1.25rem ;">
       <div style="display: inline-block">
-        <h5 class="mb-1" style="margin-bottom: 0.25rem;">Proposal #{{ proposal.id }}</h5><br />
-          {% if proposal.open %}
-            <b><p style="color:rgb(0,200,0); margin-bottom: 0.25rem;">Open</p></b>
-          {% else %}
-              <b><p style="color:rgb(250,0,0); margin-bottom: 0.25rem;">Closed</p></b>
+        <h5 class="mb-1" style="margin-bottom: 0.25rem;">Proposal #{{ proposal.id }}</h5>
+        <br />
+        {% if proposal.open %}
+          <b><p style="color:rgb(0,200,0); margin-bottom: 0.25rem;">Open</p></b>
+        {% else %}
+          <b><p style="color:rgb(250,0,0); margin-bottom: 0.25rem;">Closed</p></b>
+        {% endif %}
       </div>
       <div style="float: right;">
           <H3><p class="text-right" style="margin-bottom: 0.25rem;">Final result:</p></H3>
           <H4><p class="text-right" style="margin-bottom: 0.25rem; color: #0ac18e;">{{ proposal.result }}</p></H4>
-          {% endif %}
       </div>
     </div>
     <div class="card-body">
@@ -31,24 +32,24 @@
         <small><b>Author:</b> {{ proposal.proposal_author }}</small>
         <small><b>Start date:</b> {{ proposal.start_time }} - <b>Deadline:</b> {{ proposal.end_time }} UTC Time</small>
     </div>
-  {% if proposal.option_a_tag %}
+    {% if proposal.option_a_tag %}
     <div class="card-header">
       <h5 class="mb-1">{{ proposal.option_a_tag }}</h5>
       <p class="mb-1">{{'%0.2f'|format(proposal.option_a_votes|float)}} [OPTION: A]</p>
     </div>
-  {% endif %}
-  {% if proposal.option_b_tag %}
+    {% endif %}
+    {% if proposal.option_b_tag %}
     <div class="card-header">
       <h5 class="mb-1">{{ proposal.option_b_tag }}</h5>
       <p class="mb-1">{{'%0.2f'|format(proposal.option_b_votes|float)}} [OPTION: B]</p>
     </div>
-  {% endif %}
+    {% endif %}
     {% if proposal.option_c_tag %}
     <div class="card-header">
       <h5 class="mb-1">{{ proposal.option_c_tag }}</h5>
       <p class="mb-1">{{'%0.2f'|format(proposal.option_c_votes|float)}} [OPTION: C]</p>
     </div>
-  {% endif %}
+    {% endif %}
     <div class="card-header">
       <h5 class="mb-1">REJECT</h5>
       <p class="mb-1">{{'%0.2f'|format(proposal.reject_votes|float)}} [OPTION: {{ proposal.reject_option }}]</p>
@@ -59,7 +60,6 @@
 {% if form %}
   <div class="card">
     <div class="card-body" style="text-align: center;">
-      <div style="display: inline-block;">
         <form action="" method="post" novalidate>
           <div class="form-group">
               {{ form.hidden_tag() }}
@@ -67,15 +67,13 @@
               <button type="submit" class="btn btn-success" id="submit" name="submit" value="Vote">Vote</button>
           </div>
         </form>
+        {% if user_balance %}
+          <br />
+          <div style="display: inline-block"><b>You have <span style="color: #0ac18e;">{{ user_balance }} SIDX</span> tokens for voting in this proposal.</b></div>
+        {% endif %}
       </div>
-      {% endif %}
-
-      {% if user_balance %}
-        <br />
-        <div style="display: inline-block"><b>You have <span style="color: #0ac18e;">{{ user_balance }} SIDX</span> tokens for voting in this proposal.</b></div>
-      {% endif %}
     </div>
-  </div>
+{% endif %}
 
 <div class="card">
     <div class="card-header"><H2>Considerations about voting</H2></div>
@@ -88,7 +86,9 @@
           <li>All votes are notarized on the BCH blockchain and can be seen at <a href="https://memo.cash/profile/16F133RGB3mw9XvBsmRuE9dJ3BAxfzGEdf">SmartIndex's memo.cash profile.</a></li>
       </ul>
     </div>
+</div>
 
 <hr>
+
 <h3 style="text-align: center;">Go back to <a href="{{ url_for('proposals') }}">Proposals page</a>.</h3>
 {% endblock %}

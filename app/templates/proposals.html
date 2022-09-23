@@ -14,14 +14,16 @@
         <H3>You need to log in to vote and submit proposals.</H3>
     {% endif %}
     <h5>Click on any proposal to see its respective voting instructions. Remember that dates are in UTC time.</h5>
-    <h5 style="display: inline">Current UTC hour is <div id="clock" style="color: #0ac18e;" class="inline"></div>.</h5>
+    <h5 style="display: inline">Current UTC hour is 
+      <div id="clock" style="color: #0ac18e;" class="inline"></div>
+      .
+    </h5>
       <div id="msg" class="alert alert-success" style="display: none"></div>
         {% if not current_user.is_authenticated %}
           <button class="btn btn-success" style="float: right;" id="login" disabled onclick='login()'>Login</button>
         {% endif %}
   </div>
 </div>
-<br>
 
 {% with messages=get_flashed_messages() %}
     {% if messages %}
@@ -78,7 +80,9 @@
   </a>
 </div>
 {% endfor %}
+
 <hr>
+
 <div style="text-align: center;">
     {% if prev_url %}
       <a href="{{ prev_url }}"><button class="btn btn-outline-success">Newer Proposals</button></a>
@@ -87,6 +91,7 @@
       <a href="{{ next_url }}"><button class="btn btn-outline-success">Older Proposals</button></a>
     {% endif %}
 </div>
+
 <br />
 
 <script>
