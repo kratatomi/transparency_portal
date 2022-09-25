@@ -409,7 +409,7 @@
                 <tr class="top highlight-color1">
                     <th>Totals:</th>
                     <td></td>
-                    {% if "Total Vote Power" %}
+                    {% if law_rights["Total Vote Power"] %}
                         <th style="text-align: right;">{{ "{:,.2f}".format(law_rights["Total Vote Power"]|float) }}</th>
                     {% else %}
                         <th style="text-align: right;">Total vote power not available</th>
