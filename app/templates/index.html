@@ -133,57 +133,6 @@
             </div>
         </div>
 
-    {% if farms %}
-    <div class="card">
-        <div class="card-header"><H3>Farms:</H3></div>
-        <div class="card-body">
-            <table id="farms" style="width: 100%;">
-                {% for key, value in farms.items() %}
-                    {% if loop.index > 1 %}
-                        <tr class="blank_row"><td colspan="4"></td></tr>
-                        <tr class="blank_row"><td colspan="4"></td></tr>
-                    {% endif %}
-                    <tr class="top btm highlight-color2"><th colspan="4">{{ key }}</th></tr>
-                    <tr class="blank_row"><td colspan="4"></td></tr>
-                    <tr class="top highlight-color1">
-                        <th style="width: 30%">Token</th>
-                        <th style="width: 25%">Initial / Current</th>
-                        <th style="width: 15%; text-align: right;">Difference</th>
-                        <th style="width: 20%; text-align: right;">Value</th>  
-                    </tr>
-                        {% for farm in value["farms"] %}
-                            {% if loop.index > 1 %}
-                                <tr class="blank_row"><td colspan="4"></td></tr>
-                            {% endif %}
-                            {% for key, value in farm["Coins"].items() %}
-                            <tr class="highlight-color1">
-                                <td class="truncate">{{ key }}</td>
-                                <td><small>{{ '%0.2f'| format(value["Initial amount"]|float) }} / {{ '%0.2f'| format(value["Current"]|float) }}</small></td>
-                                <td style="text-align: right;">{{ '%0.2f'| format(value["Difference"]|float) }}</td>
-                                <td style="text-align: right;">$ {{ '%0.2f'| format(value["Current value"]|float) }}</td>
-                            </tr>
-                            {% endfor %}
-                            {% if "Total LP Value" in farm %}
-                            <tr class="highlight-color1">
-                                <th colspan="2">Total Value:</th>
-                                <th colspan="2" style="text-align: right;">$ {{ '%0.2f'| format(farm["Total LP Value"]|float) }}</th>
-                            </tr>
-                            {% endif %}
-                            <tr class="highlight-color1">
-                                <th colspan="2">Reward Tokens:</th>
-                                <th colspan="2" style="text-align: right;">{{ '%0.2f'| format(farm["reward"]|float) }}</th>
-                            </tr>
-                            <tr class="btm highlight-color1">
-                                <th colspan="2">Reward Value:</th>
-                                <th colspan="2" style="text-align: right;">$ {{ '%0.2f'| format(farm["reward value"]|float) }}</th>
-                            </tr>
-                        {% endfor %}
-                {% endfor %}
-            </table>
-        </div>
-    </div>
-    {% endif %}
-
     <div class="card">
         <div class="card-header"><H3>SIDX Initial Liquidity Pools:</H3></div>
         <div class="card-body">
@@ -325,6 +274,57 @@
     </div>
     {% endif %}
 
+    {% if farms %}
+    <div class="card">
+        <div class="card-header"><H3>Farms:</H3></div>
+        <div class="card-body">
+            <table id="farms" style="width: 100%;">
+                {% for key, value in farms.items() %}
+                    {% if loop.index > 1 %}
+                        <tr class="blank_row"><td colspan="4"></td></tr>
+                        <tr class="blank_row"><td colspan="4"></td></tr>
+                    {% endif %}
+                    <tr class="top btm highlight-color2"><th colspan="4">{{ key }}</th></tr>
+                    <tr class="blank_row"><td colspan="4"></td></tr>
+                    <tr class="top highlight-color1">
+                        <th style="width: 30%">Token</th>
+                        <th style="width: 25%">Initial / Current</th>
+                        <th style="width: 15%; text-align: right;">Difference</th>
+                        <th style="width: 20%; text-align: right;">Value</th>  
+                    </tr>
+                        {% for farm in value["farms"] %}
+                            {% if loop.index > 1 %}
+                                <tr class="blank_row"><td colspan="4"></td></tr>
+                            {% endif %}
+                            {% for key, value in farm["Coins"].items() %}
+                            <tr class="highlight-color1">
+                                <td class="truncate">{{ key }}</td>
+                                <td><small>{{ '%0.2f'| format(value["Initial amount"]|float) }} / {{ '%0.2f'| format(value["Current"]|float) }}</small></td>
+                                <td style="text-align: right;">{{ '%0.2f'| format(value["Difference"]|float) }}</td>
+                                <td style="text-align: right;">$ {{ '%0.2f'| format(value["Current value"]|float) }}</td>
+                            </tr>
+                            {% endfor %}
+                            {% if "Total LP Value" in farm %}
+                            <tr class="highlight-color1">
+                                <th colspan="2">Total Value:</th>
+                                <th colspan="2" style="text-align: right;">$ {{ '%0.2f'| format(farm["Total LP Value"]|float) }}</th>
+                            </tr>
+                            {% endif %}
+                            <tr class="highlight-color1">
+                                <th colspan="2">Reward Tokens:</th>
+                                <th colspan="2" style="text-align: right;">{{ '%0.2f'| format(farm["reward"]|float) }}</th>
+                            </tr>
+                            <tr class="btm highlight-color1">
+                                <th colspan="2">Reward Value:</th>
+                                <th colspan="2" style="text-align: right;">$ {{ '%0.2f'| format(farm["reward value"]|float) }}</th>
+                            </tr>
+                        {% endfor %}
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
     <div class="card">
         <div class="card-header"><H3>LAW Punks:</H3></div>
         <div class="card-body">
@@ -338,7 +338,7 @@
                 <td style="width: 5000px;">Punks: </td>
                 {% for id in value["Punks"] %}
                     <!-- False, large width for even spacing -->
-                    <td style="width: 5000px; text-align: center;"><a href="https://blockng.money/#/detail/{{id}}">#{{id}}</a></td>
+                    <td style="width: 5000px; text-align: center;"><a href="https://blockng.money/#/detail/{{id}}"><img src="https://raw.githubusercontent.com/BlockNG-Foundation/LawPunks/main/assets/images/{{id}}.png" width="100%"/>#{{id}}</a></td>
                     {% if loop.index < 5 and loop.index == loop|length %}
                         {% for n in range (5 - loop.index) %}
                             <td> </td>
@@ -347,8 +347,8 @@
                 {% endfor %}
             </tr>
             <tr class="btm highlight-color1">
-                <td colspan="5">LAW earned:</td>
-                <td style="text-align: right;">{{ '%0.2f'| format(value["LAW rewards"]|float) }} LAW</td>
+                <th colspan="5">LAW earned:</td>
+                <th style="text-align: right;">{{ '%0.2f'| format(value["LAW rewards"]|float) }} LAW</td>
             </tr>
             {% endfor %}
             <tr class="blank_row"><td colspan="6"></td></tr>
@@ -409,7 +409,7 @@
                 <tr class="top highlight-color1">
                     <th>Totals:</th>
                     <td></td>
-                    {% if "Total Vote Power" in value %}
+                    {% if "Total Vote Power" %}
                         <th style="text-align: right;">{{ '%0.2f'| format(law_rights["Total Vote Power"]|float) }}</th>
                     {% else %}
                         <th style="text-align: right;">Total vote power not available</th>
