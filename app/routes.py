@@ -16,7 +16,7 @@ from app.models import Proposal, Users
 from app.forms import ProposalForm, VoteForm
 from app.email import send_new_proposal_email, send_email_to_admin
 
-# from voting_platform import send_memo
+from voting_platform import send_memo
 from bitcash.wallet import Key
 
 @app.route('/favicon.ico')
@@ -101,7 +101,10 @@ def display_proposal(id):
                         send_email_to_admin(text)
                     vote_message = f"User {user.public_address} voted on proposal {proposal.id}: {user_balance} votes to option {form.choice.data}"
                     app.logger.info(vote_message)
-                    send_memo(BCH_key, vote_message)
+                    try:
+                        send_memo(BCH_key, vote_message)
+                    except Exception as e:
+                        app.logger.error(f"Function send_memo failed, error is {e}")
                     return render_template("proposal.html", title=f"Proposal {id}", proposal=proposal,
                                            sidx_stats=sidx_stats)
                 return render_template("proposal.html", title=f"Proposal {id}", proposal=proposal,
