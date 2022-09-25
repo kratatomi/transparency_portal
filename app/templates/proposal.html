@@ -31,6 +31,7 @@
         <p class="mb-1"><b>Proposal description:</b> {{ proposal.proposal }}</p>
         <small><b>Author:</b> {{ proposal.proposal_author }}</small>
         <small><b>Start date:</b> {{ proposal.start_time }} - <b>Deadline:</b> {{ proposal.end_time }} UTC Time</small>
+        <small class="regular-atag-style" style="float: right;"><b><a href="https://transparency.smartindex.cash/static/calendar/Proposal{{proposal.id}}.ics">Add to your calendar</a></b></small>
     </div>
     {% if proposal.option_a_tag %}
     <div class="card-header">
