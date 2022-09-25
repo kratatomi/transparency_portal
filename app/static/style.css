@@ -219,3 +219,16 @@ a:hover{
         color: #f8fdff;
         text-decoration: none;
     }
+
+    .regular-atag-style a,
+    .regular-atag-style a:link, 
+    .regular-atag-style a:visited, 
+    .regular-atag-style a:hover, 
+    .regular-atag-style a:active {
+        color: #0ac18e;
+    }
+    .regular-atag-style a:hover {
+      text-decoration: underline;
+    }
+
+    
