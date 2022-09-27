@@ -9,6 +9,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver import FirefoxOptions
 from datetime import datetime
 import logging
+import math
 
 
 logger = logging.getLogger("app.engine")
@@ -544,15 +545,24 @@ def get_law_rewards(bch_price):
     # First, let's get Punks rewards
     law_pending = 0
     punks_number = 0
-    ABI = open("ABIs/LAW_rewards-ABI.json", "r")
-    abi = json.loads(ABI.read())
-    contract = w3.eth.contract(address=law_rewards, abi=abi)
     for wallet in NFTs["PUNKS"]["Wallets"]:
+        ABI = open("ABIs/LAW_rewards-ABI.json", "r")
+        abi = json.loads(ABI.read())
+        contract = w3.eth.contract(address=law_rewards, abi=abi)
         pending_reward = contract.functions.earned(wallet).call() / 10 ** 18
         NFTs["PUNKS"]["Wallets"][wallet]["LAW rewards"] = round(pending_reward, 2)
         law_pending += pending_reward
         for punk in NFTs["PUNKS"]["Wallets"][wallet]["Punks"]:
             punks_number += 1
+            # Punk stats
+            ABI = open("ABIs/LAW_punks_level-ABI.json", "r")
+            abi = json.loads(ABI.read())
+            contract = w3.eth.contract(address=law_level_address, abi=abi)
+            stats = contract.functions.tokensOfMetaByIds([punk]).call()[0]
+            NFTs["PUNKS"][punk] = {"Level": stats[1], "Bloodline": stats[2] / 10 ** 8, "Popularity": stats[3] / 10 ** 8, "Growth": stats[4] / 10 ** 8, "Power": stats[5] / 10 ** 8, "Hashrate": math.sqrt(stats[5] / 10 ** 8)};
+    ABI = open("ABIs/LAW_rewards-ABI.json", "r")
+    abi = json.loads(ABI.read())
+    contract = w3.eth.contract(address=law_rewards, abi=abi)
     NFTs["PUNKS"]["Total LAW pending"] = round(law_pending, 2)
     law_price = get_price_from_pool("LAW", bch_price)
     NFTs["PUNKS"]["LAW pending in USD"] = round(NFTs["PUNKS"]["Total LAW pending"] * law_price, 2)
