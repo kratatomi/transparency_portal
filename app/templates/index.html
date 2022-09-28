@@ -373,13 +373,15 @@
                                     </table>                                
                                 </div>
                             {% endif %}
-                            <img src="https://raw.githubusercontent.com/BlockNG-Foundation/LawPunks/main/assets/images/{{id}}.png" width="100%"  onmouseover="onPunkHover(event, {{ id }})" onmouseleave="onPunkLeaveHover({{ id }})"/>
+                            <img class="global-pixelated global-tv" src="https://raw.githubusercontent.com/BlockNG-Foundation/LawPunks/main/assets/images/{{id}}.png" width="100%"  onmouseover="onPunkHover(event, {{ id }})" onmouseleave="onPunkLeaveHover({{ id }})"/>
                             <small>
+                                {% if date %}
+                                <!-- Only show ID# on Yields Page, otherwise we have the popover -->
+                                <!-- Need a better option, to account for mobile... -->
                                 <p style="margin-bottom: 0;">
                                     #{{id}}
-                                    <!-- <br>
-                                    Lvl: {{ "{:,.0f}".format(punks[id|string]["Level"]) }} -->
                                 </p>
+                                {% endif %}
                             </small>
                         </a>
                     </td>

@@ -227,3 +227,49 @@ a:hover{
         color: #f8fdff;
         text-decoration: none;
     }
+
+/* Directly from BlockNG's Website */
+.global-pixelated {
+  -ms-interpolation-mode: nearest-neighbor;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: pixelated
+}
+.global-tv {
+  -webkit-mask-image: repeating-linear-gradient(#000,#000 .3rem,rgba(0,0,0,.5) .6rem);
+  mask-image: repeating-linear-gradient(#000,#000 .3rem,rgba(0,0,0,.5) .6rem);
+  -webkit-mask-position: center 0;
+  mask-position: center 0;
+  -webkit-animation: future-tv-lines linear infinite;
+  animation: future-tv-lines linear infinite;
+  -webkit-animation-duration: .5s;
+  animation-duration: .5s;
+  --playstate: var(--media-prefers-reduced-motion) paused;
+  -webkit-animation-play-state: running;
+  animation-play-state: running;
+  -webkit-animation-play-state: var(--playstate,running);
+  animation-play-state: var(--playstate,running)
+}
+
+@-webkit-keyframes future-tv-lines {
+  0% {
+      -webkit-mask-position: center 0;
+      mask-position: center 0
+  }
+
+  to {
+      -webkit-mask-position: center 1.2rem;
+      mask-position: center 1.2rem
+  }
+}
+
+@keyframes future-tv-lines {
+  0% {
+      -webkit-mask-position: center 0;
+      mask-position: center 0
+  }
+
+  to {
+      -webkit-mask-position: center 1.2rem;
+      mask-position: center 1.2rem
+  }
+}
