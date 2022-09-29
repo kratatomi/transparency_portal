@@ -1,5 +1,5 @@
 .idea/
-/__pycache__/
+**/__pycache__
 /data/
 .flaskenv
 /app/static/pie_chart.png
@@ -14,12 +14,6 @@ json
 np
 plt
 requests
-app/__pycache__/__init__.cpython-38.pyc
-app/__pycache__/email.cpython-38.pyc
-app/__pycache__/errors.cpython-38.pyc
-app/__pycache__/forms.cpython-38.pyc
-app/__pycache__/models.cpython-38.pyc
-app/__pycache__/routes.cpython-38.pyc
 app/static/assets_apy.png
 app/static/assets_pie_chart.png
 app/static/assets_value.png
