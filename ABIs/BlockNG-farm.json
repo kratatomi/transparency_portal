@@ -106,5 +106,21 @@
     "payable": false,
     "stateMutability": "view",
     "type": "function"
-  }
+  },
+      {
+      "inputs": [
+        {
+          "name": "",
+          "type": "address"
+        },
+        {
+          "name": "",
+          "type": "address[]"
+        }
+      ],
+      "name": "getReward",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
 ]
