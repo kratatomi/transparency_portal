@@ -1,5 +1,5 @@
 .idea/
-/__pycache__/
+**/__pycache__
 /data/
 .flaskenv
 /app/static/pie_chart.png
