@@ -34,6 +34,10 @@ WBCH_CA = "0x3743eC0673453E5009310C727Ba4eaF7b3a1cc04"
 
 with open("data/NFTs.json", "r") as file:
     NFTs = json.load(file)
+with open("data/ETF_FARMS.json", "r") as file:
+    ETF_farms = json.load(file)
+
+ETF_portfolio_address = "0x91fbdB995D05BBdCb3C7D21180794877A93d87e0"
 
 assets_balances = {
     "MistToken": {"Initial": 226146.43, "Stacked": True, "CA": "0x5fA664f69c2A4A3ec94FaC3cBf7049BD9CA73129",
@@ -1350,6 +1354,10 @@ def main():
     # Calculate the MarketValue/PortfilioValue ratio (less than 1 means 'underbacked')
     global_portfolio_stats["ratio"] = round(float(SIDX_stats["Price"].split()[0]) / global_portfolio_stats["value_per_sidx"], 2)
 
+    # Get data for the ETF portfolio
+    ETF_SEP20_tokens, ETF_staked_assets = get_balances(bch_price, portfolio_address=ETF_portfolio_address)
+    get_farms(bch_price, farms=ETF_farms)
+
     with open('data/SIDX_STATS.json', 'w') as file:
         json.dump(SIDX_stats, file, indent=4)
     with open('data/SEP20_BALANCES.json', 'w') as file:
@@ -1368,6 +1376,12 @@ def main():
         json.dump(global_portfolio_stats, file, indent=4)
     with open('data/ETF_portfolio.json', 'w') as file:
         json.dump(ETF_portfolio, file, indent=4)
+    with open('data/ETF_SEP20_BALANCES.json', 'w') as file:
+        json.dump(ETF_SEP20_tokens, file, indent=4)
+    with open('data/ETF_STAKED_ASSETS.json', 'w') as file:
+        json.dump(ETF_staked_assets, file, indent=4)
+    with open('data/ETF_FARMS.json', 'w') as file:
+        json.dump(ETF_farms, file, indent=4)
 
 if __name__ == "__main__":
     main()
