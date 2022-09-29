@@ -1,32 +1,36 @@
 {% extends "base.html" %}
 
 {% block app_content %}
-    <h1>Submit a proposal</h1>
-    <form action="" method="post" novalidate>
-        <div class="form-group">
-        {{ form.hidden_tag() }}
-        <p>
-            <label>{{ form.proposal.label }}</label><br>
-            <textarea class="form-control" id="proposal" name="proposal" rows="4"></textarea>
-        </p>
-        <p>
-            <label>{{ form.voting_period.label }}</label><br>
-            {{ form.voting_period(size=2) }} days
-        </p>
-        <p>
-            <label>{{ form.choice_a.label }}</label><br>
-            <input class="form-control" type="text" id="choice_a" name="choice_a" required size="64" value="ACCEPT" placeholder="ACCEPT"><br>
-            <small id="proposalHelp" class="form-text text-muted">Leave ACCEPT if your proposal only have ACCEPT and REJECT as choices.</small>
-        </p>
-        <p>
-            <label>{{ form.choice_b.label }}</label><br>
-            <input class="form-control" type="text" id="choice_b" name="choice_b" size="64"><br>
-        </p>
-        <p>
-            <label>{{ form.choice_c.label }}</label><br>
-            <input class="form-control" type="text" id="choice_c" name="choice_c" size="64"><br>
-        </p>
-            <p><button type="submit" class="btn btn-primary" id="submit" name="submit" value="Submit proposal">Submit proposal</button></p>
-        </div>
-    </form>
+<div class="card">
+    <div class="card-header"><h1>Submit a proposal</h1></div>
+    <div class="card-body">
+        <form action="" method="post" novalidate>
+            <div class="form-group">
+            {{ form.hidden_tag() }}
+            <p>
+                <label>{{ form.proposal.label }}</label><br>
+                <textarea class="form-control" id="proposal" name="proposal" rows="4"></textarea>
+            </p>
+            <p>
+                <label>{{ form.voting_period.label }}</label><br>
+                {{ form.voting_period(size=2) }}&nbsp;&nbsp;days
+            </p>
+            <p>
+                <label>{{ form.choice_a.label }}</label><br>
+                <input class="form-control" type="text" id="choice_a" name="choice_a" required size="64" value="ACCEPT" placeholder="ACCEPT">
+                <small id="proposalHelp" class="form-text text-muted">Leave ACCEPT if your proposal only has ACCEPT and REJECT as choices.</small>
+            </p>
+            <p>
+                <label>{{ form.choice_b.label }}</label><br>
+                <input class="form-control" type="text" id="choice_b" name="choice_b" size="64"><br>
+            </p>
+            <p>
+                <label>{{ form.choice_c.label }}</label><br>
+                <input class="form-control" type="text" id="choice_c" name="choice_c" size="64"><br>
+            </p>
+                <p><button type="submit" class="btn btn-success" id="submit" name="submit" value="Submit proposal">Submit proposal</button></p>
+            </div>
+        </form>
+    </div>
+</div>
 {% endblock %}
