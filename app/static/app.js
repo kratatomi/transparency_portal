@@ -38,12 +38,14 @@ ethereum.request({method: 'eth_requestAccounts'}).then(async function (accounts)
   provider = new ethers.providers.Web3Provider(ethereum);
 
   const network = await provider.getNetwork();
-  if (network["chainId"] !== 10000) {
-    document.getElementById("msg").display = "inline-block";
-    document.getElementById("msg").textContent = "Switch to SmartBCH!";
-    return;
-  } else {
-    document.getElementById("msg").display = "none";
+  if (document.getElementById("msg")){
+    if (network["chainId"] !== 10000) {
+      document.getElementById("msg").display = "inline-block";
+      document.getElementById("msg").textContent = "Switch to SmartBCH!";
+      return;
+    } else {
+      document.getElementById("msg").display = "none";
+    }
   }
 
   // okay, confirmed we're on mainnet
@@ -53,7 +55,19 @@ ethereum.request({method: 'eth_requestAccounts'}).then(async function (accounts)
   // allow user to log in
   const submitProposalButton =
    document.getElementById("login");
-  submitProposalButton.disabled = false;
-  signer = provider.getSigner();
+  if(submitProposalButton){
+    submitProposalButton.disabled = false;
+    signer = provider.getSigner();
+  }
 
 });
+
+function onPunkHover(event, id){
+  $("#"+id).show();
+  return false;
+}
+
+function onPunkLeaveHover(id){
+  $("#"+id).hide();
+  return false;
+}
