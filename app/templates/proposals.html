@@ -1,11 +1,6 @@
 {% extends "base.html" %}
 
 {% block app_content %}
-<script src="static/ethers-5.4.umd.min.js"
-        type="application/javascript"></script>
-<script src="static/app.js" type="application/javascript"></script>
-<link rel="stylesheet" href="../static/style.css" />
-
 
 <div class="card">
   <div class="card-header"><H2>SmartIndex Proposals:</H2></div>
@@ -14,7 +9,7 @@
         <H3>You need to log in to vote and submit proposals.</H3>
     {% endif %}
     <h5>Click on any proposal to see its respective voting instructions. Remember that dates are in UTC time.</h5>
-    <h5 style="display: inline">Current UTC hour is
+    <h5 style="display: inline">Current UTC hour is 
       <div id="clock" style="color: #0ac18e;" class="inline"></div>
       .
     </h5>

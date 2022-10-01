@@ -218,14 +218,14 @@ def generate_graphs():
 
     d = .015  # how big to make the diagonal lines in axes coordinates
     # arguments to pass to plot, just so we don't keep repeating them
-    kwargs = dict(transform=ax.transAxes, color='k', clip_on=False)
+    kwargs = dict(transform=ax.transAxes, color='#f8fdff', clip_on=False)
     ax.plot((-d, +d), (-d, +d), **kwargs)  # top-left diagonal
     ax.plot((1 - d, 1 + d), (-d, +d), **kwargs)  # top-right diagonal
 
     kwargs.update(transform=ax2.transAxes)  # switch to the bottom axes
     ax2.plot((-d, +d), (1 - d, 1 + d), **kwargs)  # bottom-left diagonal
     ax2.plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)  # bottom-right diagonal
-    plt.savefig("app/static/assets_apy.png")
+    plt.savefig("app/static/assets_apy.png", transparent=True)
 
     # Here starts the rewards performance bar chart for SIDX farms
     labels = []
@@ -236,11 +236,11 @@ def generate_graphs():
             reward_performance.append(sidx_liquidity[DEX]["Reward performance"])
 
     fig, ax = plt.subplots()
-    ax.bar(labels, reward_performance)
+    ax.bar(labels, reward_performance, color='#0ac18e')
     ax.set(xlabel='DEX',
            ylabel='Reward percentage based on total USD value locked',
            title='Weekly reward percentage of SIDX liquidity pools by DEX')
-    plt.savefig("app/static/sidx_liquidity_rewards.png")
+    plt.savefig("app/static/sidx_liquidity_rewards.png", transparent=True)
 
 def main():
     with open('data/SIDX_STATS.json') as sidx_stats_file:
@@ -253,8 +253,8 @@ def main():
         lp_balances = json.load(lp_balances_file)
     with open('data/EXTRA_LP_BALANCES.json') as extra_lp_balances_file:
         extra_lp_balances = json.load(extra_lp_balances_file)
-    with open('data/PUNKS_BALANCES.json') as punks_balances_file:
-        punks = json.load(punks_balances_file)
+    with open('data/NFTs.json') as NFTs_file:
+        NFTs = json.load(NFTs_file)
     with open('data/FARMS.json') as farms_file:
         farms = json.load(farms_file)
     with open('data/GLOBAL_STATS.json') as global_stats_file:
@@ -269,7 +269,8 @@ def main():
                     "STACKED_ASSETS": stacked_assets,
                     "LP_BALANCES": lp_balances,
                     "EXTRA_LP_BALANCES": extra_lp_balances,
-                    "PUNKS_BALANCES": punks,
+                    "PUNKS_BALANCES": NFTs["PUNKS"],
+                    "LAW RIGHTS": NFTs["LAW Rights"],
                     "FARMS": farms,
                     "GLOBAL_STATS": global_stats}
 
@@ -277,6 +278,7 @@ def main():
         json.dump(weekly_stats, file, indent=4)
     file.close()
     generate_graphs()
+
     #Let's harvest the rewards from pools
     import engine
     engine.start_celery_stake() # Turning to staking mode harvest the CLY rewards
@@ -298,6 +300,7 @@ def main():
         email.send_email_to_admin(f'Function harvest_farms_rewards failed. Exception: {e}')
     else:
         # We have to take the profits from the BCH/bcBCH and flexUSD/BCH farms and swap them for bcUSDT (proposal #42)
+        # With proposal #50, the only farm left is BCH/bcBCH.
         amount_to_swap = 0
         for farm in farms["Mistswap"]["farms"]:
             if farm["pool_id"] in (1, 60):
@@ -306,13 +309,6 @@ def main():
         amount_to_swap = amount_to_swap * 10 ** 18
         engine.swap_assets("0x5fA664f69c2A4A3ec94FaC3cBf7049BD9CA73129", "0xBc2F884680c95A02cea099dA2F524b366d9028Ba",
                            amount_to_swap)
-        # Now it's time to send bcUSDT/Tango rewards to the second wallet to add it to the SIDX/BCH Tango extra liquidity farm (proposal #44)
-
-        for farm in farms["Tangoswap"]["farms"]:
-            if farm["pool_id"] == 35:
-                amount_to_send = farm["reward"] * 10**18
-        if amount_to_send != 0:
-            engine.transfer_asset("0x73BE9c8Edf5e951c9a0762EA2b1DE8c8F38B5e91", amount_to_send, engine.punk_wallets[1])
 
     try:
         engine.harvest_tango_sidx_farm(engine.punk_wallets[1], 'SECOND_WALLET_PRIV_KEY')
