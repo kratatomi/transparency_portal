@@ -522,7 +522,7 @@ def update_punks_balance():
     punks_balance = {}
     punks_balance["Wallets"] = {k: {} for k in punk_wallets}
     for wallet in punk_wallets:
-        punks_balance["Wallets"][wallet] = {"Punks": [], "LAW rewards": 0}
+        punks_balance["Wallets"][wallet] = {"Punks": {}, "LAW rewards": 0}
     # As all punks in SmartIndex are staked, we need to scan the full punks supply in the punks DEX
     ABI = open("ABIs/LAW_punks_DEX-ABI.json", "r")
     abi = json.loads(ABI.read())
@@ -532,7 +532,7 @@ def update_punks_balance():
         owner = contract.functions.getPunkSound(i).call()[0]
         print(i)
         if owner in punk_wallets:
-            punks_balance["Wallets"][owner]["Punks"].append(i)
+            punks_balance["Wallets"][owner]["Punks"][i] = {}
     with open("data/NFTs.json", "w") as file:
         json.dump(punks_balance, file, indent=4)
     main()
@@ -558,11 +558,8 @@ def get_law_rewards(bch_price):
             ABI = open("ABIs/LAW_punks_level-ABI.json", "r")
             abi = json.loads(ABI.read())
             contract = w3.eth.contract(address=law_level_address, abi=abi)
-            stats = contract.functions.tokensOfMetaByIds([punk]).call()[0]
-            NFTs["PUNKS"][punk] = {"Level": stats[1], "Bloodline": stats[2] / 10 ** 8, "Popularity": stats[3] / 10 ** 8, "Growth": stats[4] / 10 ** 8, "Power": stats[5] / 10 ** 8, "Hashrate": math.sqrt(stats[5] / 10 ** 8)};
-    ABI = open("ABIs/LAW_rewards-ABI.json", "r")
-    abi = json.loads(ABI.read())
-    contract = w3.eth.contract(address=law_rewards, abi=abi)
+            stats = contract.functions.tokensOfMetaByIds([int(punk)]).call()[0]
+            NFTs["PUNKS"]["Wallets"][wallet]["Punks"][punk] = {"Level": stats[1], "Bloodline": stats[2] / 10 ** 8, "Popularity": stats[3] / 10 ** 8, "Growth": stats[4] / 10 ** 8, "Power": stats[5] / 10 ** 8, "Hashrate": math.sqrt(stats[5] / 10 ** 8)};
     NFTs["PUNKS"]["Total LAW pending"] = round(law_pending, 2)
     law_price = get_price_from_pool("LAW", bch_price)
     NFTs["PUNKS"]["LAW pending in USD"] = round(NFTs["PUNKS"]["Total LAW pending"] * law_price, 2)

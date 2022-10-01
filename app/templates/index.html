@@ -347,30 +347,30 @@
                                         <tr class="blank_row"><td colspan="2"></td></tr>
                                         <tr class="top highlight-color1">
                                             <th style="text-align: left;">Level:</th>
-                                            <th style="text-align: right;">{{ "{:,.0f}".format(punks[id|string]["Level"]) }}</th>
+                                            <th style="text-align: right;">{{ "{:,.0f}".format(value["Punks"][id]["Level"]) }}</th>
                                         </tr>
                                         <tr class="highlight-color1">
                                             <td style="text-align: left;">Bloodline:</td>
-                                            <td style="text-align: right;">{{ "{:,.3f}".format(punks[id|string]["Bloodline"]) }}</td>
+                                            <td style="text-align: right;">{{ "{:,.3f}".format(value["Punks"][id]["Bloodline"]) }}</td>
                                         </tr>
                                         <tr class="highlight-color1">
                                             <td style="text-align: left;">Popularity:</td>
-                                            <td style="text-align: right;">{{ "{:,.3f}".format(punks[id|string]["Popularity"]) }}</td>
+                                            <td style="text-align: right;">{{ "{:,.3f}".format(value["Punks"][id]["Popularity"]) }}</td>
                                         </tr>
                                         <tr class="highlight-color1">
                                             <td style="text-align: left;">Growth:</td>
-                                            <td style="text-align: right;">{{ "{:,.3f}".format(punks[id|string]["Growth"]) }}</td>
+                                            <td style="text-align: right;">{{ "{:,.3f}".format(value["Punks"][id]["Growth"]) }}</td>
                                         </tr>
                                         <tr class="btm highlight-color2">
                                             <th style="text-align: left;">Total Power:</th>
-                                            <th style="text-align: right;">{{ "{:,.3f}".format(punks[id|string]["Power"]) }}</th>
+                                            <th style="text-align: right;">{{ "{:,.3f}".format(value["Punks"][id]["Power"]) }}</th>
                                         </tr>
                                         <tr class="blank_row"><td colspan="2"></td></tr>
                                         <tr class="top btm highlight-color2">
                                             <th style="text-align: left;">Base Hashrate:</th>
-                                            <th style="text-align: right;">{{ "{:,.3f}".format(punks[id|string]["Hashrate"]) }}</th>
+                                            <th style="text-align: right;">{{ "{:,.3f}".format(value["Punks"][id]["Hashrate"]) }}</th>
                                         </tr>
-                                    </table>                                
+                                    </table>
                                 </div>
                             {% endif %}
                             <img class="global-pixelated global-tv" src="https://raw.githubusercontent.com/BlockNG-Foundation/LawPunks/main/assets/images/{{id}}.png" width="100%"  onmouseover="onPunkHover(event, {{ id }})" onmouseleave="onPunkLeaveHover({{ id }})"/>
