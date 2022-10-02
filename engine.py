@@ -29,7 +29,8 @@ law_salary = "0xe0ACACCFf2cDa66C8cFcA3bf86e7310748c70727"
 law_rights = {"453": {}, "457": {}, "459": {}, "460": {}} # TokenID: {LAW locked, salary}
 punk_wallets = [portfolio_address,  # Punks wallet 1
                 "0x3484f575A3d3b4026B4708997317797925A236ae",  # Punks wallet 2
-                "0x57BB80fdab3ca9FDBC690F4b133010d8615e77b3"]  # Punks wallet 3
+                "0x57BB80fdab3ca9FDBC690F4b133010d8615e77b3",  # Punks wallet 3
+                "0xcC735634828f9a97aea795F91d9586246ba11F5E"] # testing
 
 WBCH_CA = "0x3743eC0673453E5009310C727Ba4eaF7b3a1cc04"
 
@@ -546,20 +547,48 @@ def get_law_rewards(bch_price):
     law_pending = 0
     punks_number = 0
     for wallet in NFTs["PUNKS"]["Wallets"]:
+        local_punk_counter = 0
         ABI = open("ABIs/LAW_rewards-ABI.json", "r")
         abi = json.loads(ABI.read())
         contract = w3.eth.contract(address=law_rewards, abi=abi)
         pending_reward = contract.functions.earned(wallet).call() / 10 ** 18
         NFTs["PUNKS"]["Wallets"][wallet]["LAW rewards"] = round(pending_reward, 2)
         law_pending += pending_reward
+        # Punk extra stats
+        ABI = open("ABIs/LAW_rewards-ABI.json", "r")
+        abi = json.loads(ABI.read())
+        contract = w3.eth.contract(address=law_rewards, abi=abi)
+        extra_stats = contract.functions.tokensOfStakerViewWithExtraHashRates(wallet).call()[1]
+        # Punk zen extra stats
+        ABI = open("ABIs/LAW_rewards-ABI.json", "r")
+        abi = json.loads(ABI.read())
+        contract = w3.eth.contract(address=law_rewards, abi=abi)
+        extra_zen_stats = contract.functions.tokensOfStakerViewWithExtraZenHashRates(wallet).call()
+        extra_zen_levels = extra_zen_stats[2]
+        extra_zen_hashes = extra_zen_stats[3]
+        extra_zen_endTs = extra_zen_stats[4]
+        print(extra_zen_stats[0])
+        print(extra_zen_levels)
+        print(extra_zen_hashes)
+        print(extra_zen_endTs)
         for punk in NFTs["PUNKS"]["Wallets"][wallet]["Punks"]:
             punks_number += 1
             # Punk stats
+            total_hashrate = 0
             ABI = open("ABIs/LAW_punks_level-ABI.json", "r")
             abi = json.loads(ABI.read())
             contract = w3.eth.contract(address=law_level_address, abi=abi)
             stats = contract.functions.tokensOfMetaByIds([int(punk)]).call()[0]
-            NFTs["PUNKS"]["Wallets"][wallet]["Punks"][punk] = {"Level": stats[1], "Bloodline": stats[2] / 10 ** 8, "Popularity": stats[3] / 10 ** 8, "Growth": stats[4] / 10 ** 8, "Power": stats[5] / 10 ** 8, "Hashrate": math.sqrt(stats[5] / 10 ** 8)};
+            base_hashrate = math.sqrt(stats[5] / 10 ** 8)
+            total_hashrate += base_hashrate
+            item_hashrate =  extra_stats[local_punk_counter] / 10 ** 8
+            item_boost_percentage = (item_hashrate / base_hashrate) * 100
+            total_hashrate += item_hashrate
+            # extra_zen_hashrate =  extra_zen_stats[local_punk_counter] / 10 ** 8
+            # extra_zen_hashrate_percentage = (extra_zen_hashrate / base_hashrate) * 100
+            # total_hashrate += extra_zen_hashrate
+            NFTs["PUNKS"]["Wallets"][wallet]["Punks"][punk] = {"Level": stats[1], "Bloodline": stats[2] / 10 ** 8, "Popularity": stats[3] / 10 ** 8, "Growth": stats[4] / 10 ** 8, "Power": stats[5] / 10 ** 8, "Hashrate": base_hashrate, "Item Hashrate": item_hashrate, "Item Boost": item_boost_percentage, "Total Hashrate": total_hashrate};
+            local_punk_counter += 1
     NFTs["PUNKS"]["Total LAW pending"] = round(law_pending, 2)
     law_price = get_price_from_pool("LAW", bch_price)
     NFTs["PUNKS"]["LAW pending in USD"] = round(NFTs["PUNKS"]["Total LAW pending"] * law_price, 2)

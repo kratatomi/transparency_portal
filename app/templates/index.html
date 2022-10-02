@@ -361,14 +361,27 @@
                                             <td style="text-align: left;">Growth:</td>
                                             <td style="text-align: right;">{{ "{:,.3f}".format(value["Punks"][id]["Growth"]) }}</td>
                                         </tr>
+                                        <tr class="highlight-color1">
+                                            <td style="text-align: left;">Total Power:</td>
+                                            <td style="text-align: right;">{{ "{:,.3f}".format(value["Punks"][id]["Power"]) }}</td>
+                                        </tr>
                                         <tr class="btm highlight-color2">
-                                            <th style="text-align: left;">Total Power:</th>
-                                            <th style="text-align: right;">{{ "{:,.3f}".format(value["Punks"][id]["Power"]) }}</th>
+                                            <th style="text-align: left;">Base Hashrate:</th>
+                                            <th style="text-align: right;">{{ "{:,.3f}".format(value["Punks"][id]["Hashrate"]) }}</th>
+                                        </tr>
+                                        <tr class="blank_row"><td colspan="2"></td></tr>
+                                        <tr class="top highlight-color1">
+                                            <td style="text-align: left;">Item Hashrate:</td>
+                                            <td style="text-align: right;">{{ "{:,.3f}".format(value["Punks"][id]["Item Hashrate"]) }}</td>
+                                        </tr>
+                                        <tr class="btm highlight-color1">
+                                            <td style="text-align: left;">Item Boost:</td>
+                                            <td style="text-align: right;">{{ "{:,.0f}%".format(value["Punks"][id]["Item Boost"]) }}</td>
                                         </tr>
                                         <tr class="blank_row"><td colspan="2"></td></tr>
                                         <tr class="top btm highlight-color2">
-                                            <th style="text-align: left;">Base Hashrate:</th>
-                                            <th style="text-align: right;">{{ "{:,.3f}".format(value["Punks"][id]["Hashrate"]) }}</th>
+                                            <th style="text-align: left;">Total Hashrate:</th>
+                                            <th style="text-align: right;">{{ "{:,.3f}".format(value["Punks"][id]["Total Hashrate"]) }}</th>
                                         </tr>
                                     </table>
                                 </div>
