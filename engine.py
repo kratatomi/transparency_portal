@@ -546,20 +546,69 @@ def get_law_rewards(bch_price):
     law_pending = 0
     punks_number = 0
     for wallet in NFTs["PUNKS"]["Wallets"]:
+        local_punk_counter = 0
         ABI = open("ABIs/LAW_rewards-ABI.json", "r")
         abi = json.loads(ABI.read())
         contract = w3.eth.contract(address=law_rewards, abi=abi)
         pending_reward = contract.functions.earned(wallet).call() / 10 ** 18
         NFTs["PUNKS"]["Wallets"][wallet]["LAW rewards"] = round(pending_reward, 2)
         law_pending += pending_reward
+        # Punk extra stats
+        ABI = open("ABIs/LAW_rewards-ABI.json", "r")
+        abi = json.loads(ABI.read())
+        contract = w3.eth.contract(address=law_rewards, abi=abi)
+        extra_stats = contract.functions.tokensOfStakerViewWithExtraHashRates(wallet).call()[1]
+        # Punk zen extra stats
+        ABI = open("ABIs/LAW_rewards-ABI.json", "r")
+        abi = json.loads(ABI.read())
+        contract = w3.eth.contract(address=law_rewards, abi=abi)
+        extra_zen_stats = contract.functions.tokensOfStakerViewWithExtraZenHashRates(wallet).call()
+        extra_zen_levels = extra_zen_stats[2]
+        extra_zen_hashes = extra_zen_stats[3]
+        extra_zen_endTs = extra_zen_stats[4]
         for punk in NFTs["PUNKS"]["Wallets"][wallet]["Punks"]:
             punks_number += 1
             # Punk stats
+            total_hashrate = 0
             ABI = open("ABIs/LAW_punks_level-ABI.json", "r")
             abi = json.loads(ABI.read())
             contract = w3.eth.contract(address=law_level_address, abi=abi)
             stats = contract.functions.tokensOfMetaByIds([int(punk)]).call()[0]
-            NFTs["PUNKS"]["Wallets"][wallet]["Punks"][punk] = {"Level": stats[1], "Bloodline": stats[2] / 10 ** 8, "Popularity": stats[3] / 10 ** 8, "Growth": stats[4] / 10 ** 8, "Power": stats[5] / 10 ** 8, "Hashrate": math.sqrt(stats[5] / 10 ** 8)};
+            base_hashrate = math.sqrt(stats[5] / 10 ** 8)
+            total_hashrate += base_hashrate
+            item_hashrate =  extra_stats[local_punk_counter] / 10 ** 8
+            item_boost_percentage = (item_hashrate / base_hashrate) * 100
+            total_hashrate += item_hashrate
+            pharm_level = contract.functions.skillStatus(int(punk), 1).call()[0] # second param (1) is pharm; (2) is guru
+            pharm_item_type = contract.functions.skillStatus(int(punk), 1).call()[1]
+            pharm_item_id = contract.functions.skillStatus(int(punk), 1).call()[2]
+            pharm_item_ready_ts = contract.functions.skillStatus(int(punk), 1).call()[3]
+            zen_level = extra_zen_levels[local_punk_counter]
+            zen_endTs = extra_zen_endTs[local_punk_counter]
+            if (zen_endTs == 0):
+                zen_end_date = "N/A"
+            else:
+                zen_end_date = str(datetime.fromtimestamp(zen_endTs).strftime('%-m/%-d/%y'))
+            extra_zen_hashrate =  extra_zen_hashes[local_punk_counter] / 10 ** 8
+            extra_zen_hashrate_percentage = (extra_zen_hashrate / base_hashrate) * 100
+            total_hashrate += extra_zen_hashrate
+            NFTs["PUNKS"]["Wallets"][wallet]["Punks"][punk] = {
+                                                                "Level": stats[1], 
+                                                                "Bloodline": stats[2] / 10 ** 8, 
+                                                                "Popularity": stats[3] / 10 ** 8, 
+                                                                "Growth": stats[4] / 10 ** 8, 
+                                                                "Power": stats[5] / 10 ** 8, 
+                                                                "Hashrate": base_hashrate, 
+                                                                "Pharmacist Level": pharm_level, 
+                                                                "Item Hashrate": item_hashrate, 
+                                                                "Item Boost": item_boost_percentage, 
+                                                                "Zen Hashrate": extra_zen_hashrate, 
+                                                                "Zen Boost": extra_zen_hashrate_percentage, 
+                                                                "Zen Level": zen_level, 
+                                                                "Zen End": zen_end_date, 
+                                                                "Total Hashrate": total_hashrate
+                                                            };
+            local_punk_counter += 1
     NFTs["PUNKS"]["Total LAW pending"] = round(law_pending, 2)
     law_price = get_price_from_pool("LAW", bch_price)
     NFTs["PUNKS"]["LAW pending in USD"] = round(NFTs["PUNKS"]["Total LAW pending"] * law_price, 2)

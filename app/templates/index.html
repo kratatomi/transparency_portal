@@ -349,26 +349,62 @@
                                             <th style="text-align: left;">Level:</th>
                                             <th style="text-align: right;">{{ "{:,.0f}".format(value["Punks"][id]["Level"]) }}</th>
                                         </tr>
-                                        <tr class="highlight-color1">
-                                            <td style="text-align: left;">Bloodline:</td>
-                                            <td style="text-align: right;">{{ "{:,.3f}".format(value["Punks"][id]["Bloodline"]) }}</td>
+                                        <!-- <tr class="highlight-color1">
+                                            <td colspan="2" style="text-align: center;"><small>Bloodline/Popularity/Growth/Power</small></td>
                                         </tr>
                                         <tr class="highlight-color1">
-                                            <td style="text-align: left;">Popularity:</td>
-                                            <td style="text-align: right;">{{ "{:,.3f}".format(value["Punks"][id]["Popularity"]) }}</td>
+                                            <td colspan="2" style="text-align: center;">
+                                                <small>{{ "{:,.1f}".format(value["Punks"][id]["Bloodline"]) }} / {{ "{:,.1f}".format(value["Punks"][id]["Popularity"]) }} / {{ "{:,.1f}".format(value["Punks"][id]["Growth"]) }} / {{ "{:,.1f}".format(value["Punks"][id]["Power"]) }}</small>
+                                            </td>
+                                        </tr> -->
+                                        <tr class="btm highlight-color1">
+                                            <td style="text-align: left;">Base Hashrate:</td>
+                                            <td style="text-align: right;">{{ "{:,.3f}".format(value["Punks"][id]["Hashrate"]) }}</td>
                                         </tr>
-                                        <tr class="highlight-color1">
-                                            <td style="text-align: left;">Growth:</td>
-                                            <td style="text-align: right;">{{ "{:,.3f}".format(value["Punks"][id]["Growth"]) }}</td>
-                                        </tr>
-                                        <tr class="btm highlight-color2">
-                                            <th style="text-align: left;">Total Power:</th>
-                                            <th style="text-align: right;">{{ "{:,.3f}".format(value["Punks"][id]["Power"]) }}</th>
-                                        </tr>
+                                        {% if value["Punks"][id]["Pharmacist Level"] != 0 %}
+                                            <tr class="blank_row"><td colspan="2"></td></tr>
+                                            <tr class="top btm highlight-color1">
+                                                <td style="text-align: left;">Pharmacist Level:</td>
+                                                <td style="text-align: right;">{{ value["Punks"][id]["Pharmacist Level"] }}</td>
+                                            </tr>
+                                        {% endif %}
+                                        {% if value["Punks"][id]["Item Hashrate"] != 0 %}
+                                            <tr class="blank_row"><td colspan="2"></td></tr>
+                                            <tr class="top highlight-color1">
+                                                <td style="text-align: left;">Item Hashrate:</td>
+                                                <td style="text-align: right;">{{ "{:,.3f}".format(value["Punks"][id]["Item Hashrate"]) }}</td>
+                                            </tr>
+                                            <tr class="btm highlight-color1">
+                                                <td style="text-align: left;">Item Boost:</td>
+                                                <td style="text-align: right;">{{ "{:,.0f}%".format(value["Punks"][id]["Item Boost"]) }}</td>
+                                            </tr>
+                                        {% endif %}
+                                        {% if value["Punks"][id]["Zen Level"] != 0 %}
+                                            <tr class="blank_row"><td colspan="2"></td></tr>
+                                            <tr class="top btm highlight-color1">
+                                                <td style="text-align: left;">Zen Level:</td>
+                                                <td style="text-align: right;">{{ value["Punks"][id]["Zen Level"] }}</td>
+                                            </tr>
+                                        {% endif %}
+                                        {% if value["Punks"][id]["Zen Hashrate"] != 0 %}
+                                            <tr class="blank_row"><td colspan="2"></td></tr>
+                                            <tr class="top highlight-color1">
+                                                <td style="text-align: left;">Zen Hashrate:</td>
+                                                <td style="text-align: right;">{{ "{:,.3f}".format(value["Punks"][id]["Zen Hashrate"]) }}</td>
+                                            </tr>
+                                            <tr class="highlight-color1">
+                                                <td style="text-align: left;">Zen End:</td>
+                                                <td style="text-align: right;">{{ value["Punks"][id]["Zen End"] }}</td>
+                                            </tr>
+                                            <tr class="btm highlight-color1">
+                                                <td style="text-align: left;">Zen Boost:</td>
+                                                <td style="text-align: right;">{{ "{:,.0f}%".format(value["Punks"][id]["Zen Boost"]) }}</td>
+                                            </tr>
+                                        {% endif %}
                                         <tr class="blank_row"><td colspan="2"></td></tr>
                                         <tr class="top btm highlight-color2">
-                                            <th style="text-align: left;">Base Hashrate:</th>
-                                            <th style="text-align: right;">{{ "{:,.3f}".format(value["Punks"][id]["Hashrate"]) }}</th>
+                                            <th style="text-align: left;">Total Hashrate:</th>
+                                            <th style="text-align: right;">{{ "{:,.3f}".format(value["Punks"][id]["Total Hashrate"]) }}</th>
                                         </tr>
                                     </table>
                                 </div>
