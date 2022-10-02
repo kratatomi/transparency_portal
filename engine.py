@@ -29,9 +29,7 @@ law_salary = "0xe0ACACCFf2cDa66C8cFcA3bf86e7310748c70727"
 law_rights = {"453": {}, "457": {}, "459": {}, "460": {}} # TokenID: {LAW locked, salary}
 punk_wallets = [portfolio_address,  # Punks wallet 1
                 "0x3484f575A3d3b4026B4708997317797925A236ae",  # Punks wallet 2
-                "0x57BB80fdab3ca9FDBC690F4b133010d8615e77b3",  # Punks wallet 3
-                "0xcC735634828f9a97aea795F91d9586246ba11F5E", # testing
-                "0x38b342e5459C054fa80194F1957f8f9D7D61b6EF"] # testing
+                "0x57BB80fdab3ca9FDBC690F4b133010d8615e77b3"]  # Punks wallet 3
 
 WBCH_CA = "0x3743eC0673453E5009310C727Ba4eaF7b3a1cc04"
 
