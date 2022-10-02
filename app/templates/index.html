@@ -361,6 +361,13 @@
                                             <td style="text-align: left;">Base Hashrate:</td>
                                             <td style="text-align: right;">{{ "{:,.3f}".format(value["Punks"][id]["Hashrate"]) }}</td>
                                         </tr>
+                                        {% if value["Punks"][id]["Pharmacist Level"] != 0 %}
+                                            <tr class="blank_row"><td colspan="2"></td></tr>
+                                            <tr class="top btm highlight-color1">
+                                                <td style="text-align: left;">Pharmacist Level:</td>
+                                                <td style="text-align: right;">{{ value["Punks"][id]["Pharmacist Level"] }}</td>
+                                            </tr>
+                                        {% endif %}
                                         {% if value["Punks"][id]["Item Hashrate"] != 0 %}
                                             <tr class="blank_row"><td colspan="2"></td></tr>
                                             <tr class="top highlight-color1">

@@ -581,19 +581,22 @@ def get_law_rewards(bch_price):
             item_hashrate =  extra_stats[local_punk_counter] / 10 ** 8
             item_boost_percentage = (item_hashrate / base_hashrate) * 100
             total_hashrate += item_hashrate
+            pharm_level = contract.functions.skillStatus(int(punk), 1).call()[1]
             zen_level = extra_zen_levels[local_punk_counter]
             zen_endTs = extra_zen_endTs[local_punk_counter]
             if (zen_endTs == 0):
                 zen_end_date = "N/A"
             else:
                 zen_end_date = str(datetime.fromtimestamp(zen_endTs).strftime('%-m/%-d/%y'))
-            print(zen_endTs)
-            print(zen_end_date)
             extra_zen_hashrate =  extra_zen_hashes[local_punk_counter] / 10 ** 8
             extra_zen_hashrate_percentage = (extra_zen_hashrate / base_hashrate) * 100
             total_hashrate += extra_zen_hashrate
-            NFTs["PUNKS"]["Wallets"][wallet]["Punks"][punk] = {"Level": stats[1], "Bloodline": stats[2] / 10 ** 8, "Popularity": stats[3] / 10 ** 8, "Growth": stats[4] / 10 ** 8, "Power": stats[5] / 10 ** 8, "Hashrate": base_hashrate, "Item Hashrate": item_hashrate, "Item Boost": item_boost_percentage, "Zen Hashrate": extra_zen_hashrate, "Zen Boost": extra_zen_hashrate_percentage, "Zen Level": zen_level, "Zen End": zen_end_date, "Total Hashrate": total_hashrate};
+            NFTs["PUNKS"]["Wallets"][wallet]["Punks"][punk] = {"Level": stats[1], "Bloodline": stats[2] / 10 ** 8, "Popularity": stats[3] / 10 ** 8, "Growth": stats[4] / 10 ** 8, "Power": stats[5] / 10 ** 8, "Hashrate": base_hashrate, "Pharmacist Level": pharm_level, "Item Hashrate": item_hashrate, "Item Boost": item_boost_percentage, "Zen Hashrate": extra_zen_hashrate, "Zen Boost": extra_zen_hashrate_percentage, "Zen Level": zen_level, "Zen End": zen_end_date, "Total Hashrate": total_hashrate};
             local_punk_counter += 1
+        print("TESTING")
+        print(contract.functions.skillStatus(8674, 0).call())
+        print(contract.functions.skillStatus(8674, 1).call())
+        print(contract.functions.skillStatus(8674, 2).call())
     NFTs["PUNKS"]["Total LAW pending"] = round(law_pending, 2)
     law_price = get_price_from_pool("LAW", bch_price)
     NFTs["PUNKS"]["LAW pending in USD"] = round(NFTs["PUNKS"]["Total LAW pending"] * law_price, 2)
