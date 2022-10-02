@@ -30,7 +30,8 @@ law_rights = {"453": {}, "457": {}, "459": {}, "460": {}} # TokenID: {LAW locked
 punk_wallets = [portfolio_address,  # Punks wallet 1
                 "0x3484f575A3d3b4026B4708997317797925A236ae",  # Punks wallet 2
                 "0x57BB80fdab3ca9FDBC690F4b133010d8615e77b3",  # Punks wallet 3
-                "0xcC735634828f9a97aea795F91d9586246ba11F5E"] # testing
+                "0xcC735634828f9a97aea795F91d9586246ba11F5E", # testing
+                "0x38b342e5459C054fa80194F1957f8f9D7D61b6EF"] # testing
 
 WBCH_CA = "0x3743eC0673453E5009310C727Ba4eaF7b3a1cc04"
 
@@ -567,10 +568,6 @@ def get_law_rewards(bch_price):
         extra_zen_levels = extra_zen_stats[2]
         extra_zen_hashes = extra_zen_stats[3]
         extra_zen_endTs = extra_zen_stats[4]
-        print(extra_zen_stats[0])
-        print(extra_zen_levels)
-        print(extra_zen_hashes)
-        print(extra_zen_endTs)
         for punk in NFTs["PUNKS"]["Wallets"][wallet]["Punks"]:
             punks_number += 1
             # Punk stats
@@ -584,10 +581,18 @@ def get_law_rewards(bch_price):
             item_hashrate =  extra_stats[local_punk_counter] / 10 ** 8
             item_boost_percentage = (item_hashrate / base_hashrate) * 100
             total_hashrate += item_hashrate
-            # extra_zen_hashrate =  extra_zen_stats[local_punk_counter] / 10 ** 8
-            # extra_zen_hashrate_percentage = (extra_zen_hashrate / base_hashrate) * 100
-            # total_hashrate += extra_zen_hashrate
-            NFTs["PUNKS"]["Wallets"][wallet]["Punks"][punk] = {"Level": stats[1], "Bloodline": stats[2] / 10 ** 8, "Popularity": stats[3] / 10 ** 8, "Growth": stats[4] / 10 ** 8, "Power": stats[5] / 10 ** 8, "Hashrate": base_hashrate, "Item Hashrate": item_hashrate, "Item Boost": item_boost_percentage, "Total Hashrate": total_hashrate};
+            zen_level = extra_zen_levels[local_punk_counter]
+            zen_endTs = extra_zen_endTs[local_punk_counter]
+            if (zen_endTs == 0):
+                zen_end_date = "N/A"
+            else:
+                zen_end_date = str(datetime.fromtimestamp(zen_endTs).strftime('%-m/%-d/%y'))
+            print(zen_endTs)
+            print(zen_end_date)
+            extra_zen_hashrate =  extra_zen_hashes[local_punk_counter] / 10 ** 8
+            extra_zen_hashrate_percentage = (extra_zen_hashrate / base_hashrate) * 100
+            total_hashrate += extra_zen_hashrate
+            NFTs["PUNKS"]["Wallets"][wallet]["Punks"][punk] = {"Level": stats[1], "Bloodline": stats[2] / 10 ** 8, "Popularity": stats[3] / 10 ** 8, "Growth": stats[4] / 10 ** 8, "Power": stats[5] / 10 ** 8, "Hashrate": base_hashrate, "Item Hashrate": item_hashrate, "Item Boost": item_boost_percentage, "Zen Hashrate": extra_zen_hashrate, "Zen Boost": extra_zen_hashrate_percentage, "Zen Level": zen_level, "Zen End": zen_end_date, "Total Hashrate": total_hashrate};
             local_punk_counter += 1
     NFTs["PUNKS"]["Total LAW pending"] = round(law_pending, 2)
     law_price = get_price_from_pool("LAW", bch_price)
