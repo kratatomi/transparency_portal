@@ -10,6 +10,7 @@ from selenium.webdriver import FirefoxOptions
 from datetime import datetime
 import logging
 import math
+import os.path
 
 
 logger = logging.getLogger("app.engine")
@@ -35,8 +36,6 @@ WBCH_CA = "0x3743eC0673453E5009310C727Ba4eaF7b3a1cc04"
 
 with open("data/NFTs.json", "r") as file:
     NFTs = json.load(file)
-with open("data/ETF_FARMS.json", "r") as file:
-    ETF_farms = json.load(file)
 
 ETF_portfolio_address = "0x91fbdB995D05BBdCb3C7D21180794877A93d87e0"
 
@@ -70,14 +69,14 @@ assets_balances = {
 
 initial_pool_balances = {
     "Mistswap": {"CA": "0x7E1B9F1e286160A80ab9B04D228C02583AeF90B5", "token0": 3.333, "token1": 15807.4},
-    "BlockNG": {"CA": "0x1CD36D9dEd958366d17DfEdD91b5F8e682D7f914", "token0": 2223, "token1": 3049.02}
+    "BlockNG": {"CA": "0x1CD36D9dEd958366d17DfEdD91b5F8e682D7f914", "token0": 2298.75, "token1": 3141.39}
     # Token0 is WBCH/LAW, Token1 is SIDX
 }
 
 extra_pool_balances = {
-    "Mistswap": {"CA": "0x7E1B9F1e286160A80ab9B04D228C02583AeF90B5", "token0": 5.0781, "token1": 2240.11},
-    "Tangoswap": {"CA": "0x4509Ff66a56cB1b80a6184DB268AD9dFBB79DD53", "token0": 4.6109, "token1": 1681.21},
-    "Emberswap": {"CA": "0x97dEAeB1A9A762d97Ac565cD3Ff7629CD6d55D09", "token0": 216629, "token1": 650.63}
+    "Mistswap": {"CA": "0x7E1B9F1e286160A80ab9B04D228C02583AeF90B5", "token0": 5.1081, "token1": 2258.83},
+    "Tangoswap": {"CA": "0x4509Ff66a56cB1b80a6184DB268AD9dFBB79DD53", "token0": 4.6497, "token1": 1705.16},
+    "Emberswap": {"CA": "0x97dEAeB1A9A762d97Ac565cD3Ff7629CD6d55D09", "token0": 219750, "token1": 660.67}
     }  # Token0 is WBCH/EMBER, Token1 is SIDX
 
 farms = {"Mistswap": {"factory": "0x3A7B9D0ed49a90712da4E087b17eE4Ac1375a5D4",
@@ -156,7 +155,7 @@ sidx_liquidity_pie_chart_data = {}
 global_stats_pie_chart_data = {}
 
 
-def get_balances(bch_price, portfolio_address=portfolio_address):
+def get_balances(bch_price, portfolio_address=portfolio_address, assets_balances=assets_balances):
     stacked_assets = {}
     SEP20_tokens = {}
     total_value_SEP20_tokens = 0
@@ -550,20 +549,69 @@ def get_law_rewards(bch_price):
     law_pending = 0
     punks_number = 0
     for wallet in NFTs["PUNKS"]["Wallets"]:
+        local_punk_counter = 0
         ABI = open("ABIs/LAW_rewards-ABI.json", "r")
         abi = json.loads(ABI.read())
         contract = w3.eth.contract(address=law_rewards, abi=abi)
         pending_reward = contract.functions.earned(wallet).call() / 10 ** 18
         NFTs["PUNKS"]["Wallets"][wallet]["LAW rewards"] = round(pending_reward, 2)
         law_pending += pending_reward
+        # Punk extra stats
+        ABI = open("ABIs/LAW_rewards-ABI.json", "r")
+        abi = json.loads(ABI.read())
+        contract = w3.eth.contract(address=law_rewards, abi=abi)
+        extra_stats = contract.functions.tokensOfStakerViewWithExtraHashRates(wallet).call()[1]
+        # Punk zen extra stats
+        ABI = open("ABIs/LAW_rewards-ABI.json", "r")
+        abi = json.loads(ABI.read())
+        contract = w3.eth.contract(address=law_rewards, abi=abi)
+        extra_zen_stats = contract.functions.tokensOfStakerViewWithExtraZenHashRates(wallet).call()
+        extra_zen_levels = extra_zen_stats[2]
+        extra_zen_hashes = extra_zen_stats[3]
+        extra_zen_endTs = extra_zen_stats[4]
         for punk in NFTs["PUNKS"]["Wallets"][wallet]["Punks"]:
             punks_number += 1
             # Punk stats
+            total_hashrate = 0
             ABI = open("ABIs/LAW_punks_level-ABI.json", "r")
             abi = json.loads(ABI.read())
             contract = w3.eth.contract(address=law_level_address, abi=abi)
             stats = contract.functions.tokensOfMetaByIds([int(punk)]).call()[0]
-            NFTs["PUNKS"]["Wallets"][wallet]["Punks"][punk] = {"Level": stats[1], "Bloodline": stats[2] / 10 ** 8, "Popularity": stats[3] / 10 ** 8, "Growth": stats[4] / 10 ** 8, "Power": stats[5] / 10 ** 8, "Hashrate": math.sqrt(stats[5] / 10 ** 8)};
+            base_hashrate = math.sqrt(stats[5] / 10 ** 8)
+            total_hashrate += base_hashrate
+            item_hashrate =  extra_stats[local_punk_counter] / 10 ** 8
+            item_boost_percentage = (item_hashrate / base_hashrate) * 100
+            total_hashrate += item_hashrate
+            pharm_level = contract.functions.skillStatus(int(punk), 1).call()[0] # second param (1) is pharm; (2) is guru
+            pharm_item_type = contract.functions.skillStatus(int(punk), 1).call()[1]
+            pharm_item_id = contract.functions.skillStatus(int(punk), 1).call()[2]
+            pharm_item_ready_ts = contract.functions.skillStatus(int(punk), 1).call()[3]
+            zen_level = extra_zen_levels[local_punk_counter]
+            zen_endTs = extra_zen_endTs[local_punk_counter]
+            if (zen_endTs == 0):
+                zen_end_date = "N/A"
+            else:
+                zen_end_date = str(datetime.fromtimestamp(zen_endTs).strftime('%-m/%-d/%y'))
+            extra_zen_hashrate =  extra_zen_hashes[local_punk_counter] / 10 ** 8
+            extra_zen_hashrate_percentage = (extra_zen_hashrate / base_hashrate) * 100
+            total_hashrate += extra_zen_hashrate
+            NFTs["PUNKS"]["Wallets"][wallet]["Punks"][punk] = {
+                                                                "Level": stats[1],
+                                                                "Bloodline": stats[2] / 10 ** 8,
+                                                                "Popularity": stats[3] / 10 ** 8,
+                                                                "Growth": stats[4] / 10 ** 8,
+                                                                "Power": stats[5] / 10 ** 8,
+                                                                "Hashrate": base_hashrate,
+                                                                "Pharmacist Level": pharm_level,
+                                                                "Item Hashrate": item_hashrate,
+                                                                "Item Boost": item_boost_percentage,
+                                                                "Zen Hashrate": extra_zen_hashrate,
+                                                                "Zen Boost": extra_zen_hashrate_percentage,
+                                                                "Zen Level": zen_level,
+                                                                "Zen End": zen_end_date,
+                                                                "Total Hashrate": total_hashrate
+                                                            };
+            local_punk_counter += 1
     NFTs["PUNKS"]["Total LAW pending"] = round(law_pending, 2)
     law_price = get_price_from_pool("LAW", bch_price)
     NFTs["PUNKS"]["LAW pending in USD"] = round(NFTs["PUNKS"]["Total LAW pending"] * law_price, 2)
@@ -631,7 +679,7 @@ def get_law_rewards(bch_price):
     total_rewards_value += NFTs["LAW Rights"]["LAW pending in USD"]
     total_illiquid_value += NFTs["LAW Rights"]["LAW locked in USD"]
 
-def get_farms(bch_price, farms=farms):
+def get_farms(bch_price, portfolio_address=portfolio_address, farms=farms):
     global total_liquid_value
     global total_illiquid_value
     global total_rewards_value
@@ -1113,7 +1161,6 @@ def get_ETF_assets_allocation(farms):
         import app.email as email
         email.send_email_to_admin(f'Warning: total percentage of ETF portfolio is {total_percentage}')
     return portfolio
-
 def swap_assets(asset_in, asset_out, amount, *account):
     # asset_in and asset_out are the respective contract address of each token. Amount is the amount to swap.
     # First, we need to make sure that the portfolio holds the required amount of asset_in
@@ -1351,7 +1398,6 @@ def main():
     make_pie_chart(farms_pie_chart_data, "farms_pie_chart")
     make_pie_chart(sidx_liquidity_pie_chart_data, "liquidity_allocation")
     make_pie_chart(global_stats_pie_chart_data, "global_stats")
-    ETF_portfolio = get_ETF_assets_allocation(farms)
     global_portfolio_stats = {"total_liquid_value": round(total_liquid_value, 2),
                               "total_illiquid_value": round(total_illiquid_value, 2),
                               "total_portfolio_balance": round(total_liquid_value + total_illiquid_value, 2),
@@ -1360,10 +1406,6 @@ def main():
 
     # Calculate the MarketValue/PortfilioValue ratio (less than 1 means 'underbacked')
     global_portfolio_stats["ratio"] = round(float(SIDX_stats["Price"].split()[0]) / global_portfolio_stats["value_per_sidx"], 2)
-
-    # Get data for the ETF portfolio
-    ETF_SEP20_tokens, ETF_staked_assets = get_balances(bch_price, portfolio_address=ETF_portfolio_address)
-    get_farms(bch_price, farms=ETF_farms)
 
     with open('data/SIDX_STATS.json', 'w') as file:
         json.dump(SIDX_stats, file, indent=4)
@@ -1381,6 +1423,25 @@ def main():
         json.dump(farms, file, indent=4)
     with open('data/GLOBAL_STATS.json', 'w') as file:
         json.dump(global_portfolio_stats, file, indent=4)
+
+    # Get data for the ETF portfolio. The first steps is to reset the global variables total_liquid_value and total_rewards_value.
+    total_liquid_value = 0
+    total_rewards_value = 0
+    if os.path.exists('data/ETF_FARMS.json'):
+        with open("data/ETF_FARMS.json", "r") as file:
+            ETF_farms = json.load(file)
+    if os.path.exists('data/ETF_ASSETS_BALANCES.json'):
+        with open("data/ETF_ASSETS_BALANCES.json", "r") as file:
+            ETF_assets_balances = json.load(file)
+    ETF_SEP20_tokens, ETF_staked_assets = get_balances(bch_price, portfolio_address=ETF_portfolio_address, assets_balances=ETF_assets_balances)
+    total_rewards_value = ETF_staked_assets["Total yield value"]
+    get_farms(bch_price, portfolio_address=ETF_portfolio_address, farms=ETF_farms)
+    ETF_portfolio = get_ETF_assets_allocation(farms)
+    global_ETF_portfolio_stats = {"total_portfolio_balance": round(total_liquid_value, 2),
+                                  "total_rewards_value": round(total_rewards_value, 2)}
+
+    with open('data/ETF_GLOBAL_STATS.json', 'w') as file:
+        json.dump(global_ETF_portfolio_stats, file, indent=4)
     with open('data/ETF_portfolio.json', 'w') as file:
         json.dump(ETF_portfolio, file, indent=4)
     with open('data/ETF_SEP20_BALANCES.json', 'w') as file:
