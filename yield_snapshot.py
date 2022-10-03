@@ -278,7 +278,7 @@ def main():
         json.dump(weekly_stats, file, indent=4)
     file.close()
     generate_graphs()
-
+    
     #Let's harvest the rewards from pools
     import engine
     engine.start_celery_stake() # Turning to staking mode harvest the CLY rewards

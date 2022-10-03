@@ -49,5 +49,44 @@
 		],
 		"stateMutability": "view",
 		"type": "function"
-	}
+	},
+	  {
+		  "inputs": [
+			{
+			  "internalType": "uint256",
+			  "name": "punkId",
+			  "type": "uint256"
+			},
+			{
+			  "internalType": "uint256",
+			  "name": "skillNumber",
+			  "type": "uint256"
+			}
+		  ],
+		  "name": "skillStatus",
+		  "outputs": [
+			{
+			  "internalType": "uint256",
+			  "name": "skill_level",
+			  "type": "uint256"
+			},
+			{
+			  "internalType": "uint256",
+			  "name": "skill_item_type",
+			  "type": "uint256"
+			},
+			{
+			  "internalType": "uint256",
+			  "name": "skill_item",
+			  "type": "uint256"
+			},
+			{
+			  "internalType": "uint256",
+			  "name": "item_ready_ts",
+			  "type": "uint256"
+			}
+		  ],
+		  "stateMutability": "view",
+		  "type": "function"
+		}
 ]

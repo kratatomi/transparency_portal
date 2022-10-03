@@ -40,5 +40,72 @@
       "payable": false,
       "stateMutability": "view",
       "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        }
+      ],
+      "name": "tokensOfStakerViewWithExtraHashRates",
+      "outputs": [
+        
+            {
+              "internalType": "uint256[]",
+              "name": "ids",
+              "type": "uint256[]"
+            },
+            {
+              "internalType": "uint256[]",
+              "name": "extraHashRates",
+              "type": "uint256[]"
+            }
+          ],
+  
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        }
+      ],
+      "name": "tokensOfStakerViewWithExtraZenHashRates",
+      "outputs": [
+        
+            {
+              "internalType": "uint256[]",
+              "name": "ids",
+              "type": "uint256[]"
+            },
+            {
+              "internalType": "uint256[]",
+              "name": "extraHashRates",
+              "type": "uint256[]"
+            },
+            {
+              "internalType": "uint256[]",
+              "name": "zenLevels",
+              "type": "uint256[]"
+            },
+            {
+              "internalType": "uint256[]",
+              "name": "zenHashes",
+              "type": "uint256[]"
+            },
+            {
+              "internalType": "uint256[]",
+              "name": "zenEndTs",
+              "type": "uint256[]"
+            }
+          ],
+  
+      "stateMutability": "view",
+      "type": "function"
     }
 ]
