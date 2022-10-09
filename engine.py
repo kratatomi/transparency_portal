@@ -1398,6 +1398,7 @@ def main():
     make_pie_chart(farms_pie_chart_data, "farms_pie_chart")
     make_pie_chart(sidx_liquidity_pie_chart_data, "liquidity_allocation")
     make_pie_chart(global_stats_pie_chart_data, "global_stats")
+    ETF_portfolio = get_ETF_assets_allocation(farms)
     global_portfolio_stats = {"total_liquid_value": round(total_liquid_value, 2),
                               "total_illiquid_value": round(total_illiquid_value, 2),
                               "total_portfolio_balance": round(total_liquid_value + total_illiquid_value, 2),
@@ -1423,6 +1424,8 @@ def main():
         json.dump(farms, file, indent=4)
     with open('data/GLOBAL_STATS.json', 'w') as file:
         json.dump(global_portfolio_stats, file, indent=4)
+    with open('data/ETF_portfolio.json', 'w') as file:
+        json.dump(ETF_portfolio, file, indent=4)
 
     # Get data for the ETF portfolio. The first steps is to reset the global variables total_liquid_value and total_rewards_value.
     total_liquid_value = 0
@@ -1436,14 +1439,11 @@ def main():
     ETF_SEP20_tokens, ETF_staked_assets = get_balances(bch_price, portfolio_address=ETF_portfolio_address, assets_balances=ETF_assets_balances)
     total_rewards_value = ETF_staked_assets["Total yield value"]
     get_farms(bch_price, portfolio_address=ETF_portfolio_address, farms=ETF_farms)
-    ETF_portfolio = get_ETF_assets_allocation(farms)
     global_ETF_portfolio_stats = {"total_portfolio_balance": round(total_liquid_value, 2),
                                   "total_rewards_value": round(total_rewards_value, 2)}
 
     with open('data/ETF_GLOBAL_STATS.json', 'w') as file:
         json.dump(global_ETF_portfolio_stats, file, indent=4)
-    with open('data/ETF_portfolio.json', 'w') as file:
-        json.dump(ETF_portfolio, file, indent=4)
     with open('data/ETF_SEP20_BALANCES.json', 'w') as file:
         json.dump(ETF_SEP20_tokens, file, indent=4)
     with open('data/ETF_STAKED_ASSETS.json', 'w') as file:
