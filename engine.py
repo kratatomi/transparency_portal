@@ -47,7 +47,7 @@ assets_balances = {
     "Tango": {"Initial": 23897.252, "Stacked": True, "CA": "0x73BE9c8Edf5e951c9a0762EA2b1DE8c8F38B5e91",
               "BAR_CA": "0x98Ff640323C059d8C4CB846976973FEEB0E068aA",
               "BCH pair": "0x4b773a2ea30C6A77564E4FaE60204e7Bc0a81A90", "Liquid": True},
-    "Green Ben": {"Initial": 1875.168, "Stacked": True, "CA": "0xDEa721EFe7cBC0fCAb7C8d65c598b21B6373A2b6",
+    "Green Ben": {"Initial": 1875.168, "Stacked": True, "CA": "0x77CB87b57F54667978Eb1B199b28a0db8C8E1c0B",
                   "Liquid": True, "BCH pair": "0x0D4372aCc0503Fbcc7EB129e0De3283c348B82c3", "harvest_CA": "0xDEa721EFe7cBC0fCAb7C8d65c598b21B6373A2b6", "harvest_pool_id": 1,
                   "harvest_ABI": "BEN-Master-ABI.json"},
     "Celery": {"Initial": 1674817.26, "Stacked": True, "CA": "0x7642Df81b5BEAeEb331cc5A104bd13Ba68c34B91",
@@ -235,7 +235,7 @@ def get_balances(bch_price, portfolio_address=portfolio_address, assets_balances
             if asset == "Green Ben":
                 ABI = open("ABIs/EBEN_Masterbreeder.json", "r")
                 abi = json.loads(ABI.read())
-                contract = w3.eth.contract(address=assets_balances[asset]["CA"], abi=abi)
+                contract = w3.eth.contract(address=assets_balances[asset]["harvest_CA"], abi=abi)
                 stacked_assets[asset] = {}
                 stacked_assets[asset]["Initial"] = round(assets_balances[asset]["Initial"], 2)
                 stacked_assets[asset]["Yield"] = round(
