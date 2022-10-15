@@ -1189,8 +1189,12 @@ def swap_assets(asset_in, asset_out, amount, *account):
          'gasPrice': w3.toWei('1.05', 'gwei')
          })
     identifier = f"Swap {amount} {asset_in} for {asset_out} in account {address}"
-    send_transaction(identifier, swap_tx, *account)
-
+    receipt = send_transaction(identifier, swap_tx, *account)
+    if receipt:
+        swapped_event = contract.events.Swapped().processReceipt(receipt)
+        logger.info(
+            f'Token swap: from {swapped_event[0]["args"]["fromTokenAmount"]} of token {swapped_event[0]["args"]["fromToken"]} to {swapped_event[0]["args"]["destTokenAmount"]} of token {swapped_event[0]["args"]["destToken"]}')
+        return swapped_event[0]["args"]["destTokenAmount"]
 def asset_allowance(token_CA, spender, *account, amount="all"):
     if not account:
         address = portfolio_address
@@ -1365,6 +1369,36 @@ def transfer_asset(asset, amount, destination, *account):
          'gasPrice': w3.toWei('1.05', 'gwei')
          })
     send_transaction(f'Transfer {amount} of token {asset} from account {address}', transfer_tx, *account)
+
+def buy_assets_for_liquidty_addition(input_amount, input_asset_CA, lp_CA, *account):
+    '''This function aims to buy assets in a 50/50 basis and then generate a token dictionary for the add_liquidity() function'''
+    if not account:
+        address = portfolio_address
+        priv_key_env = 'PORTFOLIO_PRIV_KEY'
+    else:
+        address, priv_key_env = account
+    ABI = open("ABIs/UniswapV2Pair.json", "r")  # Standard ABI for LP tokens
+    abi = json.loads(ABI.read())
+    contract = w3.eth.contract(address=lp_CA, abi=abi)
+    # By default, token1 will have priority
+    tokens_dictionary = {"token0": {"CA": None, "amount": None},
+                         "token1": {"CA": None, "amount": None}}
+    tokens_dictionary["token0"]["CA"] = contract.functions.token0().call()
+    tokens_dictionary["token1"]["CA"] = contract.functions.token1().call()
+    # First, let's swap half of the input_amount for token0
+    amount_to_swap = int(input_amount / 2)
+    if input_asset_CA != tokens_dictionary["token0"]["CA"]:
+        token0_amount = swap_assets(input_asset_CA, tokens_dictionary["token0"]["CA"], amount_to_swap, *account)
+    # Now, the other half or whatever is left
+    input_asset_balance = get_SEP20_balance(input_asset_CA, address)
+    if input_asset_CA != tokens_dictionary["token1"]["CA"]:
+        if input_asset_balance >= amount_to_swap:
+            token1_amount = swap_assets(input_asset_CA, tokens_dictionary["token1"]["CA"], amount_to_swap, *account)
+        else:
+            token1_amount = swap_assets(input_asset_CA, tokens_dictionary["token1"]["CA"], input_asset_balance, *account)
+    tokens_dictionary["token0"]["amount"] = token0_amount
+    tokens_dictionary["token1"]["amount"] = token1_amount
+    return tokens_dictionary
 def main():
     global total_liquid_value
     global total_illiquid_value
