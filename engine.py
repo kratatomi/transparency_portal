@@ -1036,15 +1036,8 @@ def harvest_tango_sidx_farm(*account):
     # Then, get the Tango amount harvested
     tango_CA = "0x73BE9c8Edf5e951c9a0762EA2b1DE8c8F38B5e91"
     tango_amount = int(round(get_SEP20_balance(tango_CA, address) / 2))
-    # Swap half of the amount for SIDX
-    swap_assets(tango_CA, SIDX_CA, tango_amount, *account)
-    # Swap the rest to WBCH
-    tango_amount = int(round(get_SEP20_balance(tango_CA, address)))
-    swap_assets(tango_CA, WBCH_CA, tango_amount, *account)
-    # Add liquidity to the SIDX/WBCH pool
-    tokens_dictionary = {"token0": {"CA": WBCH_CA, "amount": 0},
-                         "token1": {"CA": SIDX_CA, "amount": "all"}}
     LP_CA = "0x4509Ff66a56cB1b80a6184DB268AD9dFBB79DD53"
+    tokens_dictionary = buy_assets_for_liquidty_addition(tango_amount, tango_CA, LP_CA, *account)
     tango_router = "0xb93184fB3eEDb4d32150763578cA305488240c8e"
     add_liquidity(tokens_dictionary, LP_CA, tango_router, *account)
     # Time to check the LP tokens balance
@@ -1083,22 +1076,10 @@ def harvest_sidx_ember_farm(*account):
     # Then, get the Ember amount harvested
     ember_CA = "0x6BAbf5277849265b6738e75AEC43AEfdde0Ce88D"
     ember_amount = int(round(get_SEP20_balance(ember_CA, address) / 2))
-    # Swap half of the amount for SIDX
-    swap_assets(ember_CA, SIDX_CA, ember_amount, *account)
-    # Add liquidity to the SIDX/EMBER pool
     LP_CA = "0x97dEAeB1A9A762d97Ac565cD3Ff7629CD6d55D09"
+    tokens_dictionary = buy_assets_for_liquidty_addition(ember_amount, ember_CA, LP_CA, *account)
     ember_router = "0x217057A8B0bDEb160829c19243A2E03bfe95555a"
-    try:
-        tokens_dictionary = {"token0": {"CA": ember_CA, "amount": "all"},
-                             "token1": {"CA": SIDX_CA, "amount": 0}}
-        add_liquidity(tokens_dictionary, LP_CA, ember_router, *account, min_amount_percentage=2)
-    except Exception as e:
-        logger.error(f'Failed to add liquidity to SIDX/EMBER farm, trying to modify the amounts. Error is {e}.')
-        import app.email as email
-        email.send_email_to_admin(f'Failed to add liquidity to SIDX/EMBER farm, trying to modify the amounts. Error is {e}.')
-        tokens_dictionary = {"token0": {"CA": ember_CA, "amount": 0},
-                             "token1": {"CA": SIDX_CA, "amount": "all"}}
-        add_liquidity(tokens_dictionary, LP_CA, ember_router, *account, min_amount_percentage=2)
+    add_liquidity(tokens_dictionary, LP_CA, ember_router, *account, min_amount_percentage=2)
     # Time to check the LP tokens balance
     ABI = open("ABIs/UniswapV2Pair.json", "r")
     abi = json.loads(ABI.read())
@@ -1388,19 +1369,42 @@ def buy_assets_for_liquidty_addition(input_amount, input_asset_CA, lp_CA, *accou
                          "token1": {"CA": None, "amount": None}}
     tokens_dictionary["token0"]["CA"] = contract.functions.token0().call()
     tokens_dictionary["token1"]["CA"] = contract.functions.token1().call()
+    # If the input token is one of the liquidity pool tokens, shared_token will be token0 or token1, respectively
+    shared_token = None
     # First, let's swap half of the input_amount for token0
     amount_to_swap = int(input_amount / 2)
     if input_asset_CA != tokens_dictionary["token0"]["CA"]:
         token0_amount = swap_assets(input_asset_CA, tokens_dictionary["token0"]["CA"], amount_to_swap, *account)
+    else:
+        shared_token = "token0"
     # Now, the other half or whatever is left
+    #token1_amout nunca se llega a ejecutar si token0 == input_asset_CA
     input_asset_balance = get_SEP20_balance(input_asset_CA, address)
     if input_asset_CA != tokens_dictionary["token1"]["CA"]:
         if input_asset_balance >= amount_to_swap:
             token1_amount = swap_assets(input_asset_CA, tokens_dictionary["token1"]["CA"], amount_to_swap, *account)
         else:
             token1_amount = swap_assets(input_asset_CA, tokens_dictionary["token1"]["CA"], input_asset_balance, *account)
-    tokens_dictionary["token0"]["amount"] = token0_amount
-    tokens_dictionary["token1"]["amount"] = token1_amount
+    else:
+        shared_token = "token1"
+    # Finally, let's fill the tokens_dictionary with the amounts
+    if shared_token == None:
+        tokens_dictionary["token0"]["amount"] = token0_amount
+        tokens_dictionary["token1"]["amount"] = token1_amount
+    elif shared_token == "token0":
+        if input_asset_balance >= amount_to_swap:
+            tokens_dictionary["token0"]["amount"] = amount_to_swap
+            tokens_dictionary["token1"]["amount"] = token1_amount
+        else:
+            tokens_dictionary["token0"]["amount"] = int(input_asset_balance)
+            tokens_dictionary["token1"]["amount"] = token1_amount
+    elif shared_token == "token1":
+        if input_asset_balance >= amount_to_swap:
+            tokens_dictionary["token1"]["amount"] = amount_to_swap
+            tokens_dictionary["token0"]["amount"] = token0_amount
+        else:
+            tokens_dictionary["token1"]["amount"] = int(input_asset_balance)
+            tokens_dictionary["token0"]["amount"] = token0_amount
     return tokens_dictionary
 def main():
     global total_liquid_value
