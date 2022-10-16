@@ -1033,15 +1033,8 @@ def harvest_tango_sidx_farm(*account):
     # Then, get the Tango amount harvested
     tango_CA = "0x73BE9c8Edf5e951c9a0762EA2b1DE8c8F38B5e91"
     tango_amount = int(round(get_SEP20_balance(tango_CA, address) / 2))
-    # Swap half of the amount for SIDX
-    swap_assets(tango_CA, SIDX_CA, tango_amount, *account)
-    # Swap the rest to WBCH
-    tango_amount = int(round(get_SEP20_balance(tango_CA, address)))
-    swap_assets(tango_CA, WBCH_CA, tango_amount, *account)
-    # Add liquidity to the SIDX/WBCH pool
-    tokens_dictionary = {"token0": {"CA": WBCH_CA, "amount": 0},
-                         "token1": {"CA": SIDX_CA, "amount": "all"}}
     LP_CA = "0x4509Ff66a56cB1b80a6184DB268AD9dFBB79DD53"
+    tokens_dictionary = buy_assets_for_liquidty_addition(tango_amount, tango_CA, LP_CA, *account)
     tango_router = "0xb93184fB3eEDb4d32150763578cA305488240c8e"
     add_liquidity(tokens_dictionary, LP_CA, tango_router, *account)
     # Time to check the LP tokens balance
@@ -1080,22 +1073,10 @@ def harvest_sidx_ember_farm(*account):
     # Then, get the Ember amount harvested
     ember_CA = "0x6BAbf5277849265b6738e75AEC43AEfdde0Ce88D"
     ember_amount = int(round(get_SEP20_balance(ember_CA, address) / 2))
-    # Swap half of the amount for SIDX
-    swap_assets(ember_CA, SIDX_CA, ember_amount, *account)
-    # Add liquidity to the SIDX/EMBER pool
     LP_CA = "0x97dEAeB1A9A762d97Ac565cD3Ff7629CD6d55D09"
+    tokens_dictionary = buy_assets_for_liquidty_addition(ember_amount, ember_CA, LP_CA, *account)
     ember_router = "0x217057A8B0bDEb160829c19243A2E03bfe95555a"
-    try:
-        tokens_dictionary = {"token0": {"CA": ember_CA, "amount": "all"},
-                             "token1": {"CA": SIDX_CA, "amount": 0}}
-        add_liquidity(tokens_dictionary, LP_CA, ember_router, *account, min_amount_percentage=2)
-    except Exception as e:
-        logger.error(f'Failed to add liquidity to SIDX/EMBER farm, trying to modify the amounts. Error is {e}.')
-        import app.email as email
-        email.send_email_to_admin(f'Failed to add liquidity to SIDX/EMBER farm, trying to modify the amounts. Error is {e}.')
-        tokens_dictionary = {"token0": {"CA": ember_CA, "amount": 0},
-                             "token1": {"CA": SIDX_CA, "amount": "all"}}
-        add_liquidity(tokens_dictionary, LP_CA, ember_router, *account, min_amount_percentage=2)
+    add_liquidity(tokens_dictionary, LP_CA, ember_router, *account, min_amount_percentage=2)
     # Time to check the LP tokens balance
     ABI = open("ABIs/UniswapV2Pair.json", "r")
     abi = json.loads(ABI.read())
