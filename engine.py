@@ -1366,10 +1366,14 @@ def buy_assets_for_liquidty_addition(input_amount, input_asset_CA, lp_CA, *accou
                          "token1": {"CA": None, "amount": None}}
     tokens_dictionary["token0"]["CA"] = contract.functions.token0().call()
     tokens_dictionary["token1"]["CA"] = contract.functions.token1().call()
+    # If the input token is one of the liquidity pool tokens, shared_token will be token0 or token1, respectively
+    shared_token = None
     # First, let's swap half of the input_amount for token0
     amount_to_swap = int(input_amount / 2)
     if input_asset_CA != tokens_dictionary["token0"]["CA"]:
         token0_amount = swap_assets(input_asset_CA, tokens_dictionary["token0"]["CA"], amount_to_swap, *account)
+    else:
+        shared_token = "token0"
     # Now, the other half or whatever is left
     input_asset_balance = get_SEP20_balance(input_asset_CA, address)
     if input_asset_CA != tokens_dictionary["token1"]["CA"]:
@@ -1377,8 +1381,22 @@ def buy_assets_for_liquidty_addition(input_amount, input_asset_CA, lp_CA, *accou
             token1_amount = swap_assets(input_asset_CA, tokens_dictionary["token1"]["CA"], amount_to_swap, *account)
         else:
             token1_amount = swap_assets(input_asset_CA, tokens_dictionary["token1"]["CA"], input_asset_balance, *account)
-    tokens_dictionary["token0"]["amount"] = token0_amount
-    tokens_dictionary["token1"]["amount"] = token1_amount
+    else:
+        shared_token = "token1"
+    # Finally, let's fill the tokens_dictionary with the amounts
+    if shared_token == None:
+        tokens_dictionary["token0"]["amount"] = token0_amount
+        tokens_dictionary["token1"]["amount"] = token1_amount
+    elif shared_token == "token0":
+        if input_asset_balance >= amount_to_swap:
+            tokens_dictionary["token0"]["amount"] = amount_to_swap
+        else:
+            tokens_dictionary["token0"]["amount"] = input_asset_balance
+    elif shared_token == "token1":
+        if input_asset_balance >= amount_to_swap:
+            tokens_dictionary["token1"]["amount"] = amount_to_swap
+        else:
+            tokens_dictionary["token1"]["amount"] = input_asset_balance
     return tokens_dictionary
 def main():
     global total_liquid_value
