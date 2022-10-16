@@ -1375,6 +1375,7 @@ def buy_assets_for_liquidty_addition(input_amount, input_asset_CA, lp_CA, *accou
     else:
         shared_token = "token0"
     # Now, the other half or whatever is left
+    #token1_amout nunca se llega a ejecutar si token0 == input_asset_CA
     input_asset_balance = get_SEP20_balance(input_asset_CA, address)
     if input_asset_CA != tokens_dictionary["token1"]["CA"]:
         if input_asset_balance >= amount_to_swap:
@@ -1390,13 +1391,17 @@ def buy_assets_for_liquidty_addition(input_amount, input_asset_CA, lp_CA, *accou
     elif shared_token == "token0":
         if input_asset_balance >= amount_to_swap:
             tokens_dictionary["token0"]["amount"] = amount_to_swap
+            tokens_dictionary["token1"]["amount"] = token1_amount
         else:
-            tokens_dictionary["token0"]["amount"] = input_asset_balance
+            tokens_dictionary["token0"]["amount"] = int(input_asset_balance)
+            tokens_dictionary["token1"]["amount"] = token1_amount
     elif shared_token == "token1":
         if input_asset_balance >= amount_to_swap:
             tokens_dictionary["token1"]["amount"] = amount_to_swap
+            tokens_dictionary["token0"]["amount"] = token0_amount
         else:
-            tokens_dictionary["token1"]["amount"] = input_asset_balance
+            tokens_dictionary["token1"]["amount"] = int(input_asset_balance)
+            tokens_dictionary["token0"]["amount"] = token0_amount
     return tokens_dictionary
 def main():
     global total_liquid_value
