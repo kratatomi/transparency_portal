@@ -1375,7 +1375,6 @@ def buy_assets_for_liquidty_addition(input_amount, input_asset_CA, lp_CA, *accou
     else:
         shared_token = "token0"
     # Now, the other half or whatever is left
-    #token1_amout nunca se llega a ejecutar si token0 == input_asset_CA
     input_asset_balance = get_SEP20_balance(input_asset_CA, address)
     if input_asset_CA != tokens_dictionary["token1"]["CA"]:
         if input_asset_balance >= amount_to_swap:
