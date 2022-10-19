@@ -11,6 +11,7 @@ import os
 import server_settings
 from flask_apscheduler import APScheduler # pip install Flask-APScheduler
 import watchdog
+import json
 
 app = Flask(__name__)
 bootstrap = Bootstrap(app)
@@ -22,9 +23,12 @@ scheduler = APScheduler()
 scheduler.init_app(app)
 scheduler.start()
 
-@scheduler.task('interval', id='ETF_watchdog', seconds=5, misfire_grace_time=900)
+@scheduler.task('interval', id='ETF_watchdog', seconds=10, misfire_grace_time=900)
 def ETF_watchdog():
-    watchdog.main()
+    with open('data/ETF_investors_transfers.json') as etf_investors_transfers_file:
+        ETF_investors_transfers = json.load(etf_investors_transfers_file)
+    if ETF_investors_transfers["running"] == True:
+        watchdog.main()
 @app.before_request
 def before_request():
     session.permanent = True
