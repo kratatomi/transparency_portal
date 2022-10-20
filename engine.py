@@ -10,7 +10,7 @@ from selenium.webdriver import FirefoxOptions
 from datetime import datetime
 import logging
 import math
-
+from tendo import singleton # pip install tendo
 
 logger = logging.getLogger("app.engine")
 
@@ -741,7 +741,9 @@ def get_farms(bch_price, farms=farms):
                 total_rewards_value += farms[DEX]["farms"][i]["reward value"]
 
 def make_pie_chart(data, chart_name):
+    import matplotlib
     import matplotlib.pyplot as plt
+    matplotlib.use('SVG')
 
     labels = []
     percentages = []
@@ -755,7 +757,7 @@ def make_pie_chart(data, chart_name):
 
     for asset in data:
         # Temporarily shortening the labels, should probably look into shortening further back, like MLP-BCH/bcBCH
-        #   and BNG-K-LawUSD/Law, etc. Maybe settingup enums would be a valid choice?
+        #   and BNG-K-LawUSD/Law, etc. Maybe setting up enums would be a valid choice?
         truncate = asset
         if len(truncate) > 15:
             truncate = truncate[:12]+"..."
@@ -1245,6 +1247,7 @@ def add_liquidity(tokens_dictionary, LP_CA, router, *account, min_amount_percent
         contract = w3.eth.contract(address=LP_CA, abi=abi)
         addLiquidity_event = contract.events.Mint().processReceipt(receipt)
         logger.info(f'Liquidity added: {addLiquidity_event[0]["args"]["amount0"]} of token0 and {addLiquidity_event[0]["args"]["amount1"]} of token1')
+
 def remove_liquidity(percentage_to_withdraw, LP_CA, router, *account, min_amount_percentage=1):
     if not account:
         address = portfolio_address
@@ -1402,7 +1405,9 @@ def buy_assets_for_liquidty_addition(input_amount, input_asset_CA, lp_CA, *accou
             tokens_dictionary["token1"]["amount"] = int(input_asset_balance)
             tokens_dictionary["token0"]["amount"] = token0_amount
     return tokens_dictionary
+
 def main():
+    main_instance = singleton.SingleInstance() # Just one instance can run to prevent race conditions
     global total_liquid_value
     global total_illiquid_value
     global total_rewards_value
@@ -1429,7 +1434,7 @@ def main():
                               "total_portfolio_balance": round(total_liquid_value + total_illiquid_value, 2),
                               "total_rewards_value": round(total_rewards_value, 2), "value_per_sidx": round(
             round(total_liquid_value + total_illiquid_value, 2) / SIDX_stats["Total supply"], 2)}
-    
+
     # Calculate the MarketValue/PortfilioValue ratio (less than 1 means 'underbacked')
     global_portfolio_stats["ratio"] = round(float(SIDX_stats["Price"].split()[0]) / global_portfolio_stats["value_per_sidx"], 2)
 
