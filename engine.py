@@ -11,7 +11,7 @@ from datetime import datetime
 import logging
 import math
 import os.path
-
+from tendo import singleton # pip install tendo
 
 logger = logging.getLogger("app.engine")
 
@@ -1405,7 +1405,9 @@ def buy_assets_for_liquidty_addition(input_amount, input_asset_CA, lp_CA, *accou
             tokens_dictionary["token1"]["amount"] = int(input_asset_balance)
             tokens_dictionary["token0"]["amount"] = token0_amount
     return tokens_dictionary
+
 def main():
+    main_instance = singleton.SingleInstance() # Just one instance can run to prevent race conditions
     global total_liquid_value
     global total_illiquid_value
     global total_rewards_value
