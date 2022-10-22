@@ -744,7 +744,9 @@ def get_farms(bch_price, portfolio_address=portfolio_address, farms=farms):
                 total_rewards_value += farms[DEX]["farms"][i]["reward value"]
 
 def make_pie_chart(data, chart_name):
+    import matplotlib
     import matplotlib.pyplot as plt
+    matplotlib.use('SVG')
 
     labels = []
     percentages = []
@@ -758,7 +760,7 @@ def make_pie_chart(data, chart_name):
 
     for asset in data:
         # Temporarily shortening the labels, should probably look into shortening further back, like MLP-BCH/bcBCH
-        #   and BNG-K-LawUSD/Law, etc. Maybe settingup enums would be a valid choice?
+        #   and BNG-K-LawUSD/Law, etc. Maybe setting up enums would be a valid choice?
         truncate = asset
         if len(truncate) > 15:
             truncate = truncate[:12]+"..."
@@ -1059,7 +1061,7 @@ def harvest_tango_sidx_farm(*account):
          'from': address,
          'gasPrice': w3.toWei('1.05', 'gwei')
          })
-    send_transaction(f"Depositing {LP_balance} SIDX/WBCH LP tokens to TangoSwap farm", deposit_tx, *account)
+    send_transaction(f"Depositing {LP_balance / 10**18} SIDX/WBCH LP tokens to TangoSwap farm", deposit_tx, *account)
 
 def harvest_sidx_ember_farm(*account):
     address, priv_key_env = account
@@ -1099,7 +1101,47 @@ def harvest_sidx_ember_farm(*account):
          'from': address,
          'gasPrice': w3.toWei('1.05', 'gwei')
          })
-    send_transaction(f"Depositing {LP_balance} SIDX/EMBER LP tokens to EmberSwap farm", deposit_tx, *account)
+    send_transaction(f"Depositing {LP_balance / 10**18} SIDX/EMBER LP tokens to EmberSwap farm", deposit_tx, *account)
+
+def harvest_sidx_law_farm():
+    # Harvest SIDX/LAW farm on BlockNG Kudos, on the portfolio wallet
+    ABI = open("ABIs/BlockNG-farm.json", "r")
+    abi = json.loads(ABI.read())
+    contract = w3.eth.contract(address="0x3384d970688f7B86a8D7aE6D8670CD5f9fd5fE1E", abi=abi)
+    harvest_tx = contract.functions.getReward(portfolio_address, [assets_balances["LAW"]["CA"]]).buildTransaction(
+        {'chainId': 10000,
+         'from': portfolio_address,
+         'gasPrice': w3.toWei('1.05', 'gwei')
+         })
+    send_transaction("Harvesting BlockNG Kudos SIDX/LAW farm ", harvest_tx)
+    # Then, get the total LAW available in the account (farms have been previously farmed), swap half for SIDX and add liquidity
+    LAW_amount = int(get_SEP20_balance([assets_balances["LAW"]["CA"]], portfolio_address))
+    LP_CA = initial_pool_balances["BlockNG"]["CA"]
+    tokens_dictionary = buy_assets_for_liquidty_addition(LAW_amount, assets_balances["LAW"]["CA"], LP_CA)
+    BlockNG_router = "0xD301b5334912190493fa798Cf796440Cd9B33DB1"
+    add_liquidity(tokens_dictionary, LP_CA, BlockNG_router)
+    # Time to check the LP tokens balance
+    ABI = open("ABIs/UniswapV2Pair.json", "r")
+    abi = json.loads(ABI.read())
+    contract = w3.eth.contract(address=LP_CA, abi=abi)
+    LP_balance = int(contract.functions.balanceOf(portfolio_address).call())
+    if LP_balance == 0:
+        logger.error(f'No liquidity to add to SIDX/LAW farm. Error is {e}.')
+        import app.email as email
+        email.send_email_to_admin(f'No liquidity to add to SIDX/LAW farm. Error is {e}.')
+        return
+    # Finally, LP tokens are deposited on the farm
+    ABI = open("ABIs/BlockNG-farm.json", "r")
+    abi = json.loads(ABI.read())
+    contract = w3.eth.contract(address="0x3384d970688f7B86a8D7aE6D8670CD5f9fd5fE1E", abi=abi)
+    tokenId = contract.functions.tokenIds(portfolio_address).call()
+    deposit_tx = contract.functions.deposit(LP_balance, int(tokenId)).buildTransaction(
+        {'chainId': 10000,
+         'from': portfolio_address,
+         'gasPrice': w3.toWei('1.05', 'gwei')
+         })
+    send_transaction(
+        f"Depositing {LP_balance / 10**18} LP tokens to BlockNG-Kudos SIDX/LAW farm", deposit_tx)
 
 def get_ETF_assets_allocation(farms):
     portfolio = {"Standalone assets": {}, "Farms": {}}
@@ -1248,6 +1290,7 @@ def add_liquidity(tokens_dictionary, LP_CA, router, *account, min_amount_percent
         contract = w3.eth.contract(address=LP_CA, abi=abi)
         addLiquidity_event = contract.events.Mint().processReceipt(receipt)
         logger.info(f'Liquidity added: {addLiquidity_event[0]["args"]["amount0"]} of token0 and {addLiquidity_event[0]["args"]["amount1"]} of token1')
+
 def remove_liquidity(percentage_to_withdraw, LP_CA, router, *account, min_amount_percentage=1):
     if not account:
         address = portfolio_address

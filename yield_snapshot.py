@@ -324,6 +324,12 @@ def main():
         import app.email as email
         email.send_email_to_admin(f'Function harvest_sidx_ember_farm failed. Exception: {e}')
 
+    try:
+        engine.harvest_sidx_law_farm()
+    except Exception as e:
+        logger.error(f'Function harvest_sidx_law_farm failed. Exception: {e}')
+        import app.email as email
+        email.send_email_to_admin(f'Function harvest_sidx_law_farm failed. Exception: {e}')
 
 if __name__ == "__main__":
     main()
