@@ -1034,7 +1034,7 @@ def harvest_tango_sidx_farm(*account):
     send_transaction("Harvesting SIDX/BCH farm on Tango", harvest_tx, *account)
     # Then, get the Tango amount harvested
     tango_CA = "0x73BE9c8Edf5e951c9a0762EA2b1DE8c8F38B5e91"
-    tango_amount = int(round(get_SEP20_balance(tango_CA, address) / 2))
+    tango_amount = int(get_SEP20_balance(tango_CA, address))
     LP_CA = "0x4509Ff66a56cB1b80a6184DB268AD9dFBB79DD53"
     tokens_dictionary = buy_assets_for_liquidty_addition(tango_amount, tango_CA, LP_CA, *account)
     tango_router = "0xb93184fB3eEDb4d32150763578cA305488240c8e"
@@ -1074,7 +1074,7 @@ def harvest_sidx_ember_farm(*account):
     send_transaction("Harvesting SIDX/EMBER farm on Emberswap", harvest_tx, *account)
     # Then, get the Ember amount harvested
     ember_CA = "0x6BAbf5277849265b6738e75AEC43AEfdde0Ce88D"
-    ember_amount = int(round(get_SEP20_balance(ember_CA, address) / 2))
+    ember_amount = int(get_SEP20_balance(ember_CA, address))
     LP_CA = "0x97dEAeB1A9A762d97Ac565cD3Ff7629CD6d55D09"
     tokens_dictionary = buy_assets_for_liquidty_addition(ember_amount, ember_CA, LP_CA, *account)
     ember_router = "0x217057A8B0bDEb160829c19243A2E03bfe95555a"
@@ -1112,7 +1112,7 @@ def harvest_sidx_law_farm():
          })
     send_transaction("Harvesting BlockNG Kudos SIDX/LAW farm ", harvest_tx)
     # Then, get the total LAW available in the account (farms have been previously farmed), swap half for SIDX and add liquidity
-    LAW_amount = int(get_SEP20_balance([assets_balances["LAW"]["CA"]], portfolio_address))
+    LAW_amount = int(get_SEP20_balance(assets_balances["LAW"]["CA"], portfolio_address))
     LP_CA = initial_pool_balances["BlockNG"]["CA"]
     tokens_dictionary = buy_assets_for_liquidty_addition(LAW_amount, assets_balances["LAW"]["CA"], LP_CA)
     BlockNG_router = "0xD301b5334912190493fa798Cf796440Cd9B33DB1"
