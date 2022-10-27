@@ -49,7 +49,7 @@ def generate_graphs():
             for coin in current_farms[DEX]["farms"][i]["Coins"]:
                 coins_pair.append(coin)
                 current_USD_value += current_farms[DEX]["farms"][i]["Coins"][coin]["Current value"]
-            farms_list[current_farms[DEX]["farms"][i]["lp_CA"]] = {"name": f"{DEX}-{coins_pair[0]}-{coins_pair[1]}", "Yields": [], "USD total value": [], "USD current value": current_USD_value,"Weeks tracked": 0}
+            farms_list[current_farms[DEX]["farms"][i]["lp_CA"]] = {"name": f"{DEX}-{coins_pair[0]}-{coins_pair[1]}", "Yields": [], "USD total value": [], "USD current value": current_USD_value, "Weeks tracked": 0, "Rewards value": []}
     # Adding all value in SIDX liquidity pools
     for DEX in current_liquidity:
         if DEX not in sidx_liquidity:
@@ -111,6 +111,7 @@ def generate_graphs():
                         farms_list[farms[DEX]["farms"][i]["lp_CA"]]["Yields"].append(yield_percentage)
                         farms_list[farms[DEX]["farms"][i]["lp_CA"]]["USD total value"].append(current_value)
                         farms_list[farms[DEX]["farms"][i]["lp_CA"]]["Weeks tracked"] += 1
+                        farms_list[farms[DEX]["farms"][i]["lp_CA"]]["Rewards value"].append(reward_value)
 
             for farm in farms_list:
                 if farm not in farms_in_weekly_report:
@@ -125,7 +126,25 @@ def generate_graphs():
             value_per_sidx.append(weekly_report["GLOBAL_STATS"]["value_per_sidx"])
         else:
             value_per_sidx.append(None)
-
+    # As BlockNG-Beam farms aren't farmed weekly, we need to subtract the every previous week yields to get the actual yield
+    for farm_number in range(len(current_farms["BlockNG-Beam"]["farms"])):
+        lp_CA = current_farms["BlockNG-Beam"]["farms"][farm_number]["lp_CA"]
+        reward_list = farms_list[lp_CA]["Rewards value"]
+        actual_reward_list = reward_list.copy()
+        weeks_tracked = farms_list[lp_CA]["Weeks tracked"]
+        current_value_list = farms_list[lp_CA]["USD total value"]
+        for i in range(len(reward_list)-weeks_tracked + 1, len(reward_list)):
+            if reward_list[i] > reward_list[i-1]:
+                actual_reward_list[i] = reward_list[i] - reward_list[i-1]
+        farms_list[lp_CA]["Rewards value"] = actual_reward_list
+        yields_list = farms_list[lp_CA]["Yields"]
+        actual_yields_list = yields_list.copy()
+        counter = 0
+        for i in range(len(yields_list)-weeks_tracked, len(yields_list)):
+            actual_yields_list[i] = (actual_reward_list[counter] / current_value_list[i]) * 100
+            counter += 1
+        farms_list[lp_CA]["Yields"] = actual_yields_list
+    print(farms_list)
     # Time to plot the yields graph for staked assets
     fig, ax = plt.subplots()
 
