@@ -144,7 +144,7 @@ def generate_graphs():
             actual_yields_list[i] = (actual_reward_list[counter] / current_value_list[i]) * 100
             counter += 1
         farms_list[lp_CA]["Yields"] = actual_yields_list
-    print(farms_list)
+
     # Time to plot the yields graph for staked assets
     fig, ax = plt.subplots()
 
