@@ -1323,7 +1323,14 @@ def remove_liquidity(percentage_to_withdraw, LP_CA, router, *account, min_amount
          'from': address,
          'gasPrice': w3.toWei('1.05', 'gwei')
          })
-    send_transaction(f"Removing liquidity: at least {token0_min_amount} of {token0_address} and {token1_min_amount} of {token1_address} in account {address}", add_liquidity_tx, *account)
+    receipt = send_transaction(f"Removing liquidity: at least {token0_min_amount} of {token0_address} and {token1_min_amount} of {token1_address} in account {address}", add_liquidity_tx, *account)
+    if receipt:
+        ABI = open("ABIs/UniswapV2Pair.json", "r")
+        abi = json.loads(ABI.read())
+        contract = w3.eth.contract(address=LP_CA, abi=abi)
+        burnLiquidity_event = contract.events.Burn().processReceipt(receipt)
+        logger.info(f'Liquidity removed: {burnLiquidity_event[0]["args"]["amount0"]} of token0 and {burnLiquidity_event[0]["args"]["amount1"]} of token1')
+        return burnLiquidity_event[0]["args"]["amount0"], burnLiquidity_event[0]["args"]["amount1"]
 
 def wrap_BCH(amount, *account):
     amount = int(amount)
