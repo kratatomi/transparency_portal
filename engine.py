@@ -688,21 +688,21 @@ def get_farms(bch_price, farms=farms):
                 "Initial amount": round(farms[DEX]["farms"][i]["initial_token0_amount"], 2)}
             farms[DEX]["farms"][i]["Coins"][token1_ticker] = {
                 "Initial amount": round(farms[DEX]["farms"][i]["initial_token1_amount"], 2)}
-            farms[DEX]["farms"][i]["Coins"][token0_ticker]["Current"] = round(
-                ((farms[DEX]["farms"][i][
-                      "lp_token_amount"] / LP_total_supply) * token0_reserves) / 10 ** token0_decimals, 2)
+            token0_current_amount = ((farms[DEX]["farms"][i][
+                      "lp_token_amount"] / LP_total_supply) * token0_reserves) / 10 ** token0_decimals
+            farms[DEX]["farms"][i]["Coins"][token0_ticker]["Current"] = round(token0_current_amount, 2)
             farms[DEX]["farms"][i]["Coins"][token0_ticker]["Current value"] = round(
                 get_price_from_pool(farms[DEX]["farms"][i]["token_0_bch_pair"], bch_price,
                                     assets_positions=farms[DEX]["farms"][i]["token_0_assets_position"]) *
-                farms[DEX]["farms"][i]["Coins"][token0_ticker]["Current"], 2)
+                token0_current_amount, 2)
             total_liquid_value += farms[DEX]["farms"][i]["Coins"][token0_ticker]["Current value"]
-            farms[DEX]["farms"][i]["Coins"][token1_ticker]["Current"] = round(
-                ((farms[DEX]["farms"][i][
-                      "lp_token_amount"] / LP_total_supply) * token1_reserves) / 10 ** token1_decimals, 2)
+            token1_current_amount = ((farms[DEX]["farms"][i][
+                      "lp_token_amount"] / LP_total_supply) * token1_reserves) / 10 ** token1_decimals
+            farms[DEX]["farms"][i]["Coins"][token1_ticker]["Current"] = round(token1_current_amount, 2)
             farms[DEX]["farms"][i]["Coins"][token1_ticker]["Current value"] = round(
                 get_price_from_pool(farms[DEX]["farms"][i]["token_1_bch_pair"], bch_price,
                                     assets_positions=farms[DEX]["farms"][i]["token_1_assets_position"]) *
-                farms[DEX]["farms"][i]["Coins"][token1_ticker]["Current"], 2)
+                token1_current_amount, 2)
             total_liquid_value += farms[DEX]["farms"][i]["Coins"][token1_ticker]["Current value"]
             farms[DEX]["farms"][i]["Coins"][token0_ticker]["Difference"] = round(
                 farms[DEX]["farms"][i]["Coins"][token0_ticker]["Current"] -
