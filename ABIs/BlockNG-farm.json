@@ -158,5 +158,17 @@
     "stateMutability": "view",
     "type": "function",
     "signature": "0x70a08231"
-  }
+  },
+  {
+      "inputs": [
+        {
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "withdraw",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
 ]
