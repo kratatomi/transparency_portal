@@ -234,7 +234,8 @@ def get_balances(bch_price, portfolio_address=portfolio_address):
                 abi = json.loads(ABI.read())
                 contract = w3.eth.contract(address=assets_balances[asset]["harvest_CA"], abi=abi)
                 stacked_assets[asset] = {}
-                stacked_assets[asset]["Initial"] = round(assets_balances[asset]["Initial"], 2)
+                initial_balance = contract.functions.userInfo(1, portfolio_address).call()[0] / 10**18
+                stacked_assets[asset]["Initial"] = round(initial_balance, 2)
                 stacked_assets[asset]["Yield"] = round(
                     contract.functions.pendingGreenBen(1, portfolio_address).call() / 10 ** 18, 2)
                 stacked_assets[asset]["Current"] = round(stacked_assets[asset]["Initial"] + stacked_assets[asset]["Yield"],
