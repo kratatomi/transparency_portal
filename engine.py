@@ -1334,12 +1334,12 @@ def remove_liquidity(percentage_to_withdraw, LP_CA, router, *account, min_amount
     abi = json.loads(ABI.read())
     contract = w3.eth.contract(address=router, abi=abi)
     deadline = int(time()) + 60
-    add_liquidity_tx = contract.functions.removeLiquidity(token0_address, token1_address, int(amount_to_withdraw), token0_min_amount, token1_min_amount, address, deadline).buildTransaction(
+    remove_liquidity_tx = contract.functions.removeLiquidity(token0_address, token1_address, int(amount_to_withdraw), token0_min_amount, token1_min_amount, address, deadline).buildTransaction(
         {'chainId': 10000,
          'from': address,
          'gasPrice': w3.toWei('1.05', 'gwei')
          })
-    receipt = send_transaction(f"Removing liquidity: at least {token0_min_amount} of {token0_address} and {token1_min_amount} of {token1_address} in account {address}", add_liquidity_tx, *account)
+    receipt = send_transaction(f"Removing liquidity: at least {token0_min_amount} of {token0_address} and {token1_min_amount} of {token1_address} in account {address}", remove_liquidity_tx, *account)
     if receipt:
         ABI = open("ABIs/UniswapV2Pair.json", "r")
         abi = json.loads(ABI.read())
