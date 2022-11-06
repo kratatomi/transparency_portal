@@ -565,6 +565,7 @@ def stop_watchdog():
 def main():
     # ETF_investors_transfers is a file created by start_watchdog() given a start block, which structure is:
     # ETF_investors_transfers = {"latest_scanned_block": start_block, "investors": [], "running": True, "withdrawals": []}
+    # Started live on block 7052831
     # Investors/withdrawals list contains the TXID of every investment.
     if os.path.exists('data/ETF_investors_transfers.json'):
         with open('data/ETF_investors_transfers.json') as etf_investors_transfers_file:
