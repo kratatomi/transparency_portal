@@ -69,14 +69,14 @@ assets_balances = {
 
 initial_pool_balances = {
     "Mistswap": {"CA": "0x7E1B9F1e286160A80ab9B04D228C02583AeF90B5", "token0": 3.333, "token1": 15807.4},
-    "BlockNG": {"CA": "0x1CD36D9dEd958366d17DfEdD91b5F8e682D7f914", "token0": 2521.44, "token1": 3389.49}
+    "BlockNG": {"CA": "0x1CD36D9dEd958366d17DfEdD91b5F8e682D7f914", "token0": 2586.42, "token1": 3459.29}
     # Token0 is WBCH/LAW, Token1 is SIDX
 }
 
 extra_pool_balances = {
-    "Mistswap": {"CA": "0x7E1B9F1e286160A80ab9B04D228C02583AeF90B5", "token0": 5.2151, "token1": 2328.22},
-    "Tangoswap": {"CA": "0x4509Ff66a56cB1b80a6184DB268AD9dFBB79DD53", "token0": 4.7055, "token1": 1741.37},
-    "Emberswap": {"CA": "0x97dEAeB1A9A762d97Ac565cD3Ff7629CD6d55D09", "token0": 231696, "token1": 681.5}
+    "Mistswap": {"CA": "0x7E1B9F1e286160A80ab9B04D228C02583AeF90B5", "token0": 5.2391, "token1": 2345.32},
+    "Tangoswap": {"CA": "0x4509Ff66a56cB1b80a6184DB268AD9dFBB79DD53", "token0": 4.7165, "token1": 1749.12},
+    "Emberswap": {"CA": "0x97dEAeB1A9A762d97Ac565cD3Ff7629CD6d55D09", "token0": 236311, "token1": 689.03}
     }  # Token0 is WBCH/EMBER, Token1 is SIDX
 
 farms = {"Mistswap": {"factory": "0x3A7B9D0ed49a90712da4E087b17eE4Ac1375a5D4",
@@ -1337,12 +1337,12 @@ def remove_liquidity(percentage_to_withdraw, LP_CA, router, *account, min_amount
     abi = json.loads(ABI.read())
     contract = w3.eth.contract(address=router, abi=abi)
     deadline = int(time()) + 60
-    add_liquidity_tx = contract.functions.removeLiquidity(token0_address, token1_address, int(amount_to_withdraw), token0_min_amount, token1_min_amount, address, deadline).buildTransaction(
+    remove_liquidity_tx = contract.functions.removeLiquidity(token0_address, token1_address, int(amount_to_withdraw), token0_min_amount, token1_min_amount, address, deadline).buildTransaction(
         {'chainId': 10000,
          'from': address,
          'gasPrice': w3.toWei('1.05', 'gwei')
          })
-    receipt = send_transaction(f"Removing liquidity: at least {token0_min_amount} of {token0_address} and {token1_min_amount} of {token1_address} in account {address}", add_liquidity_tx, *account)
+    receipt = send_transaction(f"Removing liquidity: at least {token0_min_amount} of {token0_address} and {token1_min_amount} of {token1_address} in account {address}", remove_liquidity_tx, *account)
     if receipt:
         ABI = open("ABIs/UniswapV2Pair.json", "r")
         abi = json.loads(ABI.read())
