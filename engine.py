@@ -1175,6 +1175,10 @@ def get_ETF_assets_allocation(farms):
 
 def swap_assets(asset_in, asset_out, amount, *account):
     # asset_in and asset_out are the respective contract address of each token. Amount is the amount to swap.
+    # First, let's be sure asset_in and asset_out if not the same asset, as this can happen in ETF withdrawals
+    if asset_in == asset_out:
+        logger.error(f'Asset in and out are the same token: {asset_in}')
+        return
     # First, we need to make sure that the portfolio holds the required amount of asset_in
     if not account:
         address = portfolio_address
@@ -1189,12 +1193,12 @@ def swap_assets(asset_in, asset_out, amount, *account):
             logger.info(f'Warning: no balance of {asset_in} in account {address}.')
             import app.email as email
             email.send_email_to_admin(f'Warning: no balance of {asset_in} in account {address}.')
-            return
+            raise Exception("Zero balance")
     if asset_in_amount < amount:
         logger.info(f'Warning: not enough {asset_in} balance in account {address}, needed {amount}.')
         import app.email as email
         email.send_email_to_admin(f'Warning: not enough {asset_in} balance, needed {amount}.')
-        return
+        raise Exception("Insufficient balance")
     # Second, we need to know if SmartSwap router is allowed to swap asset_in
     router = "0xEd2E356C00A555DDdd7663BDA822C6acB34Ce614"
     asset_allowance(asset_in, router, amount="all", *account)
@@ -1266,6 +1270,17 @@ def add_liquidity(tokens_dictionary, LP_CA, router, *account, min_amount_percent
         tokens_dictionary["token1"]["amount"] = int(round((tokens_dictionary["token0"]["amount"] / token0_reserves) * token1_reserves))
     else:
         tokens_dictionary["token0"]["amount"] = int(round((tokens_dictionary["token1"]["amount"] / token1_reserves) * token0_reserves))
+    # It's a good idea to check the account balance on both tokens
+    token0_balance = get_SEP20_balance(tokens_dictionary["token0"]["CA"], address)
+    token1_balance = get_SEP20_balance(tokens_dictionary["token1"]["CA"], address)
+    if token1_balance < tokens_dictionary["token1"]["amount"] and tokens_dictionary["token1"]["CA"] != WBCH_CA:
+        tokens_dictionary["token1"]["amount"] = token1_balance
+        tokens_dictionary["token0"]["amount"] = int(
+            round((tokens_dictionary["token1"]["amount"] / token1_reserves) * token0_reserves))
+    if token0_balance < tokens_dictionary["token0"]["amount"] and tokens_dictionary["token0"]["CA"] != WBCH_CA:
+        tokens_dictionary["token0"]["amount"] = token0_balance
+        tokens_dictionary["token1"]["amount"] = int(
+            round((tokens_dictionary["token0"]["amount"] / token0_reserves) * token1_reserves))
     # Router must be allowed to spend both tokens
     asset_allowance(tokens_dictionary["token0"]["CA"], router, amount="all", *account)
     asset_allowance(tokens_dictionary["token1"]["CA"], router, amount="all", *account)
@@ -1300,7 +1315,10 @@ def remove_liquidity(percentage_to_withdraw, LP_CA, router, *account, min_amount
     abi = json.loads(ABI.read())
     contract = w3.eth.contract(address=LP_CA, abi=abi)
     LP_token_balance = contract.functions.balanceOf(address).call()
-    amount_to_withdraw = (LP_token_balance * percentage_to_withdraw) / 100 # Liquidity parameter in removeLiquidity function
+    if percentage_to_withdraw == 100:
+        amount_to_withdraw = LP_token_balance
+    else:
+        amount_to_withdraw = (LP_token_balance * percentage_to_withdraw) / 100 # Liquidity parameter in removeLiquidity function
     token0_reserves, token1_reserves = [contract.functions.getReserves().call()[i] for i in (0, 1)]
     token0_address = contract.functions.token0().call()
     token1_address = contract.functions.token1().call()
@@ -1316,7 +1334,7 @@ def remove_liquidity(percentage_to_withdraw, LP_CA, router, *account, min_amount
     abi = json.loads(ABI.read())
     contract = w3.eth.contract(address=router, abi=abi)
     deadline = int(time()) + 60
-    add_liquidity_tx = contract.functions.removeLiquidity(token0_address, token1_address, amount_to_withdraw, token0_min_amount, token1_min_amount, address, deadline).buildTransaction(
+    add_liquidity_tx = contract.functions.removeLiquidity(token0_address, token1_address, int(amount_to_withdraw), token0_min_amount, token1_min_amount, address, deadline).buildTransaction(
         {'chainId': 10000,
          'from': address,
          'gasPrice': w3.toWei('1.05', 'gwei')
