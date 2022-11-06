@@ -8,3 +8,4 @@ class Config(object):
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     PROPOSALS_PER_PAGE = 5
     ADMINS = ['contact@smartindex.cash']
+    SCHEDULER_API_ENABLED = True

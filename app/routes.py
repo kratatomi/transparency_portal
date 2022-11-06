@@ -224,3 +224,18 @@ def submit_proposal():
         flash('You need at least 1250 SIDX token to submit a proposal')
         return url_for('proposals')
     return render_template("submit_proposal.html", title="Submit a proposal", sidx_stats=sidx_stats, form=form)
+
+
+@app.route('/ETF')
+def ETF_portfolio():
+    with open('data/ETF_SEP20_BALANCES.json') as ETF_sep20_balances_file:
+        etf_sep20_balances = json.load(ETF_sep20_balances_file)
+    with open('data/ETF_STAKED_ASSETS.json') as ETF_staked_assets_file:
+        etf_staked_assets = json.load(ETF_staked_assets_file)
+    with open('data/ETF_FARMS.json') as ETF_farms_file:
+        etf_farms = json.load(ETF_farms_file)
+    with open('data/SIDX_STATS.json') as sidx_stats_file:
+        sidx_stats = json.load(sidx_stats_file)
+    with open('data/ETF_GLOBAL_STATS.json') as ETF_global_stats_file:
+        etf_global_stats = json.load(ETF_global_stats_file)
+    return render_template("ETF.html", title="ETF portfolio tracker", sidx_stats=sidx_stats, etf_sep20_balances=etf_sep20_balances, etf_staked_assets=etf_staked_assets, etf_farms=etf_farms, etf_global_stats=etf_global_stats)

@@ -10,6 +10,7 @@ from selenium.webdriver import FirefoxOptions
 from datetime import datetime
 import logging
 import math
+import os.path
 from tendo import singleton # pip install tendo
 
 logger = logging.getLogger("app.engine")
@@ -35,6 +36,8 @@ WBCH_CA = "0x3743eC0673453E5009310C727Ba4eaF7b3a1cc04"
 
 with open("data/NFTs.json", "r") as file:
     NFTs = json.load(file)
+
+ETF_portfolio_address = "0x91fbdB995D05BBdCb3C7D21180794877A93d87e0"
 
 assets_balances = {
     "MistToken": {"Initial": 226146.43, "Stacked": True, "CA": "0x5fA664f69c2A4A3ec94FaC3cBf7049BD9CA73129",
@@ -152,7 +155,7 @@ sidx_liquidity_pie_chart_data = {}
 global_stats_pie_chart_data = {}
 
 
-def get_balances(bch_price, portfolio_address=portfolio_address):
+def get_balances(bch_price, portfolio_address=portfolio_address, assets_balances=assets_balances):
     stacked_assets = {}
     SEP20_tokens = {}
     total_value_SEP20_tokens = 0
@@ -585,19 +588,19 @@ def get_law_rewards(bch_price):
             extra_zen_hashrate_percentage = (extra_zen_hashrate / base_hashrate) * 100
             total_hashrate += extra_zen_hashrate
             NFTs["PUNKS"]["Wallets"][wallet]["Punks"][punk] = {
-                                                                "Level": stats[1], 
-                                                                "Bloodline": stats[2] / 10 ** 8, 
-                                                                "Popularity": stats[3] / 10 ** 8, 
-                                                                "Growth": stats[4] / 10 ** 8, 
-                                                                "Power": stats[5] / 10 ** 8, 
-                                                                "Hashrate": base_hashrate, 
-                                                                "Pharmacist Level": pharm_level, 
-                                                                "Item Hashrate": item_hashrate, 
-                                                                "Item Boost": item_boost_percentage, 
-                                                                "Zen Hashrate": extra_zen_hashrate, 
-                                                                "Zen Boost": extra_zen_hashrate_percentage, 
-                                                                "Zen Level": zen_level, 
-                                                                "Zen End": zen_end_date, 
+                                                                "Level": stats[1],
+                                                                "Bloodline": stats[2] / 10 ** 8,
+                                                                "Popularity": stats[3] / 10 ** 8,
+                                                                "Growth": stats[4] / 10 ** 8,
+                                                                "Power": stats[5] / 10 ** 8,
+                                                                "Hashrate": base_hashrate,
+                                                                "Pharmacist Level": pharm_level,
+                                                                "Item Hashrate": item_hashrate,
+                                                                "Item Boost": item_boost_percentage,
+                                                                "Zen Hashrate": extra_zen_hashrate,
+                                                                "Zen Boost": extra_zen_hashrate_percentage,
+                                                                "Zen Level": zen_level,
+                                                                "Zen End": zen_end_date,
                                                                 "Total Hashrate": total_hashrate
                                                             };
     NFTs["PUNKS"]["Total LAW pending"] = round(law_pending, 2)
@@ -666,8 +669,8 @@ def get_law_rewards(bch_price):
     total_liquid_value += NFTs["LAW Rights"]["LAW pending in USD"]
     total_rewards_value += NFTs["LAW Rights"]["LAW pending in USD"]
     total_illiquid_value += NFTs["LAW Rights"]["LAW locked in USD"]
-    
-def get_farms(bch_price, farms=farms):
+
+def get_farms(bch_price, portfolio_address=portfolio_address, farms=farms):
     global total_liquid_value
     global total_illiquid_value
     global total_rewards_value
@@ -1522,6 +1525,30 @@ def main():
         json.dump(global_portfolio_stats, file, indent=4)
     with open('data/ETF_portfolio.json', 'w') as file:
         json.dump(ETF_portfolio, file, indent=4)
+
+    # Get data for the ETF portfolio. The first steps is to reset the global variables total_liquid_value and total_rewards_value.
+    total_liquid_value = 0
+    total_rewards_value = 0
+    if os.path.exists('data/ETF_FARMS.json'):
+        with open("data/ETF_FARMS.json", "r") as file:
+            ETF_farms = json.load(file)
+    if os.path.exists('data/ETF_ASSETS_BALANCES.json'):
+        with open("data/ETF_ASSETS_BALANCES.json", "r") as file:
+            ETF_assets_balances = json.load(file)
+    ETF_SEP20_tokens, ETF_staked_assets = get_balances(bch_price, portfolio_address=ETF_portfolio_address, assets_balances=ETF_assets_balances)
+    total_rewards_value = ETF_staked_assets["Total yield value"]
+    get_farms(bch_price, portfolio_address=ETF_portfolio_address, farms=ETF_farms)
+    global_ETF_portfolio_stats = {"total_portfolio_balance": round(total_liquid_value, 2),
+                                  "total_rewards_value": round(total_rewards_value, 2)}
+
+    with open('data/ETF_GLOBAL_STATS.json', 'w') as file:
+        json.dump(global_ETF_portfolio_stats, file, indent=4)
+    with open('data/ETF_SEP20_BALANCES.json', 'w') as file:
+        json.dump(ETF_SEP20_tokens, file, indent=4)
+    with open('data/ETF_STAKED_ASSETS.json', 'w') as file:
+        json.dump(ETF_staked_assets, file, indent=4)
+    with open('data/ETF_FARMS.json', 'w') as file:
+        json.dump(ETF_farms, file, indent=4)
 
 if __name__ == "__main__":
     main()
