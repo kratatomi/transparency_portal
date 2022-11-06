@@ -540,7 +540,7 @@ def start_watchdog(start_block):
         with open('data/ETF_investors_transfers.json') as etf_investors_transfers_file:
             ETF_investors_transfers = json.load(etf_investors_transfers_file)
     else:
-        ETF_investors_transfers = {"latest_scanned_block": start_block, "investors": [], "running": True,
+        ETF_investors_transfers = {"latest_scanned_block": start_block, "investors": [], "running": False,
                                    "withdrawals": []}
     if ETF_investors_transfers["running"] == True:
         print("Watchdog already running")
