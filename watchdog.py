@@ -28,7 +28,7 @@ masters = {"Mistswap": "0x3A7B9D0ed49a90712da4E087b17eE4Ac1375a5D4",
 portfolio_fee = 1
 admin_fee = 0.5
 min_investment_amount = 0.2 #BCH
-min_withdrawal_share = 0.05
+min_withdrawal_share = 0.005
 
 class SBCH:
     ID = 0
