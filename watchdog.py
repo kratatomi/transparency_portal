@@ -724,7 +724,7 @@ def main():
                          'gasPrice': w3.toWei('1.05', 'gwei')
                          })
                     engine.send_transaction(
-                        f"Minting {token_amount / 10**18} SIDX_ETF tokens burned, investor address is {investor_address}",
+                        f"{token_amount / 10**18} SIDX_ETF tokens burned, investor address is {investor_address}",
                         burning_tx, *(ETF_watchdog_address, "WATCHDOG_PRIV_KEY"))
                 try:
                     rescan_farms()
