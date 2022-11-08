@@ -616,6 +616,9 @@ def main():
                     if successful_allocation == True:
                         try:
                             rescan_farms()
+                            with open('data/ETF_GLOBAL_STATS.json') as etf_global_stats_file:
+                                ETF_global_stats = json.load(etf_global_stats_file)
+                            ETF_portfolio_USD_value = float(ETF_global_stats["total_portfolio_balance"])
                             engine.main()
                         except SingleInstanceException:
                             # This happens if the cron task is running engine.main()
@@ -631,9 +634,6 @@ def main():
                         finally:
                             bch_price = engine.get_BCH_price()
                             investment_usd_amount = (amount_left / 10**18) * bch_price
-                            with open('data/ETF_GLOBAL_STATS.json') as etf_global_stats_file:
-                                ETF_global_stats = json.load(etf_global_stats_file)
-                            ETF_portfolio_USD_value = float(ETF_global_stats["total_portfolio_balance"])
                             # SIDX_ETF coins are minted
                             # ETF_SIDX_minted = investment_usd_amount * ETF_SIDX_supply / ETF_portfolio_USD_value
                             ABI = open("ABIs/ERC20-ABI.json", "r")
