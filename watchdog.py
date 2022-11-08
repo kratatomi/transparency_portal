@@ -595,9 +595,9 @@ def main():
                 else:
                     if TXID not in ETF_investors_transfers["investors"]:
                         ETF_investors_transfers["investors"].append(TXID)
-                        logger.info(f'New investment from address {investor_address}: amount sent is {int(new_incoming_txs.response["result"][i]["value"], 16) / 10**18} and TXID is {TXID}')
+                        logger.info(f'New investment from address {investor_address}: amount sent is {int(new_incoming_txs.response["result"][i]["value"], 16) / 10**18} and TXID is {TXID}. Portfolio value is {ETF_portfolio_USD_value}.')
                         import app.email as email
-                        email.send_email_to_admin(f'New investment from address {investor_address}: amount sent is {int(new_incoming_txs.response["result"][i]["value"], 16) / 10**18} and TXID is {TXID}')
+                        email.send_email_to_admin(f'New investment from address {investor_address}: amount sent is {int(new_incoming_txs.response["result"][i]["value"], 16) / 10**18} and TXID is {TXID}. Portfolio value is {ETF_portfolio_USD_value}.')
                     else:
                         logger.error(f'Double deposit detected with hash {TXID}, please check.')
                         import app.email as email
