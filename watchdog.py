@@ -583,6 +583,9 @@ def main():
                 investor_address = new_incoming_txs.response["result"][i]["from"]
                 investment_amount = int(new_incoming_txs.response["result"][i]["value"], 16)
                 TXID = new_incoming_txs.response["result"][i]["hash"]
+                with open('data/ETF_GLOBAL_STATS.json') as etf_global_stats_file:
+                    ETF_global_stats = json.load(etf_global_stats_file)
+                ETF_portfolio_USD_value = float(ETF_global_stats["total_portfolio_balance"])
                 if (investment_amount / 10**18) < min_investment_amount:
                     logger.info(
                         f'Insufficient investment from address {investor_address}: amount sent is {(int(new_incoming_txs.response["result"][i]["value"], 16) / 10**18)} and TXID is {new_incoming_txs.response["result"][i]["hash"]}')
@@ -616,9 +619,6 @@ def main():
                     if successful_allocation == True:
                         try:
                             rescan_farms()
-                            with open('data/ETF_GLOBAL_STATS.json') as etf_global_stats_file:
-                                ETF_global_stats = json.load(etf_global_stats_file)
-                            ETF_portfolio_USD_value = float(ETF_global_stats["total_portfolio_balance"])
                             engine.main()
                         except SingleInstanceException:
                             # This happens if the cron task is running engine.main()
