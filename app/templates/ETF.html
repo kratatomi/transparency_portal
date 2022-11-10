@@ -62,16 +62,16 @@
                     <table id="ETF_staked_tokens" style="width: 100%;">
                         <tr class="top highlight-color1">
                             <th style="width: 30%">Token</th>
-                            <th style="width: 30%;">Initial / Current</th>
+                            <th style="width: 30%;">Current amount</th>
                             <th style="width: 15%; text-align: right;">Value</th>
-                            <th style="width: 15%; text-align: right;">Yield</th>
+                            <th style="width: 15%; text-align: right;">Estimated APY</th>
                         </tr>
                         {% for key, value in etf_staked_assets.items() %}
                             {% if (key != "Total value") and (key != "Total yield value") %}
                             <tr class="highlight-color1">
                                 <td>{{ key }}
                                 </td>
-                                <td><small>{{ "{:,.2f}".format(value["Initial"]|float) }} / {{ "{:,.2f}".format(value["Current"]|float) }}</small></td>
+                                <td><small>{{ "{:,.2f}".format(value["Current"]|float) }}</small></td>
                                 <td style="text-align: right;">
                                     {% if value["Current value"] is defined %}
                                         $ {{ "{:,.2f}".format(value["Current value"]|float) }}
@@ -79,7 +79,11 @@
                                         (USD value not available)
                                     {% endif %}
                                 </td>
-                                <td style="text-align: right;">$ {{ "{:,.2f}".format(value["Yield value"]|float) }}</td>
+                                {% if key in staked_assets_APY %}
+                                    <td style="text-align: right;">{{ "{:,.2f}".format(staked_assets_APY[key]|float) }} %</td>
+                                {% else %}
+                                    <td style="text-align: right;">N/A</td>
+                                {% endif %}
                             </tr>
                             {% endif %}
                         {% endfor %}
