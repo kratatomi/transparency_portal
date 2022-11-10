@@ -211,10 +211,15 @@ def generate_graphs():
     # Graph with the APY of every asset
     columns = [] #List of assets
     rows = [] #List of APYs
+    APY_data = {} #For use in the ETF portfolio
     for asset in assets_list:
         columns.append(asset)
         yield_percentage_sum = sum(filter(None, assets_list[asset]["Yields"]))
         rows.append(yield_percentage_sum * (52 / assets_list[asset]["Weeks tracked"])) #52 weeks per year
+        APY_data[asset] = rows[-1]
+
+    with open('data/staked_assets_APY.json', 'w') as file:
+        json.dump(APY_data, file, indent=4)
 
     '''Broken axis method extracted from https://matplotlib.org/3.1.0/gallery/subplots_axes_and_figures/broken_axis.html'''
     f, (ax, ax2) = plt.subplots(2, 1, sharex=True, figsize=(16, 9))
