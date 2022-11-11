@@ -21,6 +21,7 @@ mpl.rcParams['legend.facecolor'] = '#2e475a'
 
 logger = logging.getLogger("app.engine")
 def generate_graphs():
+    assets_statistics = {} # Stats saved for the ETF portfolio
     snapshots_dir = abspath(getcwd()) + "/data/snapshots"
     snapshot_files = [f for f in listdir(snapshots_dir) if isfile(join(snapshots_dir, f))]
     # Let's order snapshot files by date
@@ -165,8 +166,10 @@ def generate_graphs():
            ylabel='Yield percentage',
            title='Yield percentage of farms')
 
+    assets_statistics["farms_yields"] = {}
     for farm in farms_list:
         ax.plot(weeks, farms_list[farm]["Yields"], label=farms_list[farm]["name"])
+        assets_statistics["farms_yields"][farm] = farms_list[farm]["Yields"][-1]
 
     plt.legend()
     plt.savefig("app/static/farms_yields.png", transparent=True)
@@ -211,15 +214,13 @@ def generate_graphs():
     # Graph with the APY of every asset
     columns = [] #List of assets
     rows = [] #List of APYs
-    APY_data = {} #For use in the ETF portfolio
+    assets_statistics["staked_assets_APY"] = {} #For use in the ETF portfolio
     for asset in assets_list:
         columns.append(asset)
         yield_percentage_sum = sum(filter(None, assets_list[asset]["Yields"]))
         rows.append(yield_percentage_sum * (52 / assets_list[asset]["Weeks tracked"])) #52 weeks per year
-        APY_data[asset] = rows[-1]
+        assets_statistics["staked_assets_APY"][asset] = rows[-1]
 
-    with open('data/staked_assets_APY.json', 'w') as file:
-        json.dump(APY_data, file, indent=4)
 
     '''Broken axis method extracted from https://matplotlib.org/3.1.0/gallery/subplots_axes_and_figures/broken_axis.html'''
     f, (ax, ax2) = plt.subplots(2, 1, sharex=True, figsize=(16, 9))
@@ -265,6 +266,9 @@ def generate_graphs():
            ylabel='Reward percentage based on total USD value locked',
            title='Weekly reward percentage of SIDX liquidity pools by DEX')
     plt.savefig("app/static/sidx_liquidity_rewards.png", transparent=True)
+
+    with open('data/assets_statistics.json', 'w') as file:
+        json.dump(assets_statistics, file, indent=4)
 
 def main():
     with open('data/SIDX_STATS.json') as sidx_stats_file:

@@ -238,6 +238,6 @@ def ETF_portfolio():
         sidx_stats = json.load(sidx_stats_file)
     with open('data/ETF_GLOBAL_STATS.json') as ETF_global_stats_file:
         etf_global_stats = json.load(ETF_global_stats_file)
-    with open('data/staked_assets_APY.json') as staked_assets_APY_file:
-        staked_assets_APY = json.load(staked_assets_APY_file)
-    return render_template("ETF.html", title="ETF portfolio tracker", sidx_stats=sidx_stats, etf_sep20_balances=etf_sep20_balances, etf_staked_assets=etf_staked_assets, etf_farms=etf_farms, etf_global_stats=etf_global_stats, staked_assets_APY=staked_assets_APY)
+    with open('data/assets_statistics.json') as assets_statistics_file:
+        assets_statistics = json.load(assets_statistics_file)
+    return render_template("ETF.html", title="ETF portfolio tracker", sidx_stats=sidx_stats, etf_sep20_balances=etf_sep20_balances, etf_staked_assets=etf_staked_assets, etf_farms=etf_farms, etf_global_stats=etf_global_stats, staked_assets_APY=assets_statistics["staked_assets_APY"], farms_yields=assets_statistics["farms_yields"])
