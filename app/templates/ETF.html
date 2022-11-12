@@ -1,6 +1,33 @@
 {% extends "base.html" %}
 
 {% block app_content %}
+
+<div class="card">
+    <div class="card-header"><H2>SmartIndex ETF portfolio</H2></div>
+    <div class="card-body">
+    <h4>SmartIndex ETF allows anyone to easily invest in the SmartBCH ecosystem.</h4>
+    <h5>Allocation of assets and their rewards are decided by SIDX token holders upon voting.</h5>
+    <h5>Using it is very easy:</h5>
+    <ul>
+    <li>For making a deposit, just send BCH (only BCH over SmartBCH) to the watchdog address: <a href="https://sonar.cash/address/0xd2edf72FE051571A85466F95b6Cab1C0a31601c6/transactions" target="_blank">0xd2edf72FE051571A85466F95b6Cab1C0a31601c6</a></li>
+        <ul>
+            {% if ETF_status["running"] == True %}
+            <li>Currently, the watchdog is <b><font color="green">running</font></b> and the last block scanned is {{ ETF_status["latest_scanned_block"] }}.</li>
+            {% else %}
+            <li>Currently, the watchdog is <b><font color="red">not running</font></b>. The last block scanned is {{ ETF_status["latest_scanned_block"] }}. Avoid making any deposits or withdrawals and contact the admin.</li>
+            {% endif %}
+        </ul>
+    <li><a href="https://sonar.cash/address/0x3c8caE0D65C75FAFdD75D5b5D0A75DFE73a9EEaa/transactions" target="_blank">S-ETF tokens</a> will be minted and sent to your address. Those tokens represent your share in the ETF portfolio.
+    </li>
+    <li>Once you wish to redeem your investment, send back your S-ETF tokens to the portfolio address. You will receive your investment in your wallet, in the form of <a href="https://sonar.cash/address/0x3743eC0673453E5009310C727Ba4eaF7b3a1cc04/transactions" target="_blank">WBCH token</a>.
+    </li>
+        <li>Please, take in mind:</li>
+        <ul><li>This is still alpha software.</li>
+        <li>Yields are calculated from the SmartIndex portfolio statistics, if available. Past performance is no guarantee of future results.</li></ul>
+    </ul>
+    </div>
+</div>
+
 <div class="card-columns">
         <div class="card">
                 <div class="card-header"><H3>Global ETF Portfolio Statistics</H3></div>
