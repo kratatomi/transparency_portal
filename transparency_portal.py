@@ -2,6 +2,7 @@ from app import app, db
 import engine
 import voting_platform
 import yield_snapshot
+import watchdog
 from app.models import User, Proposal, Users
 
 
