@@ -12,6 +12,9 @@ import server_settings
 from flask_apscheduler import APScheduler # pip install Flask-APScheduler
 import watchdog
 import json
+from dotenv import load_dotenv
+
+load_dotenv('.flaskenv')
 
 app = Flask(__name__)
 bootstrap = Bootstrap(app)
