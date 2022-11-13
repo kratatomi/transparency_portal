@@ -986,7 +986,7 @@ def send_transaction(identifier, tx,*account):
             receipt = w3.eth.wait_for_transaction_receipt(TXID)
             if receipt.status == 0:
                 import app.email as email
-                email.send_email_to_admin(f"Harvesting failed for {identifier}, TXID is {TXID}")
+                email.send_email_to_admin(f"Failure to process TX for {identifier}, TXID is {TXID}")
                 logger.error(f'TXID {hex_TXID} failed, identifier is {identifier}')
         except exceptions.TimeExhausted:
             logger.error(f'Failed to get TX status, TXID is {hex_TXID}, identifier is {identifier}')
