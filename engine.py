@@ -69,14 +69,14 @@ assets_balances = {
 
 initial_pool_balances = {
     "Mistswap": {"CA": "0x7E1B9F1e286160A80ab9B04D228C02583AeF90B5", "token0": 3.333, "token1": 15807.4},
-    "BlockNG": {"CA": "0x1CD36D9dEd958366d17DfEdD91b5F8e682D7f914", "token0": 2586.42, "token1": 3459.29}
+    "BlockNG": {"CA": "0x1CD36D9dEd958366d17DfEdD91b5F8e682D7f914", "token0": 2658.52, "token1": 3532.54}
     # Token0 is WBCH/LAW, Token1 is SIDX
 }
 
 extra_pool_balances = {
-    "Mistswap": {"CA": "0x7E1B9F1e286160A80ab9B04D228C02583AeF90B5", "token0": 5.2391, "token1": 2345.32},
-    "Tangoswap": {"CA": "0x4509Ff66a56cB1b80a6184DB268AD9dFBB79DD53", "token0": 4.7165, "token1": 1749.12},
-    "Emberswap": {"CA": "0x97dEAeB1A9A762d97Ac565cD3Ff7629CD6d55D09", "token0": 236311, "token1": 689.03}
+    "Mistswap": {"CA": "0x7E1B9F1e286160A80ab9B04D228C02583AeF90B5", "token0": 5.2691, "token1": 2367.70},
+    "Tangoswap": {"CA": "0x4509Ff66a56cB1b80a6184DB268AD9dFBB79DD53", "token0": 4.7275, "token1": 1757.06},
+    "Emberswap": {"CA": "0x97dEAeB1A9A762d97Ac565cD3Ff7629CD6d55D09", "token0": 240990, "token1": 696.83}
     }  # Token0 is WBCH/EMBER, Token1 is SIDX
 
 farms = {"Mistswap": {"factory": "0x3A7B9D0ed49a90712da4E087b17eE4Ac1375a5D4",
