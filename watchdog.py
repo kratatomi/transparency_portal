@@ -4,7 +4,7 @@ from tendo.singleton import SingleInstanceException
 from web3 import Web3
 import logging
 import requests
-import os.path
+import os
 
 import engine
 
@@ -572,6 +572,16 @@ def main():
             ETF_investors_transfers = json.load(etf_investors_transfers_file)
 
     else:
+        return
+
+    # Private keys must be loaded on the environment for the watchdog to work.
+    ETF_portfolio_priv_key = os.environ.get("ETF_PORTFOLIO_PRIV_KEY")
+    watchdog_priv_key = os.environ.get("WATCHDOG_PRIV_KEY")
+    if watchdog_priv_key == None or ETF_portfolio_priv_key == None:
+        logger.error("Required private keys not loaded in the environment. Stopping the watchdog.")
+        import app.email as email
+        email.send_email_to_admin("Required private keys not loaded in the environment. Stopping the watchdog.")
+        stop_watchdog()
         return
 
     latest_block_number = w3.eth.blockNumber
