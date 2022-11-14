@@ -1475,6 +1475,22 @@ def buy_assets_for_liquidty_addition(input_amount, input_asset_CA, lp_CA, *accou
             tokens_dictionary["token0"]["amount"] = token0_amount
     return tokens_dictionary
 
+def get_pending_rewards_value(address, bch_price, ETF_farms):
+    '''This function returns the total USD value of farm's reward token stored in a given address plus the ones pending harvesting.
+    Its function is to give the value pending to be reallocated in the ETF portfolio.'''
+    reward_tokens = ["MistToken", "Tango", "LAW"]
+    total_value = 0
+    for token in reward_tokens:
+        token_price = get_price_from_pool(token, bch_price)
+        token_amount = get_SEP20_balance(assets_balances[token]["CA"], address) / 10 ** 18
+        total_value = token_amount * token_price
+
+    for DEX in ETF_farms:
+        for i in range(len(ETF_farms[DEX]["farms"])):
+            total_value += ETF_farms[DEX]["farms"][i]["reward value"]
+
+    return total_value
+
 def main():
     main_instance = singleton.SingleInstance() # Just one instance can run to prevent race conditions
     global total_liquid_value
@@ -1539,7 +1555,8 @@ def main():
     total_rewards_value = ETF_staked_assets["Total yield value"]
     get_farms(bch_price, portfolio_address=ETF_portfolio_address, farms=ETF_farms)
     global_ETF_portfolio_stats = {"total_portfolio_balance": round(total_liquid_value, 2),
-                                  "total_rewards_value": round(total_rewards_value, 2)}
+                                  "total_rewards_value": round(total_rewards_value, 2),
+                                  "rewards_pending_reallocation": round(get_pending_rewards_value(ETF_portfolio_address, bch_price, ETF_farms), 2)}
 
     with open('data/ETF_GLOBAL_STATS.json', 'w') as file:
         json.dump(global_ETF_portfolio_stats, file, indent=4)

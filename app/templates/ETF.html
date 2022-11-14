@@ -38,8 +38,8 @@
                                 <td style="text-align: right;">$ {{ "{:,.2f}".format(etf_global_stats["total_portfolio_balance"]|float) }}</td>
                             </tr>
                             <tr class="btm highlight-color1">
-                                <th>Current value of rewards:</th>
-                                <td style="text-align: right;">$ {{ "{:,.2f}".format(etf_global_stats["total_rewards_value"]|float) }}</td>
+                                <th>Total farming rewards pending to reallocate:</th>
+                                <td style="text-align: right;">$ {{ "{:,.2f}".format(etf_global_stats["rewards_pending_reallocation"]|float) }}</td>
                             </tr>
                         </table>
                     </div>
@@ -130,10 +130,6 @@
                         <tr class="blank_row">
                             <td colspan="4"></td>
                         </tr>
-                        <tr class="top btm highlight-color1">
-                            <th colspan="4">Current Yield:</th>
-                            <th style="text-align: right;">$ {{ "{:,.2f}".format(etf_staked_assets["Total yield value"]|float) }}</th>
-                        </tr>
                     </table>
                 </div>
             </div>
@@ -186,11 +182,11 @@
                                 </tr>
                             {% endif %}
                             <tr class="highlight-color1">
-                                <th colspan="2">Reward Tokens:</th>
+                                <th colspan="2">Pending Reward Tokens:</th>
                                 <th colspan="2" style="text-align: right;">{{ "{:,.2f}".format(farm["reward"]|float) }}</th>
                             </tr>
                             <tr class="btm highlight-color1">
-                                <th colspan="2">Reward Value:</th>
+                                <th colspan="2">Pending Reward Value:</th>
                                 <th colspan="2" style="text-align: right;">$ {{ "{:,.2f}".format(farm["reward value"]|float) }}</th>
                             </tr>
                         {% endfor %}
