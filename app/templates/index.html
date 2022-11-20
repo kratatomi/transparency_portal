@@ -175,6 +175,14 @@
                             <td style="text-align: right;">$ {{ "{:,.2f}".format(value["Current value"]|float) }}</td>
                         </tr>   
                         {% endif %}
+                        {% if key == "Ember Token" %}
+                        <tr class="highlight-color1">
+                            <td>{{ key }}</td>
+                            <td><small>{{ "{:,.2f}".format(value["Initial"]|float) }} / {{ "{:,.2f}".format(value["Current"]|float) }}</small></td>
+                            <td style="text-align: right;">{{ "{:,.2f}".format(value["Difference"]|float) }}</td>
+                            <td style="text-align: right;">$ {{ "{:,.2f}".format(value["Current value"]|float) }}</td>
+                        </tr>
+                        {% endif %}
                         {% if key == "Total LP Value" %}
                         <tr class="highlight-color1">
                             <th colspan="2">Total Value:</th>
