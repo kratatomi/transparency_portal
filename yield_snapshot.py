@@ -39,7 +39,6 @@ def generate_graphs():
         staked_assets = last_weekly_report["STACKED_ASSETS"]
         current_farms = last_weekly_report["FARMS"]
         current_liquidity = last_weekly_report["LP_BALANCES"]
-        current_extra_liquidity = last_weekly_report["EXTRA_LP_BALANCES"]
         for asset in staked_assets:
             if asset != "Total value" and asset != "Total yield value":
                 assets_list[asset] = {"Yields": [], "USD total value": [], "Weeks tracked": 0}
@@ -60,14 +59,6 @@ def generate_graphs():
             if coin not in ("Reward", "Reward value", "Total LP Value"):
                 sidx_liquidity[DEX]["Value"] += current_liquidity[DEX][coin]["Current value"]
                 sidx_liquidity["Total USD value"] += current_liquidity[DEX][coin]["Current value"]
-    for DEX in current_extra_liquidity:
-        if DEX not in sidx_liquidity:
-            sidx_liquidity[DEX] = {"Value": 0, "Reward value": 0}
-        sidx_liquidity[DEX]["Reward value"] += current_extra_liquidity[DEX]["Reward value"]
-        for coin in current_extra_liquidity[DEX]:
-            if coin not in ("Reward", "Reward value", "Total LP Value"):
-                sidx_liquidity[DEX]["Value"] += current_extra_liquidity[DEX][coin]["Current value"]
-                sidx_liquidity["Total USD value"] += current_extra_liquidity[DEX][coin]["Current value"]
     # Calculating the percentage of liquidity per DEX and their performance
     for DEX in sidx_liquidity:
         if DEX != "Total USD value":
@@ -279,8 +270,6 @@ def main():
         stacked_assets = json.load(stacked_assets_file)
     with open('data/LP_BALANCES.json') as lp_balances_file:
         lp_balances = json.load(lp_balances_file)
-    with open('data/EXTRA_LP_BALANCES.json') as extra_lp_balances_file:
-        extra_lp_balances = json.load(extra_lp_balances_file)
     with open('data/NFTs.json') as NFTs_file:
         NFTs = json.load(NFTs_file)
     with open('data/FARMS.json') as farms_file:
@@ -296,7 +285,6 @@ def main():
                     "SEP20_BALANCES": sep20_balances,
                     "STACKED_ASSETS": stacked_assets,
                     "LP_BALANCES": lp_balances,
-                    "EXTRA_LP_BALANCES": extra_lp_balances,
                     "PUNKS_BALANCES": NFTs["PUNKS"],
                     "LAW RIGHTS": NFTs["LAW Rights"],
                     "FARMS": farms,
@@ -339,14 +327,14 @@ def main():
                            amount_to_swap)
 
     try:
-        engine.harvest_tango_sidx_farm(engine.punk_wallets[1], 'SECOND_WALLET_PRIV_KEY')
+        engine.harvest_tango_sidx_farm(engine.portfolio_address, 'PORTFOLIO_PRIV_KEY')
     except Exception as e:
         logger.error(f'Function harvest_tango_sidx_farm failed. Exception: {e}')
         import app.email as email
         email.send_email_to_admin(f'Function harvest_tango_sidx_farm failed. Exception: {e}')
 
     try:
-        engine.harvest_sidx_ember_farm(engine.punk_wallets[1], 'SECOND_WALLET_PRIV_KEY')
+        engine.harvest_sidx_ember_farm(engine.portfolio_address, 'PORTFOLIO_PRIV_KEY')
     except Exception as e:
         logger.error(f'Function harvest_sidx_ember_farm failed. Exception: {e}')
         import app.email as email
