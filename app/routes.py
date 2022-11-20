@@ -33,8 +33,6 @@ def index():
         stacked_assets = json.load(stacked_assets_file)
     with open('data/LP_BALANCES.json') as lp_balances_file:
         lp_balances = json.load(lp_balances_file)
-    with open('data/EXTRA_LP_BALANCES.json') as extra_lp_balances_file:
-        extra_lp_balances = json.load(extra_lp_balances_file)
     with open('data/NFTs.json') as NFTs_file:
         NFTs = json.load(NFTs_file)
     with open('data/FARMS.json') as farms_file:
@@ -43,7 +41,7 @@ def index():
         sidx_stats = json.load(sidx_stats_file)
     with open('data/GLOBAL_STATS.json') as global_stats_file:
         global_stats = json.load(global_stats_file)
-    return render_template("index.html", title="Portfolio tracker", sidx_stats=sidx_stats, sep20_balances=sep20_balances, stacked_assets=stacked_assets, lp_balances=lp_balances, extra_lp_balances=extra_lp_balances, punks=NFTs["PUNKS"], law_rights=NFTs["LAW Rights"], farms=farms, global_stats=global_stats)
+    return render_template("index.html", title="Portfolio tracker", sidx_stats=sidx_stats, sep20_balances=sep20_balances, stacked_assets=stacked_assets, lp_balances=lp_balances, punks=NFTs["PUNKS"], law_rights=NFTs["LAW Rights"], farms=farms, global_stats=global_stats)
 
 @app.route('/proposals')
 def proposals():
