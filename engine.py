@@ -75,6 +75,14 @@ initial_pool_balances = {
     # Token0 is WBCH/LAW/EMBER, Token1 is SIDX
 }
 
+ETF_SIDX_pool_balances = {
+    "Mistswap": {"CA": "0x7E1B9F1e286160A80ab9B04D228C02583AeF90B5", "token0": 0, "token1": 0},
+    "BlockNG": {"CA": "0x1CD36D9dEd958366d17DfEdD91b5F8e682D7f914", "token0": 0, "token1": 0},
+    "Tangoswap": {"CA": "0x4509Ff66a56cB1b80a6184DB268AD9dFBB79DD53", "token0": 0, "token1": 0},
+    "Emberswap": {"CA": "0x97dEAeB1A9A762d97Ac565cD3Ff7629CD6d55D09", "token0": 0, "token1": 0}
+    # Token0 is WBCH/LAW/EMBER, Token1 is SIDX
+}
+
 farms = {"Mistswap": {"factory": "0x3A7B9D0ed49a90712da4E087b17eE4Ac1375a5D4",
                       "factory_ABI": "MIST-Master-ABI.json",
                       "farms": [{"lp_CA": "0xde5D57B31cB67d5Aed93c26940394796953961cb",
@@ -1085,9 +1093,9 @@ def harvest_sidx_ember_farm(*account):
     contract = w3.eth.contract(address=LP_CA, abi=abi)
     LP_balance = int(contract.functions.balanceOf(address).call())
     if LP_balance == 0:
-        logger.error(f'No liquidity to add to SIDX/EMBER farm. Error is {e}.')
+        logger.error(f'No liquidity to add to SIDX/EMBER farm.')
         import app.email as email
-        email.send_email_to_admin(f'No liquidity to add to SIDX/EMBER farm. Error is {e}.')
+        email.send_email_to_admin(f'No liquidity to add to SIDX/EMBER farm. LP balance is 0.')
         return
     # Finally, LP tokens are deposited on the farm
     ABI = open("ABIs/EMBER_Distributor-ABI.json", "r")
@@ -1123,9 +1131,9 @@ def harvest_sidx_law_farm():
     contract = w3.eth.contract(address=LP_CA, abi=abi)
     LP_balance = int(contract.functions.balanceOf(portfolio_address).call())
     if LP_balance == 0:
-        logger.error(f'No liquidity to add to SIDX/LAW farm. Error is {e}.')
+        logger.error(f'No liquidity to add to SIDX/LAW farm.')
         import app.email as email
-        email.send_email_to_admin(f'No liquidity to add to SIDX/LAW farm. Error is {e}.')
+        email.send_email_to_admin(f'No liquidity to add to SIDX/LAW farm. LP balance is 0.')
         return
     # Finally, LP tokens are deposited on the farm
     ABI = open("ABIs/BlockNG-farm.json", "r")
@@ -1140,8 +1148,9 @@ def harvest_sidx_law_farm():
     send_transaction(
         f"Depositing {LP_balance / 10**18} LP tokens to BlockNG-Kudos SIDX/LAW farm", deposit_tx)
 
-def get_ETF_assets_allocation(farms):
-    portfolio = {"Standalone assets": {}, "Farms": {}}
+def get_ETF_assets_allocation(farms, LP_balances):
+    # SIDX liquidity pools (LP balances) must make up 25% of ETF portfolio (proposal #53)
+    portfolio = {"Standalone assets": {}, "Farms": {}, "SIDX pools": {}}
     total_percentage = 0
     total_value = 0
     for asset in pie_chart_data:
@@ -1158,14 +1167,46 @@ def get_ETF_assets_allocation(farms):
                 for coin in farms[DEX]['farms'][i]['Coins']:
                     portfolio["Farms"][DEX][lp_CA] += farms[DEX]['farms'][i]['Coins'][coin]['Current value']
                 total_value += portfolio["Farms"][DEX][lp_CA]
+    for DEX in LP_balances:
+        portfolio["SIDX pools"][DEX] = 0
+        for key in LP_balances[DEX]:
+            if type(LP_balances[DEX][key]) is dict:
+                portfolio["SIDX pools"][DEX] += LP_balances[DEX][key]["Current value"]
+        total_value += portfolio["SIDX pools"][DEX]
     #It's time to compute the allocation of each asset
     for asset in portfolio["Standalone assets"]:
         portfolio["Standalone assets"][asset] = (portfolio["Standalone assets"][asset] / total_value) * 100
-        total_percentage += portfolio["Standalone assets"][asset]
     for DEX in portfolio["Farms"]:
         for lp_CA in portfolio["Farms"][DEX]:
             portfolio["Farms"][DEX][lp_CA] = (portfolio["Farms"][DEX][lp_CA] / total_value) * 100
+    for DEX in portfolio["SIDX pools"]:
+        portfolio["SIDX pools"][DEX] = (portfolio["SIDX pools"][DEX] / total_value) * 100
+
+    #Standalone assets and farms must sum 75%
+    assets_and_farms_percentage = 0
+    for asset in portfolio["Standalone assets"]:
+        assets_and_farms_percentage += portfolio["Standalone assets"][asset]
+    for DEX in portfolio["Farms"]:
+        for lp_CA in portfolio["Farms"][DEX]:
+            assets_and_farms_percentage += portfolio["Farms"][DEX][lp_CA]
+    assets_and_farms_multiplier = 75 / assets_and_farms_percentage
+    # Multiplier is applied
+    for asset in portfolio["Standalone assets"]:
+        portfolio["Standalone assets"][asset] *= assets_and_farms_multiplier
+        total_percentage += portfolio["Standalone assets"][asset]
+    for DEX in portfolio["Farms"]:
+        for lp_CA in portfolio["Farms"][DEX]:
+            portfolio["Farms"][DEX][lp_CA] *= assets_and_farms_multiplier
             total_percentage += portfolio["Farms"][DEX][lp_CA]
+
+    #And SIDX pools must sum 25%
+    SIDX_pools_percentage = 0
+    for DEX in portfolio["SIDX pools"]:
+        SIDX_pools_percentage += portfolio["SIDX pools"][DEX]
+    SIDX_pools_multiplier = 25 / SIDX_pools_percentage
+    for DEX in portfolio["SIDX pools"]:
+        portfolio["SIDX pools"][DEX] *= SIDX_pools_multiplier
+        total_percentage += portfolio["SIDX pools"][DEX]
     if total_percentage < 99.9 or total_percentage > 100.1:
         logger.info(f'Warning: total percentage of ETF portfolio is {total_percentage}')
         import app.email as email
@@ -1471,7 +1512,7 @@ def buy_assets_for_liquidty_addition(input_amount, input_asset_CA, lp_CA, *accou
             tokens_dictionary["token0"]["amount"] = token0_amount
     return tokens_dictionary
 
-def get_pending_rewards_value(address, bch_price, ETF_farms):
+def get_pending_rewards_value(address, bch_price, ETF_farms, ETF_LP_balances):
     '''This function returns the total USD value of farm's reward token stored in a given address plus the ones pending harvesting.
     Its function is to give the value pending to be reallocated in the ETF portfolio.'''
     reward_tokens = ["MistToken", "Tango", "LAW"]
@@ -1484,6 +1525,9 @@ def get_pending_rewards_value(address, bch_price, ETF_farms):
     for DEX in ETF_farms:
         for i in range(len(ETF_farms[DEX]["farms"])):
             total_value += ETF_farms[DEX]["farms"][i]["reward value"]
+
+    for DEX in ETF_LP_balances:
+        total_value += ETF_LP_balances[DEX]["Reward value"]
 
     return total_value
 
@@ -1508,7 +1552,7 @@ def main():
     make_pie_chart(farms_pie_chart_data, "farms_pie_chart")
     make_pie_chart(sidx_liquidity_pie_chart_data, "liquidity_allocation")
     make_pie_chart(global_stats_pie_chart_data, "global_stats")
-    ETF_portfolio = get_ETF_assets_allocation(farms)
+    ETF_portfolio = get_ETF_assets_allocation(farms, LP_balances)
     global_portfolio_stats = {"total_liquid_value": round(total_liquid_value, 2),
                               "total_illiquid_value": round(total_illiquid_value, 2),
                               "total_portfolio_balance": round(total_liquid_value + total_illiquid_value, 2),
@@ -1547,9 +1591,10 @@ def main():
     ETF_SEP20_tokens, ETF_staked_assets = get_balances(bch_price, portfolio_address=ETF_portfolio_address, assets_balances=ETF_assets_balances)
     total_rewards_value = ETF_staked_assets["Total yield value"]
     get_farms(bch_price, portfolio_address=ETF_portfolio_address, farms=ETF_farms)
+    ETF_LP_balances = get_LP_balances(ETF_SIDX_pool_balances, ETF_portfolio_address, bch_price, sidx_price)
     global_ETF_portfolio_stats = {"total_portfolio_balance": round(total_liquid_value, 2),
                                   "total_rewards_value": round(total_rewards_value, 2),
-                                  "rewards_pending_reallocation": round(get_pending_rewards_value(ETF_portfolio_address, bch_price, ETF_farms), 2)}
+                                  "rewards_pending_reallocation": round(get_pending_rewards_value(ETF_portfolio_address, bch_price, ETF_farms, ETF_LP_balances), 2)}
 
     with open('data/ETF_GLOBAL_STATS.json', 'w') as file:
         json.dump(global_ETF_portfolio_stats, file, indent=4)
@@ -1559,6 +1604,8 @@ def main():
         json.dump(ETF_staked_assets, file, indent=4)
     with open('data/ETF_FARMS.json', 'w') as file:
         json.dump(ETF_farms, file, indent=4)
+    with open('data/ETF_LP_BALANCES.json', 'w') as file:
+        json.dump(ETF_LP_balances, file, indent=4)
 
 if __name__ == "__main__":
     main()

@@ -20,10 +20,18 @@ ETF_SIDX_CA = "0x3c8caE0D65C75FAFdD75D5b5D0A75DFE73a9EEaa"
 
 routers = {"Mistswap": "0x5d0bF8d8c8b054080E2131D8b260a5c6959411B8",
            "Tangoswap": "0xb93184fB3eEDb4d32150763578cA305488240c8e",
-           "BlockNG-Kudos": "0xD301b5334912190493fa798Cf796440Cd9B33DB1"}
+           "BlockNG-Kudos": "0xD301b5334912190493fa798Cf796440Cd9B33DB1",
+           "BlockNG": "0xD301b5334912190493fa798Cf796440Cd9B33DB1",
+           "Emberswap": "0x217057A8B0bDEb160829c19243A2E03bfe95555a"}
 
 masters = {"Mistswap": "0x3A7B9D0ed49a90712da4E087b17eE4Ac1375a5D4",
-           "Tangoswap": "0x38cC060DF3a0498e978eB756e44BD43CC4958aD9"}
+           "Tangoswap": "0x38cC060DF3a0498e978eB756e44BD43CC4958aD9",
+           "Emberswap": "0x8ecb32C33AB3f7ee3D6Ce9D4020bC53fecB36Be9"}
+
+SIDX_liquidity_pools = {"Mistswap": {"lp_CA": "0x7E1B9F1e286160A80ab9B04D228C02583AeF90B5", "pool_id": 44},
+        "BlockNG": {"lp_CA": "0x1CD36D9dEd958366d17DfEdD91b5F8e682D7f914"},
+        "Tangoswap": {"lp_CA": "0x4509Ff66a56cB1b80a6184DB268AD9dFBB79DD53", "pool_id": 32},
+        "Emberswap": {"lp_CA": "0x97dEAeB1A9A762d97Ac565cD3Ff7629CD6d55D09", "pool_id": 31}}
 
 portfolio_fee = 1
 admin_fee = 0.5
@@ -160,6 +168,23 @@ def generate_update_initial_files():
     with open('data/ETF_ASSETS_BALANCES.json', 'w') as file:
         json.dump(ETF_assets_balances, file, indent=4)
 
+def initiate_SIDX_liquidity_pools():
+    #According to proposal #53, 25% of the ETF portfolio will be SIDX liquidity pools.
+    with open('data/LP_BALANCES.json') as LP_balances_file:
+        ETF_LP_balances = json.load(LP_balances_file)
+
+    #Numbers are set to 0.
+    for DEX in ETF_LP_balances:
+        for key in ETF_LP_balances[DEX]:
+            if type(ETF_LP_balances[DEX][key]) is dict:
+                for variable in ETF_LP_balances[DEX][key]:
+                    ETF_LP_balances[DEX][key][variable] = 0
+            else:
+                ETF_LP_balances[DEX][key] = 0
+
+    with open('data/ETF_LP_BALANCES.json', 'w') as file:
+        json.dump(ETF_LP_balances, file, indent=4)
+
 def take_fee(amount):
     from engine import wrap_BCH, transfer_asset, get_SEP20_balance
     wrap_BCH(amount, *(ETF_watchdog_address, "WATCHDOG_PRIV_KEY"))
@@ -217,6 +242,8 @@ def allocate_coins(amount_to_allocate):
         ETF_staked_assets = json.load(etf_staked_assets_file)
     with open('data/ETF_FARMS.json') as etf_farms_file:
         ETF_farms = json.load(etf_farms_file)
+    with open('data/ETF_LP_BALANCES.json') as etf_lp_balances_file:
+        ETF_LP_balances = json.load(etf_lp_balances_file)
 
     # The first step is to calculate the BCH amount to allocate in every asset (tokens, staked tokens and farms)
 
@@ -225,6 +252,8 @@ def allocate_coins(amount_to_allocate):
     for DEX in ETF_portfolio["Farms"]:
         for farm in ETF_portfolio["Farms"][DEX]:
             ETF_portfolio["Farms"][DEX][farm] = (ETF_portfolio["Farms"][DEX][farm] * amount_to_allocate) / 100
+    for DEX in ETF_portfolio["SIDX pools"]:
+        ETF_portfolio["SIDX pools"][DEX] = (ETF_portfolio["SIDX pools"][DEX] * amount_to_allocate) / 100
 
     import app.email as email
     email.send_email_to_admin(f'Assets list to allocate: {ETF_portfolio}')
@@ -288,6 +317,63 @@ def allocate_coins(amount_to_allocate):
     with open('data/ETF_STAKED_ASSETS.json', 'w') as file:
         json.dump(ETF_staked_assets, file, indent=4)
 
+    #Now, SIDX liquidity is allocated.
+    for DEX in ETF_LP_balances:
+        amount_to_buy = ETF_portfolio["SIDX pools"][DEX]
+        LP_CA = SIDX_liquidity_pools[DEX]["lp_CA"]
+        tokens_dictionary = engine.buy_assets_for_liquidty_addition(amount_to_buy, engine.WBCH_CA, LP_CA,
+                                                                    *ETF_portfolio_account)
+        try:
+            engine.add_liquidity(tokens_dictionary, LP_CA, routers[DEX], *ETF_portfolio_account)
+        except:
+            engine.add_liquidity(tokens_dictionary, LP_CA, routers[DEX],
+                                 *ETF_portfolio_account, min_amount_percentage=2)
+        ABI = open("ABIs/UniswapV2Pair.json", "r")
+        abi = json.loads(ABI.read())
+        contract = w3.eth.contract(address=LP_CA, abi=abi)
+        LP_balance = contract.functions.balanceOf(ETF_portfolio_address).call()
+        if DEX in ("Mistswap", "Tangoswap"):
+            # Before depositing, the master contract should be allowed to spend the LP token
+            engine.asset_allowance(LP_CA, masters[DEX], *ETF_portfolio_account)
+            ABI = open("ABIs/MIST-Master-ABI.json", "r")
+            abi = json.loads(ABI.read())
+            contract = w3.eth.contract(address=masters[DEX], abi=abi)
+            deposit_tx = contract.functions.deposit(SIDX_liquidity_pools[DEX]['pool_id'], LP_balance).buildTransaction(
+                {'chainId': 10000,
+                 'from': ETF_portfolio_address,
+                 'gasPrice': w3.toWei('1.05', 'gwei')
+                 })
+            engine.send_transaction(
+                f"Depositing {LP_balance} LP tokens to {DEX} SIDX farm", deposit_tx, *ETF_portfolio_account)
+        if DEX == "Emberswap":
+            # Before depositing, the master contract should be allowed to spend the LP token
+            engine.asset_allowance(LP_CA, masters[DEX], *ETF_portfolio_account)
+            ABI = open("ABIs/EMBER_Distributor-ABI.json", 'r')
+            abi = json.loads(ABI.read())
+            contract = w3.eth.contract(address="0x8ecb32C33AB3f7ee3D6Ce9D4020bC53fecB36Be9", abi=abi)
+            deposit_tx = contract.functions.deposit(SIDX_liquidity_pools[DEX]['pool_id'], LP_balance).buildTransaction(
+                {'chainId': 10000,
+                 'from': ETF_portfolio_address,
+                 'gasPrice': w3.toWei('1.05', 'gwei')
+                 })
+            engine.send_transaction(f"Depositing {LP_balance / 10 ** 18} SIDX/EMBER LP tokens to EmberSwap farm",
+                                    deposit_tx, *ETF_portfolio_account)
+        if DEX == "BlockNG":
+            # Before depositing, the master contract should be allowed to spend the LP token
+            engine.asset_allowance(LP_CA, "0x3384d970688f7B86a8D7aE6D8670CD5f9fd5fE1E", *ETF_portfolio_account)
+            ABI = open("ABIs/BlockNG-farm.json", "r")
+            abi = json.loads(ABI.read())
+            contract = w3.eth.contract(address="0x3384d970688f7B86a8D7aE6D8670CD5f9fd5fE1E", abi=abi)
+            tokenId = contract.functions.tokenIds(ETF_portfolio_address).call()
+            deposit_tx = contract.functions.deposit(LP_balance, int(tokenId)).buildTransaction(
+                {'chainId': 10000,
+                 'from': ETF_portfolio_address,
+                 'gasPrice': w3.toWei('1.05', 'gwei')
+                 })
+            engine.send_transaction(
+                f"Depositing {LP_balance / 10 ** 18} LP tokens to BlockNG-Kudos SIDX/LAW farm", deposit_tx,
+                *ETF_portfolio_account)
+
     #Finally, the farms. The last farm will just use all the funds (WBCH) left.
     last_DEX = False
     for dex_src, DEX in enumerate(ETF_farms):
@@ -304,7 +390,7 @@ def allocate_coins(amount_to_allocate):
                 try:
                     engine.add_liquidity(tokens_dictionary, LP_CA, routers[DEX], *ETF_portfolio_account)
                 except:
-                    engine.add_liquidity(tokens_dictionary, ETF_farms[DEX]['farms'][i]['lp_CA'], routers[DEX],
+                    engine.add_liquidity(tokens_dictionary, LP_CA, routers[DEX],
                                          *ETF_portfolio_account, min_amount_percentage=2)
                 ABI = open("ABIs/UniswapV2Pair.json", "r")
                 abi = json.loads(ABI.read())
@@ -322,7 +408,7 @@ def allocate_coins(amount_to_allocate):
                      'from': ETF_portfolio_address,
                      'gasPrice': w3.toWei('1.05', 'gwei')
                      })
-                engine.send_transaction(f"Depositing {LP_balance} LP tokens LP to {DEX} farm {ETF_farms[DEX]['farms'][i]['lp_CA']}", deposit_tx, *ETF_portfolio_account)
+                engine.send_transaction(f"Depositing {LP_balance} LP tokens to {DEX} farm {ETF_farms[DEX]['farms'][i]['lp_CA']}", deposit_tx, *ETF_portfolio_account)
 
         if DEX == "BlockNG-Kudos":
             for i in range(len(ETF_farms[DEX]['farms'])):
@@ -372,6 +458,8 @@ def assets_withdrawal(share_to_withdraw, recipient_address):
         ETF_staked_assets = json.load(etf_staked_assets_file)
     with open('data/ETF_FARMS.json') as etf_farms_file:
         ETF_farms = json.load(etf_farms_file)
+    with open('data/ETF_LP_BALANCES.json') as etf_lp_balances_file:
+        ETF_LP_balances = json.load(etf_lp_balances_file)
 
     ETF_portfolio_account = (ETF_portfolio_address, 'ETF_PORTFOLIO_PRIV_KEY')
 
@@ -447,7 +535,71 @@ def assets_withdrawal(share_to_withdraw, recipient_address):
     # Staked tokens data is saved
     with open('data/ETF_STAKED_ASSETS.json', 'w') as file:
         json.dump(ETF_staked_assets, file, indent=4)
-
+    #Next, SIDX liquidity pools
+    for DEX in ETF_LP_balances:
+        if DEX in ("Mistswap", "Tangoswap"):
+            ABI = open("ABIs/MIST-Master-ABI.json", "r")
+            abi = json.loads(ABI.read())
+            contract = w3.eth.contract(address=masters[DEX], abi=abi)
+            pool_balance = contract.functions.userInfo(SIDX_liquidity_pools[DEX]["pool_id"], ETF_portfolio_address).call()[0]
+            amount_to_sell = int(pool_balance * share_to_withdraw)
+            withdrawal_tx = contract.functions.withdraw(SIDX_liquidity_pools[DEX]["pool_id"], amount_to_sell).buildTransaction(
+                {'chainId': 10000,
+                 'from': ETF_portfolio_address,
+                 'gasPrice': w3.toWei('1.05', 'gwei')
+                 })
+            engine.send_transaction(
+                f"Withdrawing {amount_to_sell} SIDX LP from DEX {DEX}", withdrawal_tx, *ETF_portfolio_account)
+            # Now it's time to remove the liquidity
+            token0_address, token0_amount, token1_address, token1_amount = engine.remove_liquidity(100, SIDX_liquidity_pools[DEX]['lp_CA'], routers[DEX], *ETF_portfolio_account)
+            # And sell the tokens for WBCH
+            engine.swap_assets(token0_address, engine.WBCH_CA, token0_amount, *ETF_portfolio_account)
+            engine.swap_assets(token1_address, engine.WBCH_CA, token1_amount, *ETF_portfolio_account)
+        if DEX == "BlockNG":
+            ABI = open("ABIs/BlockNG-farm.json", "r")
+            abi = json.loads(ABI.read())
+            contract = w3.eth.contract(address="0x3384d970688f7B86a8D7aE6D8670CD5f9fd5fE1E", abi=abi)
+            pool_balance = contract.functions.balanceOf(ETF_portfolio_address).call()
+            amount_to_sell = int(pool_balance * share_to_withdraw)
+            #As this is a Kudos farms, the reward must be farmed before withdrawal or it will be lost
+            harvest_tx = contract.functions.getReward(ETF_portfolio_address,
+                                                      [ETF_assets_balances["LAW"]["CA"]]).buildTransaction(
+                {'chainId': 10000,
+                 'from': ETF_portfolio_address,
+                 'gasPrice': w3.toWei('1.05', 'gwei')
+                 })
+            engine.send_transaction("Harvesting BlockNG Kudos farm before withdrawal", harvest_tx, *ETF_portfolio_account)
+            withdrawal_tx = contract.functions.withdraw(amount_to_sell).buildTransaction(
+                {'chainId': 10000,
+                 'from': ETF_portfolio_address,
+                 'gasPrice': w3.toWei('1.05', 'gwei')
+                 })
+            engine.send_transaction(
+                f"Withdrawing {amount_to_sell} SIDX LP from DEX {DEX}", withdrawal_tx, *ETF_portfolio_account)
+            # Now it's time to remove the liquidity
+            token0_address, token0_amount, token1_address, token1_amount = engine.remove_liquidity(99.99, SIDX_liquidity_pools[DEX]['lp_CA'], routers[DEX], *ETF_portfolio_account)
+            # And sell the tokens for WBCH
+            engine.swap_assets(token0_address, engine.WBCH_CA, token0_amount, *ETF_portfolio_account)
+            engine.swap_assets(token1_address, engine.WBCH_CA, token1_amount, *ETF_portfolio_account)
+        if DEX == "Emberswap":
+            ABI = open("ABIs/EMBER_Distributor-ABI.json", "r")
+            abi = json.loads(ABI.read())
+            contract = w3.eth.contract(address="0x8ecb32C33AB3f7ee3D6Ce9D4020bC53fecB36Be9", abi=abi)
+            pool_balance = \
+            contract.functions.userInfo(SIDX_liquidity_pools[DEX]['pool_id'], ETF_portfolio_address).call()[0]
+            amount_to_sell = int(pool_balance * share_to_withdraw)
+            withdrawal_tx = contract.functions.withdraw(SIDX_liquidity_pools[DEX]['pool_id'],
+                                                        amount_to_sell).buildTransaction(
+                {'chainId': 10000,
+                 'from': ETF_portfolio_address,
+                 'gasPrice': w3.toWei('1.05', 'gwei')
+                 })
+            engine.send_transaction(f"Withdrawing {amount_to_sell} SIDX LP from DEX {DEX}", withdrawal_tx, *ETF_portfolio_account)
+            token0_address, token0_amount, token1_address, token1_amount = engine.remove_liquidity(100, SIDX_liquidity_pools[DEX]['lp_CA'], routers[DEX], *ETF_portfolio_account)
+            # And sell the tokens for WBCH
+            engine.swap_assets(token0_address, engine.WBCH_CA, token0_amount, *ETF_portfolio_account)
+            engine.swap_assets(token1_address, engine.WBCH_CA, token1_amount, *ETF_portfolio_account)
+            
     #Finally, the farms
     for DEX in ETF_farms:
         if DEX in ("Mistswap", "Tangoswap"):
