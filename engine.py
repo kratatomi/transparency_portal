@@ -1531,7 +1531,7 @@ def get_pending_rewards_value(address, bch_price, ETF_farms, ETF_LP_balances):
 
     return total_value
 
-def main():
+def main(complete_scan=True):
     main_instance = singleton.SingleInstance() # Just one instance can run to prevent race conditions
     global total_liquid_value
     global total_illiquid_value
@@ -1543,41 +1543,42 @@ def main():
     bch_price = get_BCH_price()
     SIDX_stats = get_SIDX_stats(bch_price)
     sidx_price = float(SIDX_stats["Price"].split()[0])
-    SEP20_tokens, stacked_assets = get_balances(bch_price)
-    total_rewards_value = stacked_assets["Total yield value"]
-    LP_balances = get_LP_balances(initial_pool_balances, portfolio_address, bch_price, sidx_price)
-    get_law_rewards(bch_price)
-    get_farms(bch_price)
-    make_pie_chart(pie_chart_data, "assets_pie_chart")
-    make_pie_chart(farms_pie_chart_data, "farms_pie_chart")
-    make_pie_chart(sidx_liquidity_pie_chart_data, "liquidity_allocation")
-    make_pie_chart(global_stats_pie_chart_data, "global_stats")
-    ETF_portfolio = get_ETF_assets_allocation(farms, LP_balances)
-    global_portfolio_stats = {"total_liquid_value": round(total_liquid_value, 2),
-                              "total_illiquid_value": round(total_illiquid_value, 2),
-                              "total_portfolio_balance": round(total_liquid_value + total_illiquid_value, 2),
-                              "total_rewards_value": round(total_rewards_value, 2), "value_per_sidx": round(
-            round(total_liquid_value + total_illiquid_value, 2) / SIDX_stats["Total supply"], 2)}
+    if complete_scan == True:
+        SEP20_tokens, stacked_assets = get_balances(bch_price)
+        total_rewards_value = stacked_assets["Total yield value"]
+        LP_balances = get_LP_balances(initial_pool_balances, portfolio_address, bch_price, sidx_price)
+        get_law_rewards(bch_price)
+        get_farms(bch_price)
+        make_pie_chart(pie_chart_data, "assets_pie_chart")
+        make_pie_chart(farms_pie_chart_data, "farms_pie_chart")
+        make_pie_chart(sidx_liquidity_pie_chart_data, "liquidity_allocation")
+        make_pie_chart(global_stats_pie_chart_data, "global_stats")
+        ETF_portfolio = get_ETF_assets_allocation(farms, LP_balances)
+        global_portfolio_stats = {"total_liquid_value": round(total_liquid_value, 2),
+                                  "total_illiquid_value": round(total_illiquid_value, 2),
+                                  "total_portfolio_balance": round(total_liquid_value + total_illiquid_value, 2),
+                                  "total_rewards_value": round(total_rewards_value, 2), "value_per_sidx": round(
+                round(total_liquid_value + total_illiquid_value, 2) / SIDX_stats["Total supply"], 2)}
 
-    # Calculate the MarketValue/PortfilioValue ratio (less than 1 means 'underbacked')
-    global_portfolio_stats["ratio"] = round(float(SIDX_stats["Price"].split()[0]) / global_portfolio_stats["value_per_sidx"], 2)
+        # Calculate the MarketValue/PortfilioValue ratio (less than 1 means 'underbacked')
+        global_portfolio_stats["ratio"] = round(float(SIDX_stats["Price"].split()[0]) / global_portfolio_stats["value_per_sidx"], 2)
 
-    with open('data/SIDX_STATS.json', 'w') as file:
-        json.dump(SIDX_stats, file, indent=4)
-    with open('data/SEP20_BALANCES.json', 'w') as file:
-        json.dump(SEP20_tokens, file, indent=4)
-    with open('data/STACKED_ASSETS.json', 'w') as file:
-        json.dump(stacked_assets, file, indent=4)
-    with open('data/LP_BALANCES.json', 'w') as file:
-        json.dump(LP_balances, file, indent=4)
-    with open('data/NFTs.json', 'w') as file:
-        json.dump(NFTs, file, indent=4)
-    with open('data/FARMS.json', 'w') as file:
-        json.dump(farms, file, indent=4)
-    with open('data/GLOBAL_STATS.json', 'w') as file:
-        json.dump(global_portfolio_stats, file, indent=4)
-    with open('data/ETF_portfolio.json', 'w') as file:
-        json.dump(ETF_portfolio, file, indent=4)
+        with open('data/SIDX_STATS.json', 'w') as file:
+            json.dump(SIDX_stats, file, indent=4)
+        with open('data/SEP20_BALANCES.json', 'w') as file:
+            json.dump(SEP20_tokens, file, indent=4)
+        with open('data/STACKED_ASSETS.json', 'w') as file:
+            json.dump(stacked_assets, file, indent=4)
+        with open('data/LP_BALANCES.json', 'w') as file:
+            json.dump(LP_balances, file, indent=4)
+        with open('data/NFTs.json', 'w') as file:
+            json.dump(NFTs, file, indent=4)
+        with open('data/FARMS.json', 'w') as file:
+            json.dump(farms, file, indent=4)
+        with open('data/GLOBAL_STATS.json', 'w') as file:
+            json.dump(global_portfolio_stats, file, indent=4)
+        with open('data/ETF_portfolio.json', 'w') as file:
+            json.dump(ETF_portfolio, file, indent=4)
 
     # Get data for the ETF portfolio. The first steps is to reset the global variables total_liquid_value and total_rewards_value.
     total_liquid_value = 0

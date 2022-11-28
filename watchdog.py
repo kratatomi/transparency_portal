@@ -765,18 +765,18 @@ def main():
                     if successful_allocation == True:
                         try:
                             rescan_farms()
-                            engine.main()
+                            engine.main(complete_scan=False)
                         except SingleInstanceException:
                             # This happens if the cron task is running engine.main()
                             logger.error('Single class exception found while running the engine, trying after 90 seconds.')
                             from time import sleep
                             sleep(90)
-                            engine.main()
+                            engine.main(complete_scan=False)
                         except Exception as e:
                             logger.error('Exception found while the watchdog ran the engine, trying after 90 seconds.')
                             from time import sleep
                             sleep(90)
-                            engine.main()
+                            engine.main(complete_scan=False)
                         finally:
                             bch_price = engine.get_BCH_price()
                             investment_usd_amount = (amount_left / 10**18) * bch_price
