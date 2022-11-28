@@ -168,22 +168,6 @@ def generate_update_initial_files():
     with open('data/ETF_ASSETS_BALANCES.json', 'w') as file:
         json.dump(ETF_assets_balances, file, indent=4)
 
-def initiate_SIDX_liquidity_pools():
-    #According to proposal #53, 25% of the ETF portfolio will be SIDX liquidity pools.
-    with open('data/LP_BALANCES.json') as LP_balances_file:
-        ETF_LP_balances = json.load(LP_balances_file)
-
-    #Numbers are set to 0.
-    for DEX in ETF_LP_balances:
-        for key in ETF_LP_balances[DEX]:
-            if type(ETF_LP_balances[DEX][key]) is dict:
-                for variable in ETF_LP_balances[DEX][key]:
-                    ETF_LP_balances[DEX][key][variable] = 0
-            else:
-                ETF_LP_balances[DEX][key] = 0
-
-    with open('data/ETF_LP_BALANCES.json', 'w') as file:
-        json.dump(ETF_LP_balances, file, indent=4)
 
 def take_fee(amount):
     from engine import wrap_BCH, transfer_asset, get_SEP20_balance
