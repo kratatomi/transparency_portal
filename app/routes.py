@@ -163,9 +163,9 @@ def weekly_report(name):
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('submit_proposal'))
-    w3 = Web3(Web3.HTTPProvider('https://smartbch.greyh.at'))
+    w3 = Web3(Web3.HTTPProvider('https://global.uat.cash'))
     if not w3.isConnected():
-        w3 = Web3(Web3.HTTPProvider('https://smartbch.fountainhead.cash/mainnet'))
+        w3 = Web3(Web3.HTTPProvider('https://smartbch.grey.at'))
 
     public_address = request.json[0]
     signature = request.json[1]
@@ -212,9 +212,9 @@ def submit_proposal():
         return redirect('/proposals')
     # Check if the logged user has at least 1250 SIDX tokens in his wallet
     user = Users.query.get(current_user.get_id())
-    w3 = Web3(Web3.HTTPProvider('https://smartbch.greyh.at'))
+    w3 = Web3(Web3.HTTPProvider('https://global.uat.cash'))
     if not w3.isConnected():
-        w3 = Web3(Web3.HTTPProvider('https://smartbch.fountainhead.cash/mainnet'))
+        w3 = Web3(Web3.HTTPProvider('https://smartbch.grey.at'))
     ABI = open("ABIs/ERC20-ABI.json", "r")  # Standard ABI for ERC20 tokens
     abi = json.loads(ABI.read())
     contract = w3.eth.contract(address="0xF05bD3d7709980f60CD5206BddFFA8553176dd29", abi=abi)
