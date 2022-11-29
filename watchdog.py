@@ -135,11 +135,12 @@ class SBCH:
         self.get_response()
 
     def get_response(self):
-        self.response = self.session.post('https://smartbch.fountainhead.cash/mainnet', json=self.payload, headers=self.headers).json()
+        self.response = self.session.post('https://global.uat.cash', json=self.payload, headers=self.headers).json()
 
     def __init__(self):
         SBCH.ID += 1
         self.payload["id"] = self.ID
+        #https://smartbch.fountainhead.cash/mainnet
 
 def generate_update_initial_files():
     '''This function is ran once first to generate the files ETF_ASSETS_BALANCES and ETF_FARMS.json. It just set all balances to zero.'''
