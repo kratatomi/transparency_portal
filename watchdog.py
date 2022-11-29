@@ -140,7 +140,6 @@ class SBCH:
     def __init__(self):
         SBCH.ID += 1
         self.payload["id"] = self.ID
-        #https://smartbch.fountainhead.cash/mainnet
 
 def generate_update_initial_files():
     '''This function is ran once first to generate the files ETF_ASSETS_BALANCES and ETF_FARMS.json. It just set all balances to zero.'''

@@ -441,6 +441,7 @@ def get_LP_balances(initial_pool_balances, wallet_address, bch_price, sidx_price
         token1_ticker, token1_decimals = get_token_info(token1_CA)
         token0_reserves = contract.functions.getReserves().call()[0]
         token1_reserves = contract.functions.getReserves().call()[1]
+        total_supply = contract.functions.totalSupply().call()
         LP_balances[DEX][token0_ticker] = {}
         LP_balances[DEX][token1_ticker] = {}
         LP_balances[DEX][token0_ticker]["Initial"] = round(initial_pool_balances[DEX]["token0"], 2)
@@ -474,6 +475,7 @@ def get_LP_balances(initial_pool_balances, wallet_address, bch_price, sidx_price
         LP_balances[DEX]["Reward"] = round(reward / 10 ** 18, 2)
         LP_balances[DEX]["Reward value"] = round(LP_balances[DEX]["Reward"] * asset_price, 2)
         total_rewards_value += LP_balances[DEX]["Reward value"]
+        LP_balances[DEX]["Liquidity share"] = round(portfolio_LP_balance/total_supply * 100, 2)
     return LP_balances
 
 def get_price(token_CA):

@@ -265,6 +265,12 @@
                                 <th colspan="2" style="text-align: right;">$ {{ "{:,.2f}".format(value|float) }}</th>
                             </tr>
                         {% endif %}
+                        {% if key == "Liquidity share" %}
+                            <tr class="btm highlight-color1">
+                                <th colspan="2">Liquidity owned by the portfolio:</th>
+                                <th colspan="2" style="text-align: right;">{{ "{:,.2f}".format(value|float) }}%</th>
+                            </tr>
+                        {% endif %}
                         {% endfor %}
                     {% endfor %}
             </table>
