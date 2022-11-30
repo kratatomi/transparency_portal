@@ -140,6 +140,7 @@ class SBCH:
     def __init__(self):
         SBCH.ID += 1
         self.payload["id"] = self.ID
+        self.payload["id"] = self.ID
 
 def generate_update_initial_files():
     '''This function is ran once first to generate the files ETF_ASSETS_BALANCES and ETF_FARMS.json. It just set all balances to zero.'''
@@ -748,6 +749,7 @@ def main():
                         logger.error(f'Double deposit detected with hash {TXID}, please check.')
                         import app.email as email
                         email.send_email_to_admin(f'Double deposit detected with hash {TXID}, please check')
+                        stop_watchdog()
                         return
                     try:
                         amount_left = take_fee(investment_amount)
