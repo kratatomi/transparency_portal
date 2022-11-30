@@ -827,6 +827,7 @@ def main():
                 logger.error(f'Double withdrawal request with TXID {tx_hash} detected, please check.')
                 import app.email as email
                 email.send_email_to_admin(f'Double withdrawal request with TXID {tx_hash} detected, please check.')
+                stop_watchdog()
                 return
             # Now we need to calculate the share of the portfolio to withdrawal, from 0 to 1, being 1 all
             ABI = open("ABIs/ERC20-ABI.json", "r")
