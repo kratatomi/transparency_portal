@@ -10,9 +10,11 @@ import engine
 
 logger = logging.getLogger("app.engine")
 
-w3 = Web3(Web3.HTTPProvider('https://global.uat.cash'))
+RPC_SERVER = 'https://global.uat.cash'
+w3 = Web3(Web3.HTTPProvider(RPC_SERVER))
 if not w3.isConnected():
-    w3 = Web3(Web3.HTTPProvider('https://smartbch.grey.at'))
+    RPC_SERVER = 'https://smartbch.grey.at'
+    w3 = Web3(Web3.HTTPProvider(RPC_SERVER))
 
 ETF_watchdog_address = "0xd2edf72FE051571A85466F95b6Cab1C0a31601c6"
 ETF_portfolio_address = engine.ETF_portfolio_address
@@ -135,7 +137,7 @@ class SBCH:
         self.get_response()
 
     def get_response(self):
-        self.response = self.session.post('https://global.uat.cash', json=self.payload, headers=self.headers).json()
+        self.response = self.session.post(RPC_SERVER, json=self.payload, headers=self.headers).json()
 
     def __init__(self):
         SBCH.ID += 1
