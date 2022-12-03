@@ -64,7 +64,8 @@ assets_balances = {
     "bcUSDT": {"Stacked": False, "Liquid": True, "CA": "0xBc2F884680c95A02cea099dA2F524b366d9028Ba", "BCH pair": "0x27580618797a2CE02FDFBbee948388a50a823611"},
     "LAW": {"Stacked": True, "Liquid": True, "CA": "0x0b00366fBF7037E9d75E4A569ab27dAB84759302", "BCH pair": "0x54AA3B2250A0e1f9852b4a489Fe1C20e7C71fd88"},
     "Joy": {"Stacked": False, "Liquid": True, "CA": "0x6732E55Ac3ECa734F54C26Bd8DF4eED52Fb79a6E", "BCH pair": "0xEe08584956020Ea9D4211A239030ad49Eb5f886D"},
-    "FlexUSD": {"Stacked": False, "Liquid": True, "CA": "0x7b2B3C5308ab5b2a1d9a94d20D35CCDf61e05b72", "BCH pair": "0x24f011f12Ea45AfaDb1D4245bA15dCAB38B43D13"}
+    "FlexUSD": {"Stacked": False, "Liquid": True, "CA": "0x7b2B3C5308ab5b2a1d9a94d20D35CCDf61e05b72", "BCH pair": "0x24f011f12Ea45AfaDb1D4245bA15dCAB38B43D13"},
+    "Ember Token": {"Stacked": True, "Liquid": True, "CA": "0x6BAbf5277849265b6738e75AEC43AEfdde0Ce88D", "BCH pair": "0x52c656FaF57DCbDdDd47BCbA7b2ab79e4c232C28"}
 }
 
 initial_pool_balances = {
@@ -1533,7 +1534,7 @@ def buy_assets_for_liquidty_addition(input_amount, input_asset_CA, lp_CA, *accou
 def get_pending_rewards_value(address, bch_price, ETF_farms, ETF_LP_balances):
     '''This function returns the total USD value of farm's reward token stored in a given address plus the ones pending harvesting.
     Its function is to give the value pending to be reallocated in the ETF portfolio.'''
-    reward_tokens = ["MistToken", "Tango", "LAW"]
+    reward_tokens = ["MistToken", "Tango", "LAW", "Ember Token"]
     total_value = 0
     for token in reward_tokens:
         token_price = get_price_from_pool(token, bch_price)
