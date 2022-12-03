@@ -779,7 +779,6 @@ def main():
                     if successful_allocation == True:
                         try:
                             rescan_farms()
-                            check_wallet_gas()
                             engine.main(complete_scan=False)
                         except Exception as e:
                             logger.error(f'Exception found while the watchdog ran the engine, trying after 120 seconds. Exception is {e}.')
@@ -884,7 +883,6 @@ def main():
                         burning_tx, *(ETF_watchdog_address, "WATCHDOG_PRIV_KEY"))
                 try:
                     rescan_farms()
-                    check_wallet_gas()
                     engine.main()
                 except SingleInstanceException:
                     # This happens if the cron task is running engine.main()
@@ -901,6 +899,7 @@ def main():
     ETF_investors_transfers["latest_scanned_block"] = latest_block_number
     with open('data/ETF_investors_transfers.json', 'w') as file:
         json.dump(ETF_investors_transfers, file, indent=4)
+    check_wallet_gas()
 
 if __name__ == "__main__":
     main()
