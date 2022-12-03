@@ -44,7 +44,10 @@
         {% endif %}
 
         <div class="card">
-            <div class="card-header"><h3>SEP20 Tokens Held</h3></div>
+            <div class="card-header"><h3>SEP20 Tokens Held</h3>
+                {% if title == "Portfolio tracker" %}
+                    <small>Wrapped BCH comes from the fees earned through SmartIndex ETF deposits.</small>
+                {% endif %}</div>
             <div class="card-body">
                 <table id="SEP20_tokens" style="width: 100%;">
                     <tr class="top highlight-color1">
