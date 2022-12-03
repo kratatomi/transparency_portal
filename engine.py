@@ -1539,7 +1539,7 @@ def get_pending_rewards_value(address, bch_price, ETF_farms, ETF_LP_balances):
     for token in reward_tokens:
         token_price = get_price_from_pool(token, bch_price)
         token_amount = get_SEP20_balance(assets_balances[token]["CA"], address) / 10 ** 18
-        total_value = token_amount * token_price
+        total_value += (token_amount * token_price)
 
     for DEX in ETF_farms:
         for i in range(len(ETF_farms[DEX]["farms"])):
