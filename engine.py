@@ -981,10 +981,26 @@ def send_transaction(identifier, tx,*account):
         import app.email as email
         email.send_email_to_admin(f'TX reverted. Identifier is {identifier}, error: {error}')
     except Exception as e:
-        print("Broad exception triggered")
-        logger.error(f'TX failed to sent, error is {e}. Identifier is {identifier}')
-        import app.email as email
-        email.send_email_to_admin(f'TX failed to sent, error is {e}. Identifier is {identifier}')
+        # Let's check if it's a problem related with the TX nonce
+        old_nonce = nonce
+        rechecked_nonce = w3.eth.get_transaction_count(address)
+        if old_nonce == rechecked_nonce:
+            logger.error(f'TX failed to sent, error is {e}. Identifier is {identifier}')
+            import app.email as email
+            email.send_email_to_admin(f'TX failed to sent, error is {e}. Identifier is {identifier}')
+        else:
+            tx['nonce'] = rechecked_nonce
+            signed_txn = w3.eth.account.sign_transaction(tx, private_key=private_key)
+            try:
+                TXID = w3.eth.send_raw_transaction(signed_txn.rawTransaction)
+            except exceptions.SolidityError as error:
+                logger.error(f'TX reverted. Identifier is {identifier}, error: {error}')
+                import app.email as email
+                email.send_email_to_admin(f'TX reverted. Identifier is {identifier}, error: {error}')
+            except Exception as e:
+                logger.error(f'TX failed to sent, error is {e}. Identifier is {identifier}')
+                import app.email as email
+                email.send_email_to_admin(f'TX failed to sent, error is {e}. Identifier is {identifier}')
     else:
         hex_TXID = w3.toHex(TXID)
         logger.info(f'TXID {hex_TXID} sent, identifier is {identifier}')

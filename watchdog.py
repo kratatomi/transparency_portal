@@ -701,6 +701,16 @@ def stop_watchdog():
     with open('data/ETF_investors_transfers.json', 'w') as file:
         json.dump(ETF_investors_transfers, file, indent=4)
 
+def check_wallet_gas():
+    '''This function checks if there's enough balance to pay for a deposit or withdrawal in the ETF wallet.'''
+    bch_balance = w3.eth.get_balance(ETF_portfolio_address)
+    if bch_balance < 25000000000000000:
+        stop_watchdog()
+        logger.error('Stopping watchdog: not enough balance in the ETF wallet')
+        import app.email as email
+        email.send_email_to_admin('Stopping watchdog: not enough balance in the ETF wallet, please top-up.')
+
+
 def main():
     # ETF_investors_transfers is a file created by start_watchdog() given a start block, which structure is:
     # ETF_investors_transfers = {"latest_scanned_block": start_block, "investors": [], "running": True, "withdrawals": []}
@@ -769,6 +779,7 @@ def main():
                     if successful_allocation == True:
                         try:
                             rescan_farms()
+                            check_wallet_gas()
                             engine.main(complete_scan=False)
                         except Exception as e:
                             logger.error(f'Exception found while the watchdog ran the engine, trying after 120 seconds. Exception is {e}.')
@@ -873,6 +884,7 @@ def main():
                         burning_tx, *(ETF_watchdog_address, "WATCHDOG_PRIV_KEY"))
                 try:
                     rescan_farms()
+                    check_wallet_gas()
                     engine.main()
                 except SingleInstanceException:
                     # This happens if the cron task is running engine.main()
