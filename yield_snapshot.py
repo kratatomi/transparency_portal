@@ -56,7 +56,7 @@ def generate_graphs():
             sidx_liquidity[DEX] = {"Value": 0, "Reward value": 0}
         sidx_liquidity[DEX]["Reward value"] += current_liquidity[DEX]["Reward value"]
         for coin in current_liquidity[DEX]:
-            if coin not in ("Reward", "Reward value", "Total LP Value"):
+            if coin not in ("Reward", "Reward value", "Total LP Value", "Liquidity share"):
                 sidx_liquidity[DEX]["Value"] += current_liquidity[DEX][coin]["Current value"]
                 sidx_liquidity["Total USD value"] += current_liquidity[DEX][coin]["Current value"]
     # Calculating the percentage of liquidity per DEX and their performance
