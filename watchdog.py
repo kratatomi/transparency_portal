@@ -36,7 +36,7 @@ SIDX_liquidity_pools = {"Mistswap": {"lp_CA": "0x7E1B9F1e286160A80ab9B04D228C025
         "Emberswap": {"lp_CA": "0x97dEAeB1A9A762d97Ac565cD3Ff7629CD6d55D09", "pool_id": 31}}
 
 portfolio_fee = 1
-admin_fee = 0.5
+admin_fee = 1.5
 min_investment_amount = 0.2 #BCH
 min_withdrawal_share = 0.005
 
