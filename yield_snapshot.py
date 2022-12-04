@@ -261,41 +261,7 @@ def generate_graphs():
     with open('data/assets_statistics.json', 'w') as file:
         json.dump(assets_statistics, file, indent=4)
 
-def main():
-    with open('data/SIDX_STATS.json') as sidx_stats_file:
-        sidx_stats = json.load(sidx_stats_file)
-    with open('data/SEP20_BALANCES.json') as sep20_balances_file:
-        sep20_balances = json.load(sep20_balances_file)
-    with open('data/STACKED_ASSETS.json') as stacked_assets_file:
-        stacked_assets = json.load(stacked_assets_file)
-    with open('data/LP_BALANCES.json') as lp_balances_file:
-        lp_balances = json.load(lp_balances_file)
-    with open('data/NFTs.json') as NFTs_file:
-        NFTs = json.load(NFTs_file)
-    with open('data/FARMS.json') as farms_file:
-        farms = json.load(farms_file)
-    with open('data/GLOBAL_STATS.json') as global_stats_file:
-        global_stats = json.load(global_stats_file)
-
-    today = date.today()
-    d1 = today.strftime("%d-%m-%Y")
-
-    weekly_stats = {"snapshot date": d1,
-                    "SIDX_STATS": sidx_stats,
-                    "SEP20_BALANCES": sep20_balances,
-                    "STACKED_ASSETS": stacked_assets,
-                    "LP_BALANCES": lp_balances,
-                    "PUNKS_BALANCES": NFTs["PUNKS"],
-                    "LAW RIGHTS": NFTs["LAW Rights"],
-                    "FARMS": farms,
-                    "GLOBAL_STATS": global_stats}
-
-    with open(f'data/snapshots/{d1}.json', 'x') as file:
-        json.dump(weekly_stats, file, indent=4)
-    file.close()
-    generate_graphs()
-    
-    #Let's harvest the rewards from pools
+def take_weekly_yields(stacked_assets, farms):
     import engine
     engine.start_celery_stake() # Turning to staking mode harvest the CLY rewards
     try:
@@ -346,6 +312,41 @@ def main():
         logger.error(f'Function harvest_sidx_law_farm failed. Exception: {e}')
         import app.email as email
         email.send_email_to_admin(f'Function harvest_sidx_law_farm failed. Exception: {e}')
+
+def main():
+    with open('data/SIDX_STATS.json') as sidx_stats_file:
+        sidx_stats = json.load(sidx_stats_file)
+    with open('data/SEP20_BALANCES.json') as sep20_balances_file:
+        sep20_balances = json.load(sep20_balances_file)
+    with open('data/STACKED_ASSETS.json') as stacked_assets_file:
+        stacked_assets = json.load(stacked_assets_file)
+    with open('data/LP_BALANCES.json') as lp_balances_file:
+        lp_balances = json.load(lp_balances_file)
+    with open('data/NFTs.json') as NFTs_file:
+        NFTs = json.load(NFTs_file)
+    with open('data/FARMS.json') as farms_file:
+        farms = json.load(farms_file)
+    with open('data/GLOBAL_STATS.json') as global_stats_file:
+        global_stats = json.load(global_stats_file)
+
+    today = date.today()
+    d1 = today.strftime("%d-%m-%Y")
+
+    weekly_stats = {"snapshot date": d1,
+                    "SIDX_STATS": sidx_stats,
+                    "SEP20_BALANCES": sep20_balances,
+                    "STACKED_ASSETS": stacked_assets,
+                    "LP_BALANCES": lp_balances,
+                    "PUNKS_BALANCES": NFTs["PUNKS"],
+                    "LAW RIGHTS": NFTs["LAW Rights"],
+                    "FARMS": farms,
+                    "GLOBAL_STATS": global_stats}
+
+    with open(f'data/snapshots/{d1}.json', 'x') as file:
+        json.dump(weekly_stats, file, indent=4)
+    file.close()
+    generate_graphs()
+    take_weekly_yields(stacked_assets, farms)
 
 if __name__ == "__main__":
     main()
