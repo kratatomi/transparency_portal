@@ -346,7 +346,18 @@ def main():
         json.dump(weekly_stats, file, indent=4)
     file.close()
     generate_graphs()
-    take_weekly_yields(stacked_assets, farms)
+    from web3 import Web3
+    from engine import portfolio_address
+    w3 = Web3(Web3.HTTPProvider('https://global.uat.cash'))
+    if not w3.isConnected():
+        w3 = Web3(Web3.HTTPProvider('https://smartbch.grey.at'))
+    portfolio_gas_balance = w3.eth.get_balance(portfolio_address)
+    if portfolio_gas_balance >= 8500000000000000:
+        take_weekly_yields(stacked_assets, farms)
+    else:
+        logger.error(f'Cannot take weekly yields as portfolio BCH balance is {portfolio_gas_balance/10**18}. Please top-up.')
+        import app.email as email
+        email.send_email_to_admin(f'Cannot take weekly yields as portfolio BCH balance is {portfolio_gas_balance/10**18}. Please top-up.')
 
 if __name__ == "__main__":
     main()
