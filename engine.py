@@ -1183,10 +1183,11 @@ def harvest_sidx_law_farm():
 def get_ETF_assets_allocation(farms, LP_balances):
     # SIDX liquidity pools (LP balances) must make up 25% of ETF portfolio (proposal #53)
     portfolio = {"Standalone assets": {}, "Farms": {}, "SIDX pools": {}}
+    banned_assets = ["FLEX Coin", "FlexUSD"]
     total_percentage = 0
     total_value = 0
     for asset in pie_chart_data:
-        if assets_balances[asset]["Liquid"]:
+        if assets_balances[asset]["Liquid"] and asset not in banned_assets:
             portfolio["Standalone assets"][asset] = pie_chart_data[asset]
             total_value += portfolio["Standalone assets"][asset]
     for DEX in farms:
