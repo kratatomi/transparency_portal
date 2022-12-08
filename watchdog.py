@@ -460,8 +460,9 @@ def assets_withdrawal(share_to_withdraw, recipient_address):
     for SEP20_token in ETF_SEP20_balances:
         if SEP20_token != "Total value":
             ETF_portfolio_balance = engine.get_SEP20_balance(ETF_assets_balances[SEP20_token]["CA"], ETF_portfolio_address)
-            amount_to_sell = int(ETF_portfolio_balance * share_to_withdraw)
-            engine.swap_assets(ETF_assets_balances[SEP20_token]["CA"], engine.WBCH_CA, int(amount_to_sell), *ETF_portfolio_account)
+            if ETF_portfolio_balance > 0:
+                amount_to_sell = int(ETF_portfolio_balance * share_to_withdraw)
+                engine.swap_assets(ETF_assets_balances[SEP20_token]["CA"], engine.WBCH_CA, int(amount_to_sell), *ETF_portfolio_account)
 
     # Now staked assets
     for staked_token in ETF_staked_assets:
