@@ -249,8 +249,9 @@ def allocate_coins(amount_to_allocate):
     ETF_portfolio_account = (ETF_portfolio_address, 'ETF_PORTFOLIO_PRIV_KEY')
 
     # The first thing to buy are SEP20 tokens
+    from engine import ETF_banned_assets
     for SEP20_token in ETF_SEP20_balances:
-        if SEP20_token != "Total value":
+        if SEP20_token != "Total value" and SEP20_token not in ETF_banned_assets:
             amount_to_buy = ETF_portfolio["Standalone assets"][SEP20_token]
             engine.swap_assets(engine.WBCH_CA, ETF_assets_balances[SEP20_token]["CA"], int(amount_to_buy), *ETF_portfolio_account)
 

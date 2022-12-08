@@ -155,6 +155,7 @@ farms = {"Mistswap": {"factory": "0x3A7B9D0ed49a90712da4E087b17eE4Ac1375a5D4",
                                     ]}
 }
 
+ETF_banned_assets = ["FLEX Coin", "FlexUSD"]
 pie_chart_data = {}
 farms_pie_chart_data = {}
 sidx_liquidity_pie_chart_data = {}
@@ -1183,11 +1184,11 @@ def harvest_sidx_law_farm():
 def get_ETF_assets_allocation(farms, LP_balances):
     # SIDX liquidity pools (LP balances) must make up 25% of ETF portfolio (proposal #53)
     portfolio = {"Standalone assets": {}, "Farms": {}, "SIDX pools": {}}
-    banned_assets = ["FLEX Coin", "FlexUSD"]
+    ETF_banned_assets = ["FLEX Coin", "FlexUSD"]
     total_percentage = 0
     total_value = 0
     for asset in pie_chart_data:
-        if assets_balances[asset]["Liquid"] and asset not in banned_assets:
+        if assets_balances[asset]["Liquid"] and asset not in ETF_banned_assets:
             portfolio["Standalone assets"][asset] = pie_chart_data[asset]
             total_value += portfolio["Standalone assets"][asset]
     for DEX in farms:
