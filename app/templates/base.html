@@ -30,6 +30,7 @@
             <li class="nav-item"><a class="nav-link"  href="{{ url_for('index') }}">Portfolio tracker</a></li>
             <li class="nav-item"><a class="nav-link"  href="{{ url_for('proposals') }}">Proposals</a></li>
             <li class="nav-item"><a class="nav-link"  href="{{ url_for('yields') }}">Weekly yield</a></li>
+            <li class="nav-item"><a class="nav-link"  href="{{ url_for('ETF_portfolio') }}">ETF</a></li>
             {% if current_user.is_authenticated %}
                 <li class="nav-item"><a class="nav-link"  href="{{ url_for('submit_proposal') }}">Submit proposal</a></li>
                 <li class="nav-item"><a class="nav-link"  href="{{ url_for('logout') }}">Logout</a></li>
