@@ -1494,6 +1494,51 @@ def transfer_asset(asset, amount, destination, *account):
          })
     send_transaction(f'Transfer {amount} of token {asset} from account {address}', transfer_tx, *account)
 
+def transfer_gas(amount, recipient, *account):
+    address, priv_key_env = account
+    private_key = os.environ.get(priv_key_env)
+    transfer_tx = w3.eth.account.signTransaction(dict(
+        nonce=w3.eth.getTransactionCount(address),
+        to=recipient,
+        gasPrice=w3.toWei('1.05', 'gwei'),
+        gas=100000,
+        value=w3.toWei(amount/10**18, 'ether')
+    ),
+        private_key)
+    try:
+        TXID = w3.eth.send_raw_transaction(transfer_tx.rawTransaction)
+    except exceptions.SolidityError as error:
+        logger.error(f'TX reverted when sending gas to {recipient}. Error: {error}')
+        import app.email as email
+        email.send_email_to_admin(f'TX reverted when sending gas to {recipient}. Error: {error}')
+    except Exception as e:
+        # Let's check if it's a problem related with the TX nonce
+        old_nonce = transfer_tx["nonce"]
+        rechecked_nonce = w3.eth.get_transaction_count(address)
+        if old_nonce == rechecked_nonce:
+            logger.error(f'TX failed to sent while transfering gas, error is {e}.')
+            import app.email as email
+            email.send_email_to_admin(f'TX failed to sent while transfering gas, error is {e}.')
+        else:
+            transfer_tx = w3.eth.account.signTransaction(dict(
+                nonce=w3.eth.getTransactionCount(address),
+                to=recipient,
+                value=w3.toWei(amount, 'ether')
+            ),
+                private_key)
+            try:
+                TXID = w3.eth.send_raw_transaction(transfer_tx.rawTransaction)
+            except exceptions.SolidityError as error:
+                logger.error(f'TX reverted while transfering gas. Error: {error}')
+                import app.email as email
+                email.send_email_to_admin(f'TX reverted while transfering gas. Error: {error}')
+            except Exception as e:
+                logger.error(f'TX reverted while transfering gas. Error: {e}')
+                import app.email as email
+                email.send_email_to_admin(f'TX reverted while transfering gas. Error: {e}')
+    receipt = w3.eth.wait_for_transaction_receipt(TXID)
+    return receipt
+
 def buy_assets_for_liquidty_addition(input_amount, input_asset_CA, lp_CA, *account):
     '''This function aims to buy assets in a 50/50 basis and then generate a token dictionary for the add_liquidity() function'''
     if not account:

@@ -173,11 +173,13 @@ def generate_update_initial_files():
 
 
 def take_fee(amount):
-    from engine import wrap_BCH, transfer_asset, get_SEP20_balance
-    wrap_BCH(amount, *(ETF_watchdog_address, "WATCHDOG_PRIV_KEY"))
+    from engine import wrap_BCH, transfer_asset, transfer_gas, get_SEP20_balance
+    # Admin fee will remain in BCH form and will be transfered to the ETF portfolio wallet to pay gas fees
     admin_fee_amount = amount * (admin_fee / 100)
+    amount_to_wrap = amount - admin_fee_amount
+    wrap_BCH(amount_to_wrap, *(ETF_watchdog_address, "WATCHDOG_PRIV_KEY"))
     portfolio_fee_amount = amount * (portfolio_fee / 100)
-    transfer_asset(engine.WBCH_CA, admin_fee_amount, engine.admin_wallet_address, *(ETF_watchdog_address, "WATCHDOG_PRIV_KEY"))
+    transfer_gas(admin_fee_amount, ETF_portfolio_address, *(ETF_watchdog_address, "WATCHDOG_PRIV_KEY"))
     transfer_asset(engine.WBCH_CA, portfolio_fee_amount, engine.portfolio_address, *(ETF_watchdog_address, "WATCHDOG_PRIV_KEY"))
     amount_left = get_SEP20_balance(engine.WBCH_CA, ETF_watchdog_address)
     transfer_asset(engine.WBCH_CA, amount_left, ETF_portfolio_address,
@@ -460,6 +462,7 @@ def assets_withdrawal(share_to_withdraw, recipient_address):
     for SEP20_token in ETF_SEP20_balances:
         if SEP20_token != "Total value":
             ETF_portfolio_balance = engine.get_SEP20_balance(ETF_assets_balances[SEP20_token]["CA"], ETF_portfolio_address)
+            # Check balance, as banned SEP20 tokens holdings will disappear eventually
             if ETF_portfolio_balance > 0:
                 amount_to_sell = int(ETF_portfolio_balance * share_to_withdraw)
                 engine.swap_assets(ETF_assets_balances[SEP20_token]["CA"], engine.WBCH_CA, int(amount_to_sell), *ETF_portfolio_account)
