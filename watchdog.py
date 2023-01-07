@@ -715,6 +715,261 @@ def check_wallet_gas():
         import app.email as email
         email.send_email_to_admin('Stopping watchdog: not enough balance in the ETF wallet, please top-up.')
 
+def reallocate_rewards():
+    # This function will be a cron job executed monthly.
+    # Rewards are reallocated based on the farms performance. The first step is to calculate the share to allocated.
+    with open('data/ETF_FARMS.json') as etf_farms_file:
+        ETF_farms = json.load(etf_farms_file)
+    with open('data/ETF_LP_BALANCES.json') as etf_lp_balances_file:
+        ETF_LP_balances = json.load(etf_lp_balances_file)
+    total_usd_value = 0
+
+    for DEX in ETF_farms:
+        for i in range(len(ETF_farms[DEX]["farms"])):
+            for coin in ETF_farms[DEX]["farms"][i]["Coins"]:
+                total_usd_value += ETF_farms[DEX]["farms"][i]["Coins"][coin]["Current value"]
+
+    for DEX in ETF_LP_balances:
+        for key in ETF_LP_balances[DEX]:
+            if key not in ('Total LP Value', 'Reward', 'Reward value', 'Liquidity share'):
+                total_usd_value += ETF_LP_balances[DEX][key]["Current value"]
+
+    # Once the total value is known, it's time to calculate the yield of each farm
+    yield_performance = {"Farms": {}, "Liquidity pools": {}}
+    performance_sum = 0
+
+    for DEX in ETF_farms:
+        for i in range(len(ETF_farms[DEX]["farms"])):
+            lp_CA = ETF_farms[DEX]["farms"][i]["lp_CA"]
+            reward = ETF_farms[DEX]["farms"][i]["reward value"]
+            performance = reward/total_usd_value
+            yield_performance["Farms"][lp_CA] = performance
+            performance_sum += performance
+
+    for DEX in ETF_LP_balances:
+        reward = ETF_LP_balances[DEX]["Reward value"]
+        performance = reward/total_usd_value
+        yield_performance["Liquidity pools"][DEX] = performance
+        performance_sum += performance
+
+    # Yield performance over 1 is calculated
+    for farm in yield_performance["Farms"]:
+        yield_performance["Farms"][farm] = (1/performance_sum) * yield_performance["Farms"][farm]
+
+    for pool in yield_performance["Liquidity pools"]:
+        yield_performance["Liquidity pools"][pool] = (1 / performance_sum) * yield_performance["Liquidity pools"][pool]
+
+    # Next step is to harvest all farms
+    ETF_portfolio_account = (ETF_portfolio_address, 'ETF_PORTFOLIO_PRIV_KEY')
+
+    for DEX in ETF_LP_balances:
+        LP_CA = SIDX_liquidity_pools[DEX]["lp_CA"]
+        if DEX in ("Mistswap", "Tangoswap"):
+            ABI = open("ABIs/MIST-Master-ABI.json", "r")
+            abi = json.loads(ABI.read())
+            contract = w3.eth.contract(address=masters[DEX], abi=abi)
+            deposit_tx = contract.functions.deposit(SIDX_liquidity_pools[DEX]['pool_id'], 0).buildTransaction(
+                {'chainId': 10000,
+                 'from': ETF_portfolio_address,
+                 'gasPrice': w3.toWei('1.05', 'gwei')
+                 })
+            engine.send_transaction(
+                f"Taking rewards in {DEX} SIDX farm", deposit_tx, *ETF_portfolio_account)
+        if DEX == "Emberswap":
+            ABI = open("ABIs/EMBER_Distributor-ABI.json", 'r')
+            abi = json.loads(ABI.read())
+            contract = w3.eth.contract(address="0x8ecb32C33AB3f7ee3D6Ce9D4020bC53fecB36Be9", abi=abi)
+            deposit_tx = contract.functions.deposit(SIDX_liquidity_pools[DEX]['pool_id'], 0).buildTransaction(
+                {'chainId': 10000,
+                 'from': ETF_portfolio_address,
+                 'gasPrice': w3.toWei('1.05', 'gwei')
+                 })
+            engine.send_transaction(f"Taking rewards in EmberSwap LP",
+                                    deposit_tx, *ETF_portfolio_account)
+        if DEX == "BlockNG":
+            # Before depositing, the master contract should be allowed to spend the LP token
+            engine.asset_allowance(LP_CA, "0x3384d970688f7B86a8D7aE6D8670CD5f9fd5fE1E", *ETF_portfolio_account)
+            ABI = open("ABIs/BlockNG-farm.json", "r")
+            abi = json.loads(ABI.read())
+            contract = w3.eth.contract(address="0x3384d970688f7B86a8D7aE6D8670CD5f9fd5fE1E", abi=abi)
+            tokenId = contract.functions.tokenIds(ETF_portfolio_address).call()
+            deposit_tx = contract.functions.deposit(0, int(tokenId)).buildTransaction(
+                {'chainId': 10000,
+                 'from': ETF_portfolio_address,
+                 'gasPrice': w3.toWei('1.05', 'gwei')
+                 })
+            engine.send_transaction(
+                f"Taking rewards in BlockNG-Kudos SIDX/LAW farm", deposit_tx,
+                *ETF_portfolio_account)
+
+    for DEX in ETF_farms:
+        if DEX in ("Mistswap", "Tangoswap"):
+            for i in range(len(ETF_farms[DEX]['farms'])):
+                LP_CA = ETF_farms[DEX]['farms'][i]['lp_CA']
+                ABI = open("ABIs/MIST-Master-ABI.json", "r")
+                abi = json.loads(ABI.read())
+                contract = w3.eth.contract(address=masters[DEX], abi=abi)
+                deposit_tx = contract.functions.deposit(ETF_farms[DEX]['farms'][i]['pool_id'], 0).buildTransaction(
+                    {'chainId': 10000,
+                     'from': ETF_portfolio_address,
+                     'gasPrice': w3.toWei('1.05', 'gwei')
+                     })
+                engine.send_transaction(f"Taking rewards in {DEX} farm {ETF_farms[DEX]['farms'][i]['lp_CA']}", deposit_tx, *ETF_portfolio_account)
+
+        if DEX == "BlockNG-Kudos":
+            for i in range(len(ETF_farms[DEX]['farms'])):
+                LP_CA = ETF_farms[DEX]['farms'][i]['lp_CA']
+                ABI = open("ABIs/BlockNG-farm.json", "r")
+                abi = json.loads(ABI.read())
+                contract = w3.eth.contract(address=ETF_farms[DEX]["farms"][i]["CA"], abi=abi)
+                tokenId = contract.functions.tokenIds(ETF_portfolio_address).call()
+                deposit_tx = contract.functions.deposit(0, int(tokenId)).buildTransaction(
+                    {'chainId': 10000,
+                     'from': ETF_portfolio_address,
+                     'gasPrice': w3.toWei('1.05', 'gwei')
+                     })
+                engine.send_transaction(
+                    f"Taking rewards in {DEX} farm {ETF_farms[DEX]['farms'][i]['lp_CA']}",
+                    deposit_tx, *ETF_portfolio_account)
+    # Next step: sell all reward tokens for WBCH
+    assets_balances = engine.assets_balances
+    reward_tokens = ["MistToken", "Tango", "LAW", "Ember Token"]
+    for token in reward_tokens:
+        token_amount = engine.get_SEP20_balance(assets_balances[token]["CA"], ETF_portfolio_address)
+        engine.swap_assets(assets_balances[token]["CA"], engine.WBCH_CA, int(token_amount),
+                           *ETF_portfolio_account)
+
+    # Get all the WBCH balance in the ETF portfolio account
+    WBCH_amount = engine.get_SEP20_balance(engine.WBCH_CA, ETF_portfolio_address)
+    logger.info(f"WBCH available after selling all the rewards: {WBCH_amount / 10**18}")
+
+    # All the WBCH is deposited in the farms and liquidity pools according to yield_performance
+    for DEX in ETF_LP_balances:
+        amount_to_buy = int(yield_performance["Liquidity pools"][DEX] * WBCH_amount)
+        LP_CA = SIDX_liquidity_pools[DEX]["lp_CA"]
+        tokens_dictionary = engine.buy_assets_for_liquidty_addition(amount_to_buy, engine.WBCH_CA, LP_CA,
+                                                                    *ETF_portfolio_account)
+        try:
+            engine.add_liquidity(tokens_dictionary, LP_CA, routers[DEX], *ETF_portfolio_account)
+        except:
+            engine.add_liquidity(tokens_dictionary, LP_CA, routers[DEX],
+                                 *ETF_portfolio_account, min_amount_percentage=2)
+        ABI = open("ABIs/UniswapV2Pair.json", "r")
+        abi = json.loads(ABI.read())
+        contract = w3.eth.contract(address=LP_CA, abi=abi)
+        LP_balance = contract.functions.balanceOf(ETF_portfolio_address).call()
+        if DEX in ("Mistswap", "Tangoswap"):
+            # Before depositing, the master contract should be allowed to spend the LP token
+            engine.asset_allowance(LP_CA, masters[DEX], *ETF_portfolio_account)
+            ABI = open("ABIs/MIST-Master-ABI.json", "r")
+            abi = json.loads(ABI.read())
+            contract = w3.eth.contract(address=masters[DEX], abi=abi)
+            deposit_tx = contract.functions.deposit(SIDX_liquidity_pools[DEX]['pool_id'], LP_balance).buildTransaction(
+                {'chainId': 10000,
+                 'from': ETF_portfolio_address,
+                 'gasPrice': w3.toWei('1.05', 'gwei')
+                 })
+            engine.send_transaction(
+                f"Depositing {LP_balance} LP tokens to {DEX} SIDX farm", deposit_tx, *ETF_portfolio_account)
+        if DEX == "Emberswap":
+            # Before depositing, the master contract should be allowed to spend the LP token
+            engine.asset_allowance(LP_CA, masters[DEX], *ETF_portfolio_account)
+            ABI = open("ABIs/EMBER_Distributor-ABI.json", 'r')
+            abi = json.loads(ABI.read())
+            contract = w3.eth.contract(address="0x8ecb32C33AB3f7ee3D6Ce9D4020bC53fecB36Be9", abi=abi)
+            deposit_tx = contract.functions.deposit(SIDX_liquidity_pools[DEX]['pool_id'], LP_balance).buildTransaction(
+                {'chainId': 10000,
+                 'from': ETF_portfolio_address,
+                 'gasPrice': w3.toWei('1.05', 'gwei')
+                 })
+            engine.send_transaction(f"Depositing {LP_balance / 10 ** 18} SIDX/EMBER LP tokens to EmberSwap farm",
+                                    deposit_tx, *ETF_portfolio_account)
+        if DEX == "BlockNG":
+            # Before depositing, the master contract should be allowed to spend the LP token
+            engine.asset_allowance(LP_CA, "0x3384d970688f7B86a8D7aE6D8670CD5f9fd5fE1E", *ETF_portfolio_account)
+            ABI = open("ABIs/BlockNG-farm.json", "r")
+            abi = json.loads(ABI.read())
+            contract = w3.eth.contract(address="0x3384d970688f7B86a8D7aE6D8670CD5f9fd5fE1E", abi=abi)
+            tokenId = contract.functions.tokenIds(ETF_portfolio_address).call()
+            deposit_tx = contract.functions.deposit(LP_balance, int(tokenId)).buildTransaction(
+                {'chainId': 10000,
+                 'from': ETF_portfolio_address,
+                 'gasPrice': w3.toWei('1.05', 'gwei')
+                 })
+            engine.send_transaction(
+                f"Depositing {LP_balance / 10 ** 18} LP tokens to BlockNG-Kudos SIDX/LAW farm", deposit_tx,
+                *ETF_portfolio_account)
+
+    last_DEX = False
+    for dex_src, DEX in enumerate(ETF_farms):
+        if len(ETF_farms) - 1 == dex_src:
+            last_DEX = True
+        if DEX in ("Mistswap", "Tangoswap"):
+            for i in range(len(ETF_farms[DEX]['farms'])):
+                LP_CA = ETF_farms[DEX]['farms'][i]['lp_CA']
+                if i == len(ETF_farms[DEX]['farms']) - 1 and last_DEX == True:
+                    amount_to_buy = engine.get_SEP20_balance(engine.WBCH_CA, ETF_portfolio_address)
+                else:
+                    amount_to_buy = int(yield_performance["Farms"][LP_CA] * WBCH_amount)
+                tokens_dictionary = engine.buy_assets_for_liquidty_addition(amount_to_buy, engine.WBCH_CA, LP_CA, *ETF_portfolio_account)
+                try:
+                    engine.add_liquidity(tokens_dictionary, LP_CA, routers[DEX], *ETF_portfolio_account)
+                except:
+                    engine.add_liquidity(tokens_dictionary, LP_CA, routers[DEX],
+                                         *ETF_portfolio_account, min_amount_percentage=2)
+                ABI = open("ABIs/UniswapV2Pair.json", "r")
+                abi = json.loads(ABI.read())
+                contract = w3.eth.contract(address=LP_CA, abi=abi)
+                LP_balance = contract.functions.balanceOf(ETF_portfolio_address).call()
+                ETF_farms[DEX]["farms"][i]["lp_token_amount"] += LP_balance
+                # Before depositing, the master contract should be allowed to spend the LP token
+                engine.asset_allowance(LP_CA, masters[DEX], *ETF_portfolio_account)
+                # Now, the LP token can be deposited
+                ABI = open("ABIs/MIST-Master-ABI.json", "r")
+                abi = json.loads(ABI.read())
+                contract = w3.eth.contract(address=masters[DEX], abi=abi)
+                deposit_tx = contract.functions.deposit(ETF_farms[DEX]['farms'][i]['pool_id'], LP_balance).buildTransaction(
+                    {'chainId': 10000,
+                     'from': ETF_portfolio_address,
+                     'gasPrice': w3.toWei('1.05', 'gwei')
+                     })
+                engine.send_transaction(f"Depositing {LP_balance} LP tokens to {DEX} farm {ETF_farms[DEX]['farms'][i]['lp_CA']}", deposit_tx, *ETF_portfolio_account)
+
+        if DEX == "BlockNG-Kudos":
+            for i in range(len(ETF_farms[DEX]['farms'])):
+                LP_CA = ETF_farms[DEX]['farms'][i]['lp_CA']
+                if i == len(ETF_farms[DEX]['farms']) - 1 and last_DEX == True:
+                    amount_to_buy = engine.get_SEP20_balance(engine.WBCH_CA, ETF_portfolio_address)
+                else:
+                    amount_to_buy = amount_to_buy = int(yield_performance["Farms"][LP_CA] * WBCH_amount)
+                tokens_dictionary = engine.buy_assets_for_liquidty_addition(amount_to_buy, engine.WBCH_CA, LP_CA, *ETF_portfolio_account)
+                try:
+                    engine.add_liquidity(tokens_dictionary, LP_CA, routers[DEX], *ETF_portfolio_account)
+                except:
+                    engine.add_liquidity(tokens_dictionary, ETF_farms[DEX]['farms'][i]['lp_CA'], routers[DEX],
+                                             *ETF_portfolio_account, min_amount_percentage=3)
+                ABI = open("ABIs/UniswapV2Pair.json", "r")
+                abi = json.loads(ABI.read())
+                contract = w3.eth.contract(address=LP_CA, abi=abi)
+                LP_balance = contract.functions.balanceOf(ETF_portfolio_address).call()
+                ETF_farms[DEX]["farms"][i]["lp_token_amount"] += LP_balance
+                # Before depositing, the master contract should be allowed to spend the LP token
+                engine.asset_allowance(LP_CA, ETF_farms[DEX]["farms"][i]["CA"], *ETF_portfolio_account)
+                ABI = open("ABIs/BlockNG-farm.json", "r")
+                abi = json.loads(ABI.read())
+                contract = w3.eth.contract(address=ETF_farms[DEX]["farms"][i]["CA"], abi=abi)
+                tokenId = contract.functions.tokenIds(ETF_portfolio_address).call()
+                deposit_tx = contract.functions.deposit(LP_balance, int(tokenId)).buildTransaction(
+                    {'chainId': 10000,
+                     'from': ETF_portfolio_address,
+                     'gasPrice': w3.toWei('1.05', 'gwei')
+                     })
+                engine.send_transaction(
+                    f"Depositing {LP_balance} LP tokens LP to {DEX} farm {ETF_farms[DEX]['farms'][i]['lp_CA']}",
+                    deposit_tx, *ETF_portfolio_account)
+    # Finally, farms are scanned and the ETF portfolio updated
+    rescan_farms()
+    engine.main(complete_scan=False)
 
 def main():
     # ETF_investors_transfers is a file created by start_watchdog() given a start block, which structure is:
