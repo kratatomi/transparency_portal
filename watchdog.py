@@ -763,7 +763,6 @@ def reallocate_rewards():
     ETF_portfolio_account = (ETF_portfolio_address, 'ETF_PORTFOLIO_PRIV_KEY')
 
     for DEX in ETF_LP_balances:
-        LP_CA = SIDX_liquidity_pools[DEX]["lp_CA"]
         if DEX in ("Mistswap", "Tangoswap"):
             ABI = open("ABIs/MIST-Master-ABI.json", "r")
             abi = json.loads(ABI.read())
@@ -801,7 +800,6 @@ def reallocate_rewards():
     for DEX in ETF_farms:
         if DEX in ("Mistswap", "Tangoswap"):
             for i in range(len(ETF_farms[DEX]['farms'])):
-                LP_CA = ETF_farms[DEX]['farms'][i]['lp_CA']
                 ABI = open("ABIs/MIST-Master-ABI.json", "r")
                 abi = json.loads(ABI.read())
                 contract = w3.eth.contract(address=masters[DEX], abi=abi)
@@ -814,19 +812,18 @@ def reallocate_rewards():
 
         if DEX == "BlockNG-Kudos":
             for i in range(len(ETF_farms[DEX]['farms'])):
-                LP_CA = ETF_farms[DEX]['farms'][i]['lp_CA']
                 ABI = open("ABIs/BlockNG-farm.json", "r")
                 abi = json.loads(ABI.read())
-                contract = w3.eth.contract(address=ETF_farms[DEX]["farms"][i]["CA"], abi=abi)
-                tokenId = contract.functions.tokenIds(ETF_portfolio_address).call()
-                deposit_tx = contract.functions.deposit(0, int(tokenId)).buildTransaction(
-                    {'chainId': 10000,
-                     'from': ETF_portfolio_address,
-                     'gasPrice': w3.toWei('1.05', 'gwei')
-                     })
-                engine.send_transaction(
-                    f"Taking rewards in {DEX} farm {ETF_farms[DEX]['farms'][i]['lp_CA']}",
-                    deposit_tx, *ETF_portfolio_account)
+                for i in range(len(ETF_farms[DEX]['farms'])):
+                    contract = w3.eth.contract(address=ETF_farms[DEX]["farms"][i]["CA"], abi=abi)
+                    harvest_tx = contract.functions.getReward(ETF_portfolio_address,
+                                                              [engine.assets_balances["LAW"]["CA"]]).buildTransaction(
+                        {'chainId': 10000,
+                         'from': ETF_portfolio_address,
+                         'gasPrice': w3.toWei('1.05', 'gwei')
+                         })
+                    engine.send_transaction(f"Harvesting BlockNG Kudos farm {ETF_farms[DEX]['farms'][i]['lp_CA']}", harvest_tx, *ETF_portfolio_account)
+
     # Next step: sell all reward tokens for WBCH
     assets_balances = engine.assets_balances
     reward_tokens = ["MistToken", "Tango", "LAW", "Ember Token"]
