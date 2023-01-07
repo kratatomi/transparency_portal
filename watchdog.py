@@ -787,20 +787,16 @@ def reallocate_rewards():
             engine.send_transaction(f"Taking rewards in EmberSwap LP",
                                     deposit_tx, *ETF_portfolio_account)
         if DEX == "BlockNG":
-            # Before depositing, the master contract should be allowed to spend the LP token
-            engine.asset_allowance(LP_CA, "0x3384d970688f7B86a8D7aE6D8670CD5f9fd5fE1E", *ETF_portfolio_account)
             ABI = open("ABIs/BlockNG-farm.json", "r")
             abi = json.loads(ABI.read())
             contract = w3.eth.contract(address="0x3384d970688f7B86a8D7aE6D8670CD5f9fd5fE1E", abi=abi)
-            tokenId = contract.functions.tokenIds(ETF_portfolio_address).call()
-            deposit_tx = contract.functions.deposit(0, int(tokenId)).buildTransaction(
+            harvest_tx = contract.functions.getReward(ETF_portfolio_address,
+                                                      [engine.assets_balances["LAW"]["CA"]]).buildTransaction(
                 {'chainId': 10000,
                  'from': ETF_portfolio_address,
                  'gasPrice': w3.toWei('1.05', 'gwei')
                  })
-            engine.send_transaction(
-                f"Taking rewards in BlockNG-Kudos SIDX/LAW farm", deposit_tx,
-                *ETF_portfolio_account)
+            engine.send_transaction("Taking rewards in BlockNG Kudos SIDX/LAW farm ", harvest_tx, *ETF_portfolio_account)
 
     for DEX in ETF_farms:
         if DEX in ("Mistswap", "Tangoswap"):
