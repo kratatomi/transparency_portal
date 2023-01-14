@@ -6,7 +6,7 @@ import warnings
 if not sys.warnoptions:
     warnings.simplefilter("ignore")
 
-w3 = Web3(Web3.HTTPProvider('https://smartbch.grey.at'))
+w3 = Web3(Web3.HTTPProvider('https://smartbch.fountainhead.cash/mainnet'))
 if not w3.isConnected():
     w3 = Web3(Web3.HTTPProvider('https://global.uat.cash'))
 target_token_address = w3.toChecksumAddress(
