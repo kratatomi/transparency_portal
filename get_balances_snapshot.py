@@ -6,9 +6,9 @@ import warnings
 if not sys.warnoptions:
     warnings.simplefilter("ignore")
 
-w3 = Web3(Web3.HTTPProvider('https://global.uat.cash'))
+w3 = Web3(Web3.HTTPProvider('https://smartbch.grey.at'))
 if not w3.isConnected():
-    w3 = Web3(Web3.HTTPProvider('https://smartbch.grey.at'))
+    w3 = Web3(Web3.HTTPProvider('https://global.uat.cash'))
 target_token_address = w3.toChecksumAddress(
     "0xF05bD3d7709980f60CD5206BddFFA8553176dd29")  # SIDX smart contract address
 ignored_addresses = [target_token_address, '0x0000000000000000000000000000000000000000', '0xd11bb6a7981780aADc722146a306f7104fD93E9c', '0xE1ae30Fbb31bE2FB59D1c44dBEf8649C386E26B3']  # Added admin and portfolio wallet
