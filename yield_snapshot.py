@@ -81,10 +81,17 @@ def generate_graphs():
                 assets_list[asset]["Yields"].append(None)
                 assets_list[asset]["USD total value"].append(None)
             else:
-                yield_percentage = (stacked_assets[asset]['Yield value'] / stacked_assets[asset]['Current value']) * 100
-                assets_list[asset]["Yields"].append(yield_percentage)
-                assets_list[asset]["USD total value"].append(stacked_assets[asset]["Current value"])
-                assets_list[asset]["Weeks tracked"] += 1
+                if asset == "Celery":
+                    if stacked_assets[asset]['Mode'] != "Payout":
+                        yield_percentage = 0
+                        assets_list[asset]["Yields"].append(yield_percentage)
+                        assets_list[asset]["USD total value"].append(stacked_assets[asset]["Current value"])
+                        assets_list[asset]["Weeks tracked"] += 1
+                else:
+                    yield_percentage = (stacked_assets[asset]['Yield value'] / stacked_assets[asset]['Current value']) * 100
+                    assets_list[asset]["Yields"].append(yield_percentage)
+                    assets_list[asset]["USD total value"].append(stacked_assets[asset]["Current value"])
+                    assets_list[asset]["Weeks tracked"] += 1
         if farms != None:
             farms_in_weekly_report = []
             for DEX in farms:
