@@ -82,8 +82,20 @@ def generate_graphs():
                 assets_list[asset]["USD total value"].append(None)
             else:
                 if asset == "Celery":
-                    if stacked_assets[asset]['Mode'] != "Payout":
-                        yield_percentage = 0
+                    if "Mode" in stacked_assets[asset]:
+                        if stacked_assets[asset]['Mode'] != "Payout":
+                            yield_percentage = None
+                            assets_list[asset]["Yields"].append(yield_percentage)
+                            assets_list[asset]["USD total value"].append(stacked_assets[asset]["Current value"])
+                            assets_list[asset]["Weeks tracked"] += 1
+                        if stacked_assets[asset]['Mode'] == "Payout":
+                            yield_percentage = (stacked_assets[asset]['Yield value'] / stacked_assets[asset][
+                                'Current value']) * 100
+                            assets_list[asset]["Yields"].append(yield_percentage)
+                            assets_list[asset]["USD total value"].append(stacked_assets[asset]["Current value"])
+                            assets_list[asset]["Weeks tracked"] += 1
+                    else:
+                        yield_percentage = None
                         assets_list[asset]["Yields"].append(yield_percentage)
                         assets_list[asset]["USD total value"].append(stacked_assets[asset]["Current value"])
                         assets_list[asset]["Weeks tracked"] += 1
