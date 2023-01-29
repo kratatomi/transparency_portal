@@ -10,10 +10,10 @@ import engine
 
 logger = logging.getLogger("app.engine")
 
-RPC_SERVER = 'https://global.uat.cash'
+RPC_SERVER = 'https://smartbch.grey.at'
 w3 = Web3(Web3.HTTPProvider(RPC_SERVER))
 if not w3.isConnected():
-    RPC_SERVER = 'https://smartbch.grey.at'
+    RPC_SERVER = 'https://smartbch.fountainhead.cash/mainnet'
     w3 = Web3(Web3.HTTPProvider(RPC_SERVER))
 
 ETF_watchdog_address = "0xd2edf72FE051571A85466F95b6Cab1C0a31601c6"
