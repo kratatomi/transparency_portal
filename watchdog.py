@@ -717,7 +717,7 @@ def check_wallet_gas():
 
 def reallocate_rewards():
     # This function will be a cron job executed monthly.
-    # Rewards are reallocated based on the farms performance. The first step is to calculate the share to allocated.
+    # Rewards are reallocated based on the farms performance. The first step is to calculate the share to allocate.
     with open('data/ETF_FARMS.json') as etf_farms_file:
         ETF_farms = json.load(etf_farms_file)
     with open('data/ETF_LP_BALANCES.json') as etf_lp_balances_file:
