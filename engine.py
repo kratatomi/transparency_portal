@@ -654,8 +654,6 @@ def get_law_rewards(bch_price):
             total_illiquid_value += NFTs["PUNKS"]["Total floor value"]
         else:
             logger.info(f'Error found trying to get punks floor price: {e}')
-            import app.email as email
-            email.send_email_to_admin(f'Error found trying to get punks floor price: {e}')
             total_illiquid_value += NFTs["PUNKS"]["Total floor value"]
     finally:
         driver.quit()
