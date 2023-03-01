@@ -7,8 +7,6 @@ if not sys.warnoptions:
     warnings.simplefilter("ignore")
 
 w3 = Web3(Web3.HTTPProvider('https://smartbch.grey.at'))
-if not w3.isConnected():
-    w3 = Web3(Web3.HTTPProvider('https://smartbch.fountainhead.cash/mainnet'))
 
 target_token_address = w3.toChecksumAddress(
     "0xF05bD3d7709980f60CD5206BddFFA8553176dd29")  # SIDX smart contract address
