@@ -15,7 +15,7 @@ from tendo import singleton # pip install tendo
 
 logger = logging.getLogger("app.engine")
 
-w3 = Web3(Web3.HTTPProvider('https://smartbch.grey.at'))
+w3 = Web3(Web3.HTTPProvider('https://global.uat.cash'))
 if not w3.isConnected():
     w3 = Web3(Web3.HTTPProvider('https://smartbch.fountainhead.cash/mainnet'))
 
