@@ -1517,7 +1517,7 @@ def buy_assets_for_liquidty_addition(input_amount, input_asset_CA, lp_CA, *accou
 def get_pending_rewards_value(address, bch_price, ETF_farms, ETF_LP_balances):
     '''This function returns the total USD value of farm's reward token stored in a given address plus the ones pending harvesting.
     Its function is to give the value pending to be reallocated in the ETF portfolio.'''
-    reward_tokens = ["MistToken", "Tango", "LAW", "Ember Token"]
+    reward_tokens = ["MistToken", "Tango", "LAW", "Ember Token", "WBCH"]
     total_value = 0
     for token in reward_tokens:
         token_price = get_price_from_pool(token, bch_price)
