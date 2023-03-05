@@ -6,6 +6,7 @@ from os import listdir, getcwd
 from os.path import isfile, join, abspath
 from datetime import datetime
 import logging
+import sys
 
 # Globally set some graph params
 mpl.rcParams['text.color'] = '#f8fdff'
@@ -299,7 +300,7 @@ def take_weekly_yields(stacked_assets, farms):
         logger.error(f'Function harvest_farms_rewards failed. Exception: {e}')
         import app.email as email
         email.send_email_to_admin(f'Function harvest_farms_rewards failed. Exception: {e}')
-        break
+        sys.exit()
     else:
         # We have to take the profits from the BCH/bcBCH and flexUSD/BCH farms and swap them for bcUSDT (proposal #42)
         # With proposal #50, the only farm left is BCH/bcBCH.
