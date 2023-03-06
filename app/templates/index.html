@@ -110,6 +110,12 @@
                                         (<a href="https://transparency.smartindex.cash/proposals/16" target="_blank">{{ value["Mode"] }}</a>)
                                     {% endif %}
                                 {% endif %}
+                                {% if key == "FlexUSD" %}
+                                    {% if "FOG reward" in value %}
+                                        <br>
+                                        (FOG reward: {{ value["FOG reward"] }})
+                                    {% endif %}
+                                {% endif %}
                             </td>
                             <td><small>{{ "{:,.2f}".format(value["Initial"]|float) }} / {{ "{:,.2f}".format(value["Current"]|float) }}</small></td>
                             <td style="text-align: right;">

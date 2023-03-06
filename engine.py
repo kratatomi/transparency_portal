@@ -304,6 +304,7 @@ def get_balances(bch_price, portfolio_address=portfolio_address, assets_balances
                                                        2)
                 stacked_assets[asset]["Current value"] = round(stacked_assets[asset]["Current"] * asset_price, 2)
                 stacked_assets[asset]["Yield value"] = round(stacked_assets[asset]["Yield"] * fog_price, 2)
+                stacked_assets[asset]["FOG reward"] = round(fog_reward,2)
                 pie_chart_data[asset] = stacked_assets[asset]["Current value"]
                 total_value_stacked_assets += stacked_assets[asset]["Current value"]
                 total_value_yield += stacked_assets[asset]["Yield value"]
