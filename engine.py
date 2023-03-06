@@ -64,7 +64,7 @@ assets_balances = {
     "bcUSDT": {"Stacked": False, "Liquid": True, "CA": "0xBc2F884680c95A02cea099dA2F524b366d9028Ba", "BCH pair": "0x27580618797a2CE02FDFBbee948388a50a823611"},
     "LAW": {"Stacked": True, "Liquid": True, "CA": "0x0b00366fBF7037E9d75E4A569ab27dAB84759302", "BCH pair": "0x54AA3B2250A0e1f9852b4a489Fe1C20e7C71fd88"},
     "Joy": {"Stacked": False, "Liquid": True, "CA": "0x6732E55Ac3ECa734F54C26Bd8DF4eED52Fb79a6E", "BCH pair": "0xEe08584956020Ea9D4211A239030ad49Eb5f886D"},
-    "FlexUSD": {"Stacked": False, "Liquid": True, "CA": "0x7b2B3C5308ab5b2a1d9a94d20D35CCDf61e05b72", "BCH pair": "0x24f011f12Ea45AfaDb1D4245bA15dCAB38B43D13"},
+    "FlexUSD": {"Stacked": True, "Liquid": True, "CA": "0x7b2B3C5308ab5b2a1d9a94d20D35CCDf61e05b72", "BCH pair": "0x24f011f12Ea45AfaDb1D4245bA15dCAB38B43D13", "Initial": 283.912},
     "Ember Token": {"Stacked": True, "Liquid": True, "CA": "0x6BAbf5277849265b6738e75AEC43AEfdde0Ce88D", "BCH pair": "0x52c656FaF57DCbDdDd47BCbA7b2ab79e4c232C28"},
     "WBCH": {"Stacked": False, "Liquid": True, "CA": WBCH_CA}
 }
@@ -290,18 +290,20 @@ def get_balances(bch_price, portfolio_address=portfolio_address, assets_balances
                     pie_chart_data[asset] = stacked_assets[asset]["Current value"]
                 total_liquid_value += stacked_assets[asset]["Current value"] + stacked_assets[asset]["Yield value"]
             if asset == "FlexUSD":
-                asset_price = get_price_from_pool(asset, bch_price)
-                ABI = open("ABIs/ERC20-ABI.json", "r")  # Standard ABI for ERC20 tokens
+                #FlexUSD is staked in FogOfWar.quest
+                ABI = open("ABIs/FOGFarming.abi", "r")
                 abi = json.loads(ABI.read())
-                contract = w3.eth.contract(address=assets_balances[asset]["CA"], abi=abi)
+                contract = w3.eth.contract(address="0xc7cb72C1a62845aB562662e2D7e99642Adc6615d", abi=abi)
+                fog_reward = contract.functions.pendingFOG(0, portfolio_address).call() / 10**18
+                fog_price = get_price_from_pool("0xdA18B83717300693c0c95f1E2B925fb080709DB7", bch_price, (1,0))
+                asset_price = get_price_from_pool(asset, bch_price)
                 stacked_assets[asset] = {}
                 stacked_assets[asset]["Initial"] = round(assets_balances[asset]["Initial"], 2)
-                stacked_assets[asset]["Current"] = round(
-                    contract.functions.balanceOf(portfolio_address).call() / 10 ** contract.functions.decimals().call(), 2)
-                stacked_assets[asset]["Yield"] = round(stacked_assets[asset]["Current"] - stacked_assets[asset]["Initial"],
+                stacked_assets[asset]["Current"] = round(contract.functions.userInfo(0, portfolio_address).call()[0] / 10**18, 2)
+                stacked_assets[asset]["Yield"] = round(fog_reward,
                                                        2)
                 stacked_assets[asset]["Current value"] = round(stacked_assets[asset]["Current"] * asset_price, 2)
-                stacked_assets[asset]["Yield value"] = round(stacked_assets[asset]["Yield"] * asset_price, 2)
+                stacked_assets[asset]["Yield value"] = round(stacked_assets[asset]["Yield"] * fog_price, 2)
                 pie_chart_data[asset] = stacked_assets[asset]["Current value"]
                 total_value_stacked_assets += stacked_assets[asset]["Current value"]
                 total_value_yield += stacked_assets[asset]["Yield value"]
@@ -884,8 +886,6 @@ def harvest_pools_rewards(pool_name, amount=0):
             logger.error(f'Failed to swap GOB rewards to BCH. Exception: {e}')
             import app.email as email
             email.send_email_to_admin(f'Failed to swap GOB rewards to BCH. Exception: {e}')
-    if pool_name == "FlexUSD":
-        swap_assets("0x7b2B3C5308ab5b2a1d9a94d20D35CCDf61e05b72", "0x0000000000000000000000000000000000000000", amount)
 
 def send_transaction(identifier, tx,*account):
     # identifier is just a string to help the admin to identify the tx if it fails.
@@ -1549,7 +1549,12 @@ def main(complete_scan=True):
         SEP20_tokens, stacked_assets = get_balances(bch_price)
         total_rewards_value = stacked_assets["Total yield value"]
         LP_balances = get_LP_balances(initial_pool_balances, portfolio_address, bch_price, sidx_price)
-        get_law_rewards(bch_price)
+        try:
+            get_law_rewards(bch_price)
+            with open('data/NFTs.json', 'w') as file:
+                json.dump(NFTs, file, indent=4)
+        except Exception as e:
+            logger.error(f'Failed to run scheduled function get_law_rewards, exception: {e}')
         get_farms(bch_price)
         make_pie_chart(pie_chart_data, "assets_pie_chart")
         make_pie_chart(farms_pie_chart_data, "farms_pie_chart")
@@ -1573,8 +1578,6 @@ def main(complete_scan=True):
             json.dump(stacked_assets, file, indent=4)
         with open('data/LP_BALANCES.json', 'w') as file:
             json.dump(LP_balances, file, indent=4)
-        with open('data/NFTs.json', 'w') as file:
-            json.dump(NFTs, file, indent=4)
         with open('data/FARMS.json', 'w') as file:
             json.dump(farms, file, indent=4)
         with open('data/GLOBAL_STATS.json', 'w') as file:
