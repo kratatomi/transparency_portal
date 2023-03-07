@@ -856,8 +856,6 @@ def harvest_pools_rewards(pool_name, amount=0):
                             "all")
             except Exception as e:
                 logger.error(f'Failed to swap EBEN rewards to BCH. Exception: {e}')
-                import app.email as email
-                email.send_email_to_admin(f'Failed to swap EBEN rewards to BCH. Exception: {e}')
     if pool_name in {"MistToken", "LNS"}:
         ABI = open(f"ABIs/{assets_balances[pool_name]['harvest_ABI']}", "r")
         abi = json.loads(ABI.read())
@@ -885,8 +883,6 @@ def harvest_pools_rewards(pool_name, amount=0):
             swap_assets("0x56381cB87C8990971f3e9d948939e1a95eA113a3", "0x0000000000000000000000000000000000000000", harvest_amount)
         except Exception as e:
             logger.error(f'Failed to swap GOB rewards to BCH. Exception: {e}')
-            import app.email as email
-            email.send_email_to_admin(f'Failed to swap GOB rewards to BCH. Exception: {e}')
 
 def send_transaction(identifier, tx,*account):
     # identifier is just a string to help the admin to identify the tx if it fails.
@@ -917,16 +913,12 @@ def send_transaction(identifier, tx,*account):
         TXID = w3.eth.send_raw_transaction(signed_txn.rawTransaction)
     except exceptions.SolidityError as error:
         logger.error(f'TX reverted. Identifier is {identifier}, error: {error}')
-        import app.email as email
-        email.send_email_to_admin(f'TX reverted. Identifier is {identifier}, error: {error}')
     except Exception as e:
         # Let's check if it's a problem related with the TX nonce
         old_nonce = nonce
         rechecked_nonce = w3.eth.get_transaction_count(address)
         if old_nonce == rechecked_nonce:
             logger.error(f'TX failed to sent, error is {e}. Identifier is {identifier}')
-            import app.email as email
-            email.send_email_to_admin(f'TX failed to sent, error is {e}. Identifier is {identifier}')
         else:
             tx['nonce'] = rechecked_nonce
             signed_txn = w3.eth.account.sign_transaction(tx, private_key=private_key)
@@ -934,29 +926,19 @@ def send_transaction(identifier, tx,*account):
                 TXID = w3.eth.send_raw_transaction(signed_txn.rawTransaction)
             except exceptions.SolidityError as error:
                 logger.error(f'TX reverted. Identifier is {identifier}, error: {error}')
-                import app.email as email
-                email.send_email_to_admin(f'TX reverted. Identifier is {identifier}, error: {error}')
             except Exception as e:
                 logger.error(f'TX failed to sent, error is {e}. Identifier is {identifier}')
-                import app.email as email
-                email.send_email_to_admin(f'TX failed to sent, error is {e}. Identifier is {identifier}')
     else:
         hex_TXID = w3.toHex(TXID)
         logger.info(f'TXID {hex_TXID} sent, identifier is {identifier}')
         try:
             receipt = w3.eth.wait_for_transaction_receipt(TXID)
             if receipt.status == 0:
-                import app.email as email
-                email.send_email_to_admin(f"Failure to process TX for {identifier}, TXID is {TXID}")
                 logger.error(f'TXID {hex_TXID} failed, identifier is {identifier}')
         except exceptions.TimeExhausted:
             logger.error(f'Failed to get TX status, TXID is {hex_TXID}, identifier is {identifier}')
-            import app.email as email
-            email.send_email_to_admin(f'Failed to get TX status, TXID is {hex_TXID}, identifier is {identifier}')
         except Exception as e:
             logger.error(f'Failed to get TX status, error is {e}, TXID is {hex_TXID}, identifier is {identifier}')
-            import app.email as email
-            email.send_email_to_admin(f'Failed to get TX status, error is {e}, TXID is {hex_TXID}, identifier is {identifier}')
     return receipt
 
 def harvest_farms_rewards():
@@ -1011,8 +993,6 @@ def harvest_tango_sidx_farm(*account):
     LP_balance = int(contract.functions.balanceOf(address).call())
     if LP_balance == 0:
         logger.error(f'No liquidity to add to SIDX/BCH Tango farm. LP balance is 0.')
-        import app.email as email
-        email.send_email_to_admin(f'No liquidity to add to SIDX/BCH Tango farm. LP balance is 0.')
         return
     # Finally, LP tokens are deposited on the farm
     ABI = open("ABIs/MIST-Master-ABI.json", "r")
@@ -1050,9 +1030,7 @@ def harvest_sidx_ember_farm(*account):
     contract = w3.eth.contract(address=LP_CA, abi=abi)
     LP_balance = int(contract.functions.balanceOf(address).call())
     if LP_balance == 0:
-        logger.error(f'No liquidity to add to SIDX/EMBER farm.')
-        import app.email as email
-        email.send_email_to_admin(f'No liquidity to add to SIDX/EMBER farm. LP balance is 0.')
+        logger.error(f'No liquidity to add to SIDX/EMBER farm. LP balance is 0.')
         return
     # Finally, LP tokens are deposited on the farm
     ABI = open("ABIs/EMBER_Distributor-ABI.json", "r")
@@ -1088,9 +1066,7 @@ def harvest_sidx_law_farm():
     contract = w3.eth.contract(address=LP_CA, abi=abi)
     LP_balance = int(contract.functions.balanceOf(portfolio_address).call())
     if LP_balance == 0:
-        logger.error(f'No liquidity to add to SIDX/LAW farm.')
-        import app.email as email
-        email.send_email_to_admin(f'No liquidity to add to SIDX/LAW farm. LP balance is 0.')
+        logger.error(f'No liquidity to add to SIDX/LAW farm. LP balance is 0.')
         return
     # Finally, LP tokens are deposited on the farm
     ABI = open("ABIs/BlockNG-farm.json", "r")
@@ -1433,16 +1409,12 @@ def transfer_gas(amount, recipient, *account):
         TXID = w3.eth.send_raw_transaction(transfer_tx.rawTransaction)
     except exceptions.SolidityError as error:
         logger.error(f'TX reverted when sending gas to {recipient}. Error: {error}')
-        import app.email as email
-        email.send_email_to_admin(f'TX reverted when sending gas to {recipient}. Error: {error}')
     except Exception as e:
         # Let's check if it's a problem related with the TX nonce
         old_nonce = transfer_tx["nonce"]
         rechecked_nonce = w3.eth.get_transaction_count(address)
         if old_nonce == rechecked_nonce:
             logger.error(f'TX failed to sent while transfering gas, error is {e}.')
-            import app.email as email
-            email.send_email_to_admin(f'TX failed to sent while transfering gas, error is {e}.')
         else:
             transfer_tx = w3.eth.account.signTransaction(dict(
                 nonce=w3.eth.getTransactionCount(address),
@@ -1454,12 +1426,8 @@ def transfer_gas(amount, recipient, *account):
                 TXID = w3.eth.send_raw_transaction(transfer_tx.rawTransaction)
             except exceptions.SolidityError as error:
                 logger.error(f'TX reverted while transfering gas. Error: {error}')
-                import app.email as email
-                email.send_email_to_admin(f'TX reverted while transfering gas. Error: {error}')
             except Exception as e:
                 logger.error(f'TX reverted while transfering gas. Error: {e}')
-                import app.email as email
-                email.send_email_to_admin(f'TX reverted while transfering gas. Error: {e}')
     receipt = w3.eth.wait_for_transaction_receipt(TXID)
     return receipt
 

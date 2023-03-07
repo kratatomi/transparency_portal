@@ -288,8 +288,6 @@ def take_weekly_yields(stacked_assets, farms):
         engine.swap_assets("0x7642Df81b5BEAeEb331cc5A104bd13Ba68c34B91", "0x0000000000000000000000000000000000000000", "all") #Sell CLY for BCH
     except Exception as e:
         logger.error(f'Failed to swap CLY to BCH. Exception: {e}')
-        import app.email as email
-        email.send_email_to_admin(f'Failed to swap CLY to BCH. Exception: {e}')
     for asset in stacked_assets:
         if isinstance(stacked_assets[asset], dict): # Don't grab Total value and Total yield value entries
             engine.harvest_pools_rewards(asset, amount=stacked_assets[asset]["Yield"] * 10**18)
@@ -298,8 +296,6 @@ def take_weekly_yields(stacked_assets, farms):
         engine.harvest_farms_rewards()
     except Exception as e:
         logger.error(f'Function harvest_farms_rewards failed. Exception: {e}')
-        import app.email as email
-        email.send_email_to_admin(f'Function harvest_farms_rewards failed. Exception: {e}')
         sys.exit()
     else:
         # We have to take the profits from the BCH/bcBCH and flexUSD/BCH farms and swap them for bcUSDT (proposal #42)
@@ -317,22 +313,16 @@ def take_weekly_yields(stacked_assets, farms):
         engine.harvest_tango_sidx_farm(engine.portfolio_address, 'PORTFOLIO_PRIV_KEY')
     except Exception as e:
         logger.error(f'Function harvest_tango_sidx_farm failed. Exception: {e}')
-        import app.email as email
-        email.send_email_to_admin(f'Function harvest_tango_sidx_farm failed. Exception: {e}')
 
     try:
         engine.harvest_sidx_ember_farm(engine.portfolio_address, 'PORTFOLIO_PRIV_KEY')
     except Exception as e:
         logger.error(f'Function harvest_sidx_ember_farm failed. Exception: {e}')
-        import app.email as email
-        email.send_email_to_admin(f'Function harvest_sidx_ember_farm failed. Exception: {e}')
 
     try:
         engine.harvest_sidx_law_farm()
     except Exception as e:
         logger.error(f'Function harvest_sidx_law_farm failed. Exception: {e}')
-        import app.email as email
-        email.send_email_to_admin(f'Function harvest_sidx_law_farm failed. Exception: {e}')
 
 def main():
     with open('data/SIDX_STATS.json') as sidx_stats_file:
@@ -377,8 +367,6 @@ def main():
         take_weekly_yields(stacked_assets, farms)
     else:
         logger.error(f'Cannot take weekly yields as portfolio BCH balance is {portfolio_gas_balance/10**18}. Please top-up.')
-        import app.email as email
-        email.send_email_to_admin(f'Cannot take weekly yields as portfolio BCH balance is {portfolio_gas_balance/10**18}. Please top-up.')
 
 if __name__ == "__main__":
     main()
