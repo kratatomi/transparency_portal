@@ -633,15 +633,15 @@ def get_law_rewards(bch_price):
     total_liquid_value += NFTs["PUNKS"]["LAW pending in USD"]
     total_rewards_value += NFTs["PUNKS"]["LAW pending in USD"]
     # Now get punk's floor price using selenium library
-    url = "https://blockng.money/#/punks"
-    opts = FirefoxOptions()
-    opts.add_argument("--headless")
-    opts.add_argument("--no-sandbox")
-    opts.add_argument("--disable-gpu")
-    driver = webdriver.Firefox(options=opts)
-    driver.get(url)
-    wait = WebDriverWait(driver, 15)
     try:
+        url = "https://blockng.money/#/punks"
+        opts = FirefoxOptions()
+        opts.add_argument("--headless")
+        opts.add_argument("--no-sandbox")
+        opts.add_argument("--disable-gpu")
+        driver = webdriver.Firefox(options=opts)
+        driver.get(url)
+        wait = WebDriverWait(driver, 15)
         status = wait.until(EC.text_to_be_present_in_element((By.CLASS_NAME, "punks-market-info-item-num.BCH"), "."))
         element = driver.find_element(By.CLASS_NAME, 'punks-market-info-item-num.BCH')
         floor_price = float(element.text.split()[0])
