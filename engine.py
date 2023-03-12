@@ -12,12 +12,18 @@ import logging
 import math
 import os.path
 from tendo import singleton # pip install tendo
+from waiting import wait # pip install waiting
 
 logger = logging.getLogger("app.engine")
 
-w3 = Web3(Web3.HTTPProvider('https://global.uat.cash'))
+w3 = Web3(Web3.HTTPProvider('https://smartbch.fountainhead.cash/mainnet'))
+wait(lambda: w3.isConnected(), timeout_seconds=10, waiting_for="Node to be ready")
 if not w3.isConnected():
-    w3 = Web3(Web3.HTTPProvider('https://smartbch.fountainhead.cash/mainnet'))
+    w3 = Web3(Web3.HTTPProvider('https://global.uat.cash'))
+    wait(lambda: w3.isConnected(), timeout_seconds=10, waiting_for="Node to be ready")
+if not w3.isConnected():
+    w3 = Web3(Web3.HTTPProvider('https://smartbch.grey.at'))
+    wait(lambda: w3.isConnected(), timeout_seconds=10, waiting_for="Node to be ready")
 
 portfolio_address = w3.toChecksumAddress("0xE1ae30Fbb31bE2FB59D1c44dBEf8649C386E26B3")
 admin_wallet_address = w3.toChecksumAddress("0xd11bb6a7981780aADc722146a306f7104fD93E9c")

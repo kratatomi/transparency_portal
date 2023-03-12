@@ -5,16 +5,19 @@ from web3 import Web3
 import logging
 import requests
 import os
+from waiting import wait
 
 import engine
 
 logger = logging.getLogger("app.engine")
 
-RPC_SERVER = 'https://smartbch.grey.at'
+RPC_SERVER = 'https://smartbch.fountainhead.cash/mainnet'
 w3 = Web3(Web3.HTTPProvider(RPC_SERVER))
+wait(lambda: w3.isConnected(), timeout_seconds=10, waiting_for="Node to be ready")
 if not w3.isConnected():
-    RPC_SERVER = 'https://smartbch.fountainhead.cash/mainnet'
+    RPC_SERVER = 'https://global.uat.cash'
     w3 = Web3(Web3.HTTPProvider(RPC_SERVER))
+
 
 ETF_watchdog_address = "0xd2edf72FE051571A85466F95b6Cab1C0a31601c6"
 ETF_portfolio_address = engine.ETF_portfolio_address

@@ -9,11 +9,17 @@ import os
 from bitcash.transaction import get_op_pushdata_code, calc_txid
 from bitcash.utils import bytes_to_hex, hex_to_bytes
 from bitcash.network.services import NetworkAPI
+from waiting import wait
 
 
-w3 = Web3(Web3.HTTPProvider('https://smartbch.greyh.at'))
+w3 = Web3(Web3.HTTPProvider('https://smartbch.fountainhead.cash/mainnet'))
+wait(lambda: w3.isConnected(), timeout_seconds=10, waiting_for="Node to be ready")
 if not w3.isConnected():
-    w3 = Web3(Web3.HTTPProvider('https://smartbch.fountainhead.cash/mainnet'))
+    w3 = Web3(Web3.HTTPProvider('https://global.uat.cash'))
+    wait(lambda: w3.isConnected(), timeout_seconds=10, waiting_for="Node to be ready")
+if not w3.isConnected():
+    w3 = Web3(Web3.HTTPProvider('https://smartbch.grey.at'))
+    wait(lambda: w3.isConnected(), timeout_seconds=10, waiting_for="Node to be ready")
 
 choices_list = ["ACCEPT", "REJECT", "A", "B", "C", "D"]
 SIDX_CA = w3.toChecksumAddress("0xF05bD3d7709980f60CD5206BddFFA8553176dd29")
