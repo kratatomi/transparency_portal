@@ -684,6 +684,7 @@ def get_law_rewards(bch_price):
         NFTs["LAW Rights"]["tokens"][tokenID]["Unlock Date"] = str(datetime.fromtimestamp(LAW_rights_contract.functions.locked(int(tokenID)).call()[4]).strftime('%b %d, %Y'))
         NFTs["LAW Rights"]["tokens"][tokenID]["Vote Power"] = round(LAW_rights_contract.functions.balanceOfAtNFT(int(tokenID), current_block).call() / 10 ** 18, 2)
         pending_reward = salary_contract.functions.claimable(int(tokenID)).call() / 10 ** 18
+        pending_reward = salary_contract.functions.claimable(int(tokenID)).call() / 10 ** 18
         NFTs["LAW Rights"]["tokens"][tokenID]["LAW rewards"] = round(pending_reward, 2)
         vote_power += NFTs["LAW Rights"]["tokens"][tokenID]["Vote Power"]
         law_pending += NFTs["LAW Rights"]["tokens"][tokenID]["LAW rewards"]
@@ -1282,7 +1283,7 @@ def add_liquidity(tokens_dictionary, LP_CA, router, *account, min_amount_percent
         abi = json.loads(ABI.read())
         contract = w3.eth.contract(address=LP_CA, abi=abi)
         addLiquidity_event = contract.events.Mint().processReceipt(receipt)
-        logger.info(f'Liquidity added: {addLiquidity_event[0]["args"]["amount0"]} of token0 and {addLiquidity_event[0]["args"]["amount1"]} of token1')
+        logger.info(f'Liquidity added: {addLiquidity_event[0]["args"]["amount0"] / 10**18} of token0 and {addLiquidity_event[0]["args"]["amount1"] / 10**18} of token1')
 
 def remove_liquidity(percentage_to_withdraw, LP_CA, router, *account, min_amount_percentage=1):
     if not account:
