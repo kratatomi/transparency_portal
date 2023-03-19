@@ -647,7 +647,7 @@ def get_law_rewards(bch_price):
         opts.add_argument("--disable-gpu")
         driver = webdriver.Firefox(options=opts)
         driver.get(url)
-        wait = WebDriverWait(driver, 15)
+        wait = WebDriverWait(driver, 25)
         status = wait.until(EC.text_to_be_present_in_element((By.CLASS_NAME, "punks-market-info-item-num.BCH"), "."))
         element = driver.find_element(By.CLASS_NAME, 'punks-market-info-item-num.BCH')
         floor_price = float(element.text.split()[0])
