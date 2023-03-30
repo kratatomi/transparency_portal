@@ -538,8 +538,11 @@ def get_BCH_price():
     prices = []
     API = "https://api.benswap.cash/api/bch/price"
     url = requests.get(API)
-    if type(url.json()) == float:
-        prices.append(url.json())
+    try:
+        if type(url.json()) == float:
+            prices.append(url.json())
+    except:
+        pass
     API = 'https://coincodex.com/api/coincodex/get_coin/BCH'
     url = requests.get(API)
     if type(url.json()['last_price_usd']) == float:
