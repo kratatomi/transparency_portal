@@ -979,7 +979,7 @@ def reallocate_rewards():
     # Otherwise, assets from the portfolio must be sold.
     if liquidity_ratio < 0.2:
         bch_price = engine.get_BCH_price()
-        rewards_value = WBCH_amount * bch_price
+        rewards_value = (WBCH_amount / 10**18) * bch_price
         liquidity_ratio_with_rewards = (ETF_SIDX_liquidity + rewards_value) / (ETF_global_stats["total_portfolio_balance"] + rewards_value)
         if liquidity_ratio_with_rewards >= 0.2:
             #Rewards are reallocated to liquidity pools based on their yields: higher yield, higher amount deposited.
@@ -1086,7 +1086,7 @@ def reallocate_rewards():
                                     usd_value_sold += (ETF_farms[DEX]['farms'][i]['Total LP Value'] * 0.5)
 
             # Now, the corresponding value is removed from ETF farms
-            for DEX in ETF_farms:
+            for DEX in ETF_farms: #KeyError: 'Tangoswap'
                 if DEX in ("Mistswap", "Tangoswap"):
                     for i in range(len(ETF_farms[DEX]['farms'])):
                         ABI = open("ABIs/MIST-Master-ABI.json", "r")
