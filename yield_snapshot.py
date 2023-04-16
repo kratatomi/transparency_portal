@@ -282,7 +282,9 @@ def generate_graphs():
         json.dump(assets_statistics, file, indent=4)
 
 def take_weekly_yields(stacked_assets, farms):
-    import engine
+    import engine, watchdog
+    # Watchdog is stopped to avoid interferences
+    watchdog.stop_watchdog()
     engine.start_celery_stake() # Turning to staking mode harvest the CLY rewards
     try:
         engine.swap_assets("0x7642Df81b5BEAeEb331cc5A104bd13Ba68c34B91", "0x0000000000000000000000000000000000000000", "all") #Sell CLY for BCH
@@ -323,6 +325,12 @@ def take_weekly_yields(stacked_assets, farms):
         engine.harvest_sidx_law_farm()
     except Exception as e:
         logger.error(f'Function harvest_sidx_law_farm failed. Exception: {e}')
+
+    # Watchdog is resumed
+    with open('data/ETF_investors_transfers.json') as etf_investors_transfers_file:
+        ETF_investors_transfers = json.load(etf_investors_transfers_file)
+    start_block = ETF_investors_transfers["latest_scanned_block"] + 1
+    watchdog.start_watchdog(start_block)
 
 def main():
     with open('data/SIDX_STATS.json') as sidx_stats_file:
