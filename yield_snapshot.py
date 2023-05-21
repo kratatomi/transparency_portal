@@ -332,6 +332,15 @@ def take_weekly_yields(stacked_assets, farms):
     start_block = ETF_investors_transfers["latest_scanned_block"] + 1
     watchdog.start_watchdog(start_block)
 
+def manual_take_weekly_yields():
+    # This function is called if scheduled take_weekly_yields failed due to lack of gas.
+    with open('data/STACKED_ASSETS.json') as stacked_assets_file:
+        stacked_assets = json.load(stacked_assets_file)
+    with open('data/FARMS.json') as farms_file:
+        farms = json.load(farms_file)
+    take_weekly_yields(stacked_assets, farms)
+
+
 def main():
     with open('data/SIDX_STATS.json') as sidx_stats_file:
         sidx_stats = json.load(sidx_stats_file)
