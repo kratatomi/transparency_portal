@@ -715,8 +715,6 @@ def check_wallet_gas():
     if bch_balance < 25000000000000000:
         stop_watchdog()
         logger.error('Stopping watchdog: not enough balance in the ETF wallet')
-        import app.email as email
-        email.send_email_to_admin('Stopping watchdog: not enough balance in the ETF wallet, please top-up.')
 
 def reallocate_rewards():
     # This function will be a cron job executed monthly.
