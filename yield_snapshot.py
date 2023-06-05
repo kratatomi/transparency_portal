@@ -374,11 +374,8 @@ def main():
         json.dump(weekly_stats, file, indent=4)
     file.close()
     generate_graphs()
-    from web3 import Web3
-    from engine import portfolio_address
-    w3 = Web3(Web3.HTTPProvider('https://global.uat.cash'))
-    if not w3.isConnected():
-        w3 = Web3(Web3.HTTPProvider('https://smartbch.grey.at'))
+    from engine import portfolio_address, connect_to_smartbch
+    w3 = connect_to_smartbch()
     portfolio_gas_balance = w3.eth.get_balance(portfolio_address)
     if portfolio_gas_balance >= 8500000000000000:
         take_weekly_yields(stacked_assets, farms)
