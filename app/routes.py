@@ -19,6 +19,8 @@ from app.email import send_new_proposal_email, send_email_to_admin
 from voting_platform import send_memo
 from bitcash.wallet import Key
 
+from waiting import wait # pip install waiting
+
 @app.route('/favicon.ico')
 def favicon():
     return send_from_directory(join(app.root_path, 'static'),
@@ -163,9 +165,14 @@ def weekly_report(name):
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('submit_proposal'))
-    w3 = Web3(Web3.HTTPProvider('https://global.uat.cash'))
+    w3 = Web3(Web3.HTTPProvider('https://smartbch.fountainhead.cash/mainnet'))
+    wait(lambda: w3.isConnected(), timeout_seconds=10, waiting_for="Node to be ready")
+    if not w3.isConnected():
+        w3 = Web3(Web3.HTTPProvider('https://global.uat.cash'))
+        wait(lambda: w3.isConnected(), timeout_seconds=10, waiting_for="Node to be ready")
     if not w3.isConnected():
         w3 = Web3(Web3.HTTPProvider('https://smartbch.grey.at'))
+        wait(lambda: w3.isConnected(), timeout_seconds=10, waiting_for="Node to be ready")
 
     public_address = request.json[0]
     signature = request.json[1]
@@ -212,9 +219,14 @@ def submit_proposal():
         return redirect('/proposals')
     # Check if the logged user has at least 1250 SIDX tokens in his wallet
     user = Users.query.get(current_user.get_id())
-    w3 = Web3(Web3.HTTPProvider('https://global.uat.cash'))
+    w3 = Web3(Web3.HTTPProvider('https://smartbch.fountainhead.cash/mainnet'))
+    wait(lambda: w3.isConnected(), timeout_seconds=10, waiting_for="Node to be ready")
+    if not w3.isConnected():
+        w3 = Web3(Web3.HTTPProvider('https://global.uat.cash'))
+        wait(lambda: w3.isConnected(), timeout_seconds=10, waiting_for="Node to be ready")
     if not w3.isConnected():
         w3 = Web3(Web3.HTTPProvider('https://smartbch.grey.at'))
+        wait(lambda: w3.isConnected(), timeout_seconds=10, waiting_for="Node to be ready")
     ABI = open("ABIs/ERC20-ABI.json", "r")  # Standard ABI for ERC20 tokens
     abi = json.loads(ABI.read())
     contract = w3.eth.contract(address="0xF05bD3d7709980f60CD5206BddFFA8553176dd29", abi=abi)
