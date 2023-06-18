@@ -14,8 +14,8 @@ from engine import connect_to_smartbch
 w3 = connect_to_smartbch()
 
 choices_list = ["ACCEPT", "REJECT", "A", "B", "C", "D"]
-SIDX_CA = w3.toChecksumAddress("0xF05bD3d7709980f60CD5206BddFFA8553176dd29")
-cheque_CA = w3.toChecksumAddress("0xa36C479eEAa25C0CFC7e099D3bEbF7A7F1303F40")
+SIDX_CA = w3.to_checksum_address("0xF05bD3d7709980f60CD5206BddFFA8553176dd29")
+cheque_CA = w3.to_checksum_address("0xa36C479eEAa25C0CFC7e099D3bEbF7A7F1303F40")
 
 with open("data/SIDX_STATS.json", "r") as file:
     SIDX_STATS = json.load(file)

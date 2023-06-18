@@ -8,7 +8,7 @@ if not sys.warnoptions:
 
 w3 = connect_to_smartbch()
 
-target_token_address = w3.toChecksumAddress(
+target_token_address = w3.to_checksum_address(
     "0xF05bD3d7709980f60CD5206BddFFA8553176dd29")  # SIDX smart contract address
 ignored_addresses = [target_token_address, '0x0000000000000000000000000000000000000000', '0xd11bb6a7981780aADc722146a306f7104fD93E9c', '0xE1ae30Fbb31bE2FB59D1c44dBEf8649C386E26B3']  # Added admin and portfolio wallet
 address_list = []
@@ -52,7 +52,7 @@ def get_LPs_info(LP_CA_list, target_token_address):
     LPs_dict = {}
 
     for LP in LP_CA_list:
-        contract = w3.eth.contract(address=w3.toChecksumAddress(LP), abi=abi)
+        contract = w3.eth.contract(address=w3.to_checksum_address(LP), abi=abi)
         target_token_position = 0
         target_token_reserves = 0
         if contract.functions.token1().call() == target_token_address:
@@ -81,7 +81,7 @@ def address_tracker(data):
 
     for LP in LP_CA_list:
         if LP in address_list:
-            address_list.remove(w3.toChecksumAddress(LP))  # We delete balances hold in LP tokens
+            address_list.remove(w3.to_checksum_address(LP))  # We delete balances hold in LP tokens
 
     for address in ignored_addresses:
         if address in address_list:
@@ -103,7 +103,7 @@ def get_farms(LP_CA_list):
         if dex_base == "SUSHI":
             abi = SUSHI_abi
         for master_contract in farms[dex_base]:
-            contract = w3.eth.contract(address=w3.toChecksumAddress(master_contract), abi=abi)
+            contract = w3.eth.contract(address=w3.to_checksum_address(master_contract), abi=abi)
             pool_length = contract.functions.poolLength().call()
             for i in range(pool_length):
                 if contract.functions.poolInfo(i).call()[0] in LP_CA_list:
@@ -136,7 +136,7 @@ def get_LP_balances(LPs_dict, LPs_in_farms):
         abi = json.loads(ABI.read())
         contract = w3.eth.contract(address=LP_address, abi=abi)
         for address in address_list:
-            address_LP_balance = contract.functions.balanceOf(w3.toChecksumAddress(address)).call()
+            address_LP_balance = contract.functions.balanceOf(w3.to_checksum_address(address)).call()
             if address_LP_balance != 0 and address in balances: # This means this wallet holds single stacking pool
                 balances[address] += (address_LP_balance / LPs_dict[LP_address]["total_supply"]) * LPs_dict[LP_address][
                     "target_token_reserve"]

@@ -13,8 +13,8 @@ logger = logging.getLogger("app.engine")
 
 RPC_SERVER = 'https://smartbch.fountainhead.cash/mainnet'
 w3 = Web3(Web3.HTTPProvider(RPC_SERVER))
-wait(lambda: w3.isConnected(), timeout_seconds=10, waiting_for="Node to be ready")
-if not w3.isConnected():
+wait(lambda: w3.is_connected(), timeout_seconds=10, waiting_for="Node to be ready")
+if not w3.is_connected():
     RPC_SERVER = 'https://global.uat.cash'
     w3 = Web3(Web3.HTTPProvider(RPC_SERVER))
 
@@ -57,7 +57,7 @@ class SBCH:
               "MinterRemoved": Web3.keccak(text="MinterRemoved(address)").hex()}
 
     def queryTxBySrc(self, address, start, end, txs_limit = 0):
-        address = Web3.toChecksumAddress(address)
+        address = Web3.to_checksum_address(address)
         if type(start) == int:
             start = hex(start)
         if type(end) == int:
@@ -69,7 +69,7 @@ class SBCH:
         self.get_response()
 
     def queryTxByDst(self, address, start, end = 'latest', txs_limit = 0):
-        address = Web3.toChecksumAddress(address)
+        address = Web3.to_checksum_address(address)
         if type(start) == int:
             start = hex(start)
         if type(end) == int:
@@ -81,7 +81,7 @@ class SBCH:
         self.get_response()
 
     def queryTxByAddr(self, address, start, end = 'latest', txs_limit = 0):
-        address = Web3.toChecksumAddress(address)
+        address = Web3.to_checksum_address(address)
         if type(start) == int:
             start = hex(start)
         if type(end) == int:
@@ -93,7 +93,7 @@ class SBCH:
         self.get_response()
 
     def queryLogs(self, address, start, topics_array = [], end = 'latest', txs_limit = 0):
-        address = Web3.toChecksumAddress(address)
+        address = Web3.to_checksum_address(address)
         if type(start) == int:
             start = hex(start)
         if type(end) == int:
@@ -126,15 +126,15 @@ class SBCH:
 
     def getAddressCount(self, query, address):
         # query must be "from", "to" or "both"
-        address = Web3.toChecksumAddress(address)
+        address = Web3.to_checksum_address(address)
         self.payload["method"] = "sbch_getAddressCount"
         self.payload["params"] = [query, address]
         self.get_response()
 
     def getSep20AddressCount(self, query, contract_address, address):
         # query must be "from", "to" or "both"
-        address = Web3.toChecksumAddress(address)
-        contract_address = Web3.toChecksumAddress(contract_address)
+        address = Web3.to_checksum_address(address)
+        contract_address = Web3.to_checksum_address(contract_address)
         self.payload["method"] = "sbch_getSep20AddressCount"
         self.payload["params"] = [query, contract_address, address]
         self.get_response()
@@ -1328,7 +1328,7 @@ def main():
                                 ETF_SIDX_minted = 1 * 10**18
                             else:
                                 ETF_SIDX_minted = investment_usd_amount * ETF_SIDX_supply / ETF_portfolio_USD_value
-                            minting_tx = contract.functions.mint(w3.toChecksumAddress(investor_address), int(ETF_SIDX_minted)).buildTransaction(
+                            minting_tx = contract.functions.mint(w3.to_checksum_address(investor_address), int(ETF_SIDX_minted)).buildTransaction(
                             {'chainId': 10000,
                              'from': ETF_watchdog_address,
                              'gasPrice': w3.toWei('1.05', 'gwei')

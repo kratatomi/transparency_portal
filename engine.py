@@ -13,29 +13,31 @@ import math
 import os.path
 from tendo import singleton # pip install tendo
 
+
+
 logger = logging.getLogger("app.engine")
 
 def connect_to_smartbch():
     from waiting import wait  # pip install waiting
     w3 = Web3(Web3.HTTPProvider('https://smartbch.fountainhead.cash/mainnet'))
-    wait(lambda: w3.isConnected(), timeout_seconds=10, waiting_for="Node to be ready")
-    if not w3.isConnected():
+    wait(lambda: w3.is_connected(), timeout_seconds=10, waiting_for="Node to be ready")
+    if not w3.is_connected():
         w3 = Web3(Web3.HTTPProvider('https://global.uat.cash'))
-        wait(lambda: w3.isConnected(), timeout_seconds=10, waiting_for="Node to be ready")
-    if not w3.isConnected():
+        wait(lambda: w3.is_connected(), timeout_seconds=10, waiting_for="Node to be ready")
+    if not w3.is_connected():
         w3 = Web3(Web3.HTTPProvider('https://smartbch.grey.at'))
-        wait(lambda: w3.isConnected(), timeout_seconds=10, waiting_for="Node to be ready")
+        wait(lambda: w3.is_connected(), timeout_seconds=10, waiting_for="Node to be ready")
     return w3
 
 w3 = connect_to_smartbch()
 
-portfolio_address = w3.toChecksumAddress("0xE1ae30Fbb31bE2FB59D1c44dBEf8649C386E26B3")
-admin_wallet_address = w3.toChecksumAddress("0xd11bb6a7981780aADc722146a306f7104fD93E9c")
-SIDX_CA = w3.toChecksumAddress("0xF05bD3d7709980f60CD5206BddFFA8553176dd29")
-law_punks_CA = w3.toChecksumAddress("0xff48aAbDDACdc8A6263A2eBC6C1A68d8c46b1bf7")
-law_punks_market = w3.toChecksumAddress("0xc062bf9FaBE930FF8061f72b908AB1b702b3FdD6")
-law_level_address = w3.toChecksumAddress("0x9E9eACB7E5dCc374d3108598054787ccae967544")
-law_rewards = w3.toChecksumAddress("0xbeAAe3E87Bf71C97e458e2b9C84467bdc3b871c6")
+portfolio_address = w3.to_checksum_address("0xE1ae30Fbb31bE2FB59D1c44dBEf8649C386E26B3")
+admin_wallet_address = w3.to_checksum_address("0xd11bb6a7981780aADc722146a306f7104fD93E9c")
+SIDX_CA = w3.to_checksum_address("0xF05bD3d7709980f60CD5206BddFFA8553176dd29")
+law_punks_CA = w3.to_checksum_address("0xff48aAbDDACdc8A6263A2eBC6C1A68d8c46b1bf7")
+law_punks_market = w3.to_checksum_address("0xc062bf9FaBE930FF8061f72b908AB1b702b3FdD6")
+law_level_address = w3.to_checksum_address("0x9E9eACB7E5dCc374d3108598054787ccae967544")
+law_rewards = w3.to_checksum_address("0xbeAAe3E87Bf71C97e458e2b9C84467bdc3b871c6")
 law_salary = "0xe0ACACCFf2cDa66C8cFcA3bf86e7310748c70727"
 law_rights = {"453": {}, "457": {}, "459": {}, "460": {}} # TokenID: {LAW locked, salary}
 punk_wallets = [portfolio_address,  # Punks wallet 1
@@ -76,7 +78,8 @@ assets_balances = {
     "Joy": {"Stacked": False, "Liquid": True, "CA": "0x6732E55Ac3ECa734F54C26Bd8DF4eED52Fb79a6E", "BCH pair": "0xEe08584956020Ea9D4211A239030ad49Eb5f886D"},
     "FlexUSD": {"Stacked": True, "Liquid": True, "CA": "0x7b2B3C5308ab5b2a1d9a94d20D35CCDf61e05b72", "BCH pair": "0x24f011f12Ea45AfaDb1D4245bA15dCAB38B43D13", "Initial": 283.912},
     "Ember Token": {"Stacked": True, "Liquid": True, "CA": "0x6BAbf5277849265b6738e75AEC43AEfdde0Ce88D", "BCH pair": "0x52c656FaF57DCbDdDd47BCbA7b2ab79e4c232C28"},
-    "WBCH": {"Stacked": False, "Liquid": True, "CA": WBCH_CA}
+    "WBCH": {"Stacked": False, "Liquid": True, "CA": WBCH_CA},
+    "$OX": {"Stacked": True, "Liquid": False, "Initial": 45383.75, "CA": "0x78a0A62Fba6Fb21A83FE8a3433d44C73a4017A6f"}
 }
 
 initial_pool_balances = {
