@@ -1378,24 +1378,24 @@ def main():
             ETF_SIDX_supply = int(contract.functions.totalSupply().call())
             share_to_withdraw = token_amount/ETF_SIDX_supply
             if share_to_withdraw < min_withdrawal_share:
-                logger.error(f'Withdrawal threshold not reached. Investor address  is {investor_address}, amount sent is {token_amount / 10**18} and TXID is {w3.toHex(tx_hash)}. Share to wtidrawal is {share_to_withdraw}.')
+                logger.error(f'Withdrawal threshold not reached. Investor address  is {investor_address}, amount sent is {token_amount / 10**18} and TXID is {w3.to_hex(tx_hash)}. Share to wtidrawal is {share_to_withdraw}.')
                 import app.email as email
-                email.send_email_to_admin(f'Withdrawal threshold not reached. Investor address  is {investor_address}, amount sent is {token_amount / 10**18} and TXID is {w3.toHex(tx_hash)}. Share to wtidrawal is {share_to_withdraw}.')
+                email.send_email_to_admin(f'Withdrawal threshold not reached. Investor address  is {investor_address}, amount sent is {token_amount / 10**18} and TXID is {w3.to_hex(tx_hash)}. Share to wtidrawal is {share_to_withdraw}.')
                 return
             else:
                 logger.info(
-                    f'New withdrawal from address {investor_address}: amount sent is {token_amount} and TXID is {w3.toHex(tx_hash)}. Share to wtidrawal is {share_to_withdraw}.')
+                    f'New withdrawal from address {investor_address}: amount sent is {token_amount} and TXID is {w3.to_hex(tx_hash)}. Share to wtidrawal is {share_to_withdraw}.')
                 import app.email as email
                 email.send_email_to_admin(
-                    f'New withdrawal from address {investor_address}: amount sent is {token_amount} and TXID is {w3.toHex(tx_hash)}. Share to wtidrawal is {share_to_withdraw}.')
+                    f'New withdrawal from address {investor_address}: amount sent is {token_amount} and TXID is {w3.to_hex(tx_hash)}. Share to wtidrawal is {share_to_withdraw}.')
                 try:
                     withdrawal_successful = assets_withdrawal(share_to_withdraw, investor_address)
                 except Exception as e:
                     logger.error(
-                        f'Problem when withdrawing assets. Investor address  is {investor_address}, amount sent is {token_amount / 10 ** 18} and TXID is {w3.toHex(tx_hash)}. Share to wtidrawal is {share_to_withdraw}. Exception is {e}.')
+                        f'Problem when withdrawing assets. Investor address  is {investor_address}, amount sent is {token_amount / 10 ** 18} and TXID is {w3.to_hex(tx_hash)}. Share to wtidrawal is {share_to_withdraw}. Exception is {e}.')
                     import app.email as email
                     email.send_email_to_admin(
-                        f'Problem when withdrawing assets. Investor address  is {investor_address}, amount sent is {token_amount / 10 ** 18} and TXID is {w3.toHex(tx_hash)}. Share to wtidrawal is {share_to_withdraw}. Exception is {e}.')
+                        f'Problem when withdrawing assets. Investor address  is {investor_address}, amount sent is {token_amount / 10 ** 18} and TXID is {w3.to_hex(tx_hash)}. Share to wtidrawal is {share_to_withdraw}. Exception is {e}.')
                     stop_watchdog()
                     return
 

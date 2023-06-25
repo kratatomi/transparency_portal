@@ -951,7 +951,7 @@ def send_transaction(identifier, tx,*account):
             except Exception as e:
                 logger.error(f'TX failed to sent, error is {e}. Identifier is {identifier}')
     else:
-        hex_TXID = w3.toHex(TXID)
+        hex_TXID = w3.to_hex(TXID)
         logger.info(f'TXID {hex_TXID} sent, identifier is {identifier}')
         try:
             receipt = w3.eth.wait_for_transaction_receipt(TXID)
