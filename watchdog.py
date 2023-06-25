@@ -274,10 +274,10 @@ def allocate_coins(amount_to_allocate):
                 contract = w3.eth.contract(address=ETF_assets_balances[staked_token]["harvest_CA"], abi=abi)
                 engine.asset_allowance(ETF_assets_balances[staked_token]["CA"], ETF_assets_balances[staked_token]["harvest_CA"], *ETF_portfolio_account)
                 stake_tx = contract.functions.deposit(ETF_assets_balances[staked_token]["harvest_pool_id"],
-                                                         int(amount_to_stake)).buildTransaction(
+                                                         int(amount_to_stake)).build_transaction(
                     {'chainId': 10000,
                      'from': ETF_portfolio_address,
-                     'gasPrice': w3.toWei('1.05', 'gwei')
+                     'gasPrice': w3.to_wei('1.05', 'gwei')
                      })
                 engine.send_transaction(staked_token, stake_tx, *ETF_portfolio_account)
             if staked_token in {"MistToken", "LNS"}:
@@ -286,10 +286,10 @@ def allocate_coins(amount_to_allocate):
                 contract = w3.eth.contract(address=ETF_assets_balances[staked_token]["BAR_CA"], abi=abi)
                 engine.asset_allowance(ETF_assets_balances[staked_token]["CA"],
                                        ETF_assets_balances[staked_token]["BAR_CA"], *ETF_portfolio_account)
-                stake_tx = contract.functions.enter(int(amount_to_stake)).buildTransaction(
+                stake_tx = contract.functions.enter(int(amount_to_stake)).build_transaction(
                     {'chainId': 10000,
                      'from': ETF_portfolio_address,
-                     'gasPrice': w3.toWei('1.05', 'gwei')
+                     'gasPrice': w3.to_wei('1.05', 'gwei')
                      })
                 engine.send_transaction(staked_token, stake_tx, *ETF_portfolio_account)
             if staked_token == "GOB":
@@ -299,10 +299,10 @@ def allocate_coins(amount_to_allocate):
                 contract = w3.eth.contract(address="0x9851c1175A26c8656441bc2cAE0Cd21AddB80dBa", abi=abi)
                 engine.asset_allowance(ETF_assets_balances[staked_token]["CA"],
                                        "0x9851c1175A26c8656441bc2cAE0Cd21AddB80dBa", *ETF_portfolio_account)
-                stake_tx = contract.functions.stake(int(amount_to_stake), ETF_portfolio_address).buildTransaction(
+                stake_tx = contract.functions.stake(int(amount_to_stake), ETF_portfolio_address).build_transaction(
                     {'chainId': 10000,
                      'from': ETF_portfolio_address,
-                     'gasPrice': w3.toWei('1.05', 'gwei')
+                     'gasPrice': w3.to_wei('1.05', 'gwei')
                      })
                 engine.send_transaction(staked_token, stake_tx, *ETF_portfolio_account)
 
@@ -331,10 +331,10 @@ def allocate_coins(amount_to_allocate):
             ABI = open("ABIs/MIST-Master-ABI.json", "r")
             abi = json.loads(ABI.read())
             contract = w3.eth.contract(address=masters[DEX], abi=abi)
-            deposit_tx = contract.functions.deposit(SIDX_liquidity_pools[DEX]['pool_id'], LP_balance).buildTransaction(
+            deposit_tx = contract.functions.deposit(SIDX_liquidity_pools[DEX]['pool_id'], LP_balance).build_transaction(
                 {'chainId': 10000,
                  'from': ETF_portfolio_address,
-                 'gasPrice': w3.toWei('1.05', 'gwei')
+                 'gasPrice': w3.to_wei('1.05', 'gwei')
                  })
             engine.send_transaction(
                 f"Depositing {LP_balance} LP tokens to {DEX} SIDX farm", deposit_tx, *ETF_portfolio_account)
@@ -344,10 +344,10 @@ def allocate_coins(amount_to_allocate):
             ABI = open("ABIs/EMBER_Distributor-ABI.json", 'r')
             abi = json.loads(ABI.read())
             contract = w3.eth.contract(address="0x8ecb32C33AB3f7ee3D6Ce9D4020bC53fecB36Be9", abi=abi)
-            deposit_tx = contract.functions.deposit(SIDX_liquidity_pools[DEX]['pool_id'], LP_balance).buildTransaction(
+            deposit_tx = contract.functions.deposit(SIDX_liquidity_pools[DEX]['pool_id'], LP_balance).build_transaction(
                 {'chainId': 10000,
                  'from': ETF_portfolio_address,
-                 'gasPrice': w3.toWei('1.05', 'gwei')
+                 'gasPrice': w3.to_wei('1.05', 'gwei')
                  })
             engine.send_transaction(f"Depositing {LP_balance / 10 ** 18} SIDX/EMBER LP tokens to EmberSwap farm",
                                     deposit_tx, *ETF_portfolio_account)
@@ -358,10 +358,10 @@ def allocate_coins(amount_to_allocate):
             abi = json.loads(ABI.read())
             contract = w3.eth.contract(address="0x3384d970688f7B86a8D7aE6D8670CD5f9fd5fE1E", abi=abi)
             tokenId = contract.functions.tokenIds(ETF_portfolio_address).call()
-            deposit_tx = contract.functions.deposit(LP_balance, int(tokenId)).buildTransaction(
+            deposit_tx = contract.functions.deposit(LP_balance, int(tokenId)).build_transaction(
                 {'chainId': 10000,
                  'from': ETF_portfolio_address,
-                 'gasPrice': w3.toWei('1.05', 'gwei')
+                 'gasPrice': w3.to_wei('1.05', 'gwei')
                  })
             engine.send_transaction(
                 f"Depositing {LP_balance / 10 ** 18} LP tokens to BlockNG-Kudos SIDX/LAW farm", deposit_tx,
@@ -396,10 +396,10 @@ def allocate_coins(amount_to_allocate):
                 ABI = open("ABIs/MIST-Master-ABI.json", "r")
                 abi = json.loads(ABI.read())
                 contract = w3.eth.contract(address=masters[DEX], abi=abi)
-                deposit_tx = contract.functions.deposit(ETF_farms[DEX]['farms'][i]['pool_id'], LP_balance).buildTransaction(
+                deposit_tx = contract.functions.deposit(ETF_farms[DEX]['farms'][i]['pool_id'], LP_balance).build_transaction(
                     {'chainId': 10000,
                      'from': ETF_portfolio_address,
-                     'gasPrice': w3.toWei('1.05', 'gwei')
+                     'gasPrice': w3.to_wei('1.05', 'gwei')
                      })
                 engine.send_transaction(f"Depositing {LP_balance} LP tokens to {DEX} farm {ETF_farms[DEX]['farms'][i]['lp_CA']}", deposit_tx, *ETF_portfolio_account)
 
@@ -427,10 +427,10 @@ def allocate_coins(amount_to_allocate):
                 abi = json.loads(ABI.read())
                 contract = w3.eth.contract(address=ETF_farms[DEX]["farms"][i]["CA"], abi=abi)
                 tokenId = contract.functions.tokenIds(ETF_portfolio_address).call()
-                deposit_tx = contract.functions.deposit(LP_balance, int(tokenId)).buildTransaction(
+                deposit_tx = contract.functions.deposit(LP_balance, int(tokenId)).build_transaction(
                     {'chainId': 10000,
                      'from': ETF_portfolio_address,
-                     'gasPrice': w3.toWei('1.05', 'gwei')
+                     'gasPrice': w3.to_wei('1.05', 'gwei')
                      })
                 engine.send_transaction(
                     f"Depositing {LP_balance} LP tokens LP to {DEX} farm {ETF_farms[DEX]['farms'][i]['lp_CA']}",
@@ -478,10 +478,10 @@ def assets_withdrawal(share_to_withdraw, recipient_address):
             contract = w3.eth.contract(address=ETF_assets_balances[staked_token]["harvest_CA"], abi=abi)
             staked_balance = contract.functions.userInfo(ETF_assets_balances[staked_token]["harvest_pool_id"], ETF_portfolio_address).call()[0]
             amount_to_sell = int(staked_balance * share_to_withdraw)
-            withdrawal_tx = contract.functions.withdraw(ETF_assets_balances[staked_token]["harvest_pool_id"], amount_to_sell).buildTransaction(
+            withdrawal_tx = contract.functions.withdraw(ETF_assets_balances[staked_token]["harvest_pool_id"], amount_to_sell).build_transaction(
                 {'chainId': 10000,
                  'from': ETF_portfolio_address,
-                 'gasPrice': w3.toWei('1.05', 'gwei')
+                 'gasPrice': w3.to_wei('1.05', 'gwei')
                  })
             engine.send_transaction(f"Withdrawing {amount_to_sell} from {staked_token}", withdrawal_tx, *ETF_portfolio_account)
             ETF_staked_assets[staked_token]["Initial"] -= (amount_to_sell / 10 ** 18)
@@ -493,10 +493,10 @@ def assets_withdrawal(share_to_withdraw, recipient_address):
             contract = w3.eth.contract(address=ETF_assets_balances[staked_token]["BAR_CA"], abi=abi)
             staked_balance = contract.functions.balanceOf(ETF_portfolio_address).call()
             amount_to_sell = int(staked_balance * share_to_withdraw) # This amount is xMIST or xLNS
-            withdrawal_tx = contract.functions.leave(int(amount_to_sell)).buildTransaction(
+            withdrawal_tx = contract.functions.leave(int(amount_to_sell)).build_transaction(
                 {'chainId': 10000,
                  'from': ETF_portfolio_address,
-                 'gasPrice': w3.toWei('1.05', 'gwei')
+                 'gasPrice': w3.to_wei('1.05', 'gwei')
                  })
             engine.send_transaction(f"Withdrawing {amount_to_sell} from {staked_token}", withdrawal_tx, *ETF_portfolio_account)
             ratio = engine.xsushi_ratio(ETF_assets_balances[staked_token]["CA"], ETF_assets_balances[staked_token]["BAR_CA"])
@@ -518,10 +518,10 @@ def assets_withdrawal(share_to_withdraw, recipient_address):
             ABI = open(f"ABIs/{ETF_assets_balances[staked_token]['harvest_ABI']}", "r")
             abi = json.loads(ABI.read())
             contract = w3.eth.contract(address="0x48B8aCe692ad8BD2E3139C65bFf7d28c048F8f00", abi=abi)
-            withdrawal_tx = contract.functions.unstake(amount_to_sell, True).buildTransaction(
+            withdrawal_tx = contract.functions.unstake(amount_to_sell, True).build_transaction(
                 {'chainId': 10000,
                  'from': ETF_portfolio_address,
-                 'gasPrice': w3.toWei('1.05', 'gwei')
+                 'gasPrice': w3.to_wei('1.05', 'gwei')
                  })
             engine.send_transaction(f"Withdrawing {amount_to_sell / 10**9} from {staked_token}", withdrawal_tx, *ETF_portfolio_account)
             ETF_staked_assets[staked_token]["Initial"] -= (amount_to_sell / 10 ** 9)
@@ -538,10 +538,10 @@ def assets_withdrawal(share_to_withdraw, recipient_address):
             contract = w3.eth.contract(address=masters[DEX], abi=abi)
             pool_balance = contract.functions.userInfo(SIDX_liquidity_pools[DEX]["pool_id"], ETF_portfolio_address).call()[0]
             amount_to_sell = int(pool_balance * share_to_withdraw)
-            withdrawal_tx = contract.functions.withdraw(SIDX_liquidity_pools[DEX]["pool_id"], amount_to_sell).buildTransaction(
+            withdrawal_tx = contract.functions.withdraw(SIDX_liquidity_pools[DEX]["pool_id"], amount_to_sell).build_transaction(
                 {'chainId': 10000,
                  'from': ETF_portfolio_address,
-                 'gasPrice': w3.toWei('1.05', 'gwei')
+                 'gasPrice': w3.to_wei('1.05', 'gwei')
                  })
             engine.send_transaction(
                 f"Withdrawing {amount_to_sell} SIDX LP from DEX {DEX}", withdrawal_tx, *ETF_portfolio_account)
@@ -558,16 +558,16 @@ def assets_withdrawal(share_to_withdraw, recipient_address):
             amount_to_sell = int(pool_balance * share_to_withdraw)
             #As this is a Kudos farms, the reward must be farmed before withdrawal or it will be lost
             harvest_tx = contract.functions.getReward(ETF_portfolio_address,
-                                                      [ETF_assets_balances["LAW"]["CA"]]).buildTransaction(
+                                                      [ETF_assets_balances["LAW"]["CA"]]).build_transaction(
                 {'chainId': 10000,
                  'from': ETF_portfolio_address,
-                 'gasPrice': w3.toWei('1.05', 'gwei')
+                 'gasPrice': w3.to_wei('1.05', 'gwei')
                  })
             engine.send_transaction("Harvesting BlockNG Kudos farm before withdrawal", harvest_tx, *ETF_portfolio_account)
-            withdrawal_tx = contract.functions.withdraw(amount_to_sell).buildTransaction(
+            withdrawal_tx = contract.functions.withdraw(amount_to_sell).build_transaction(
                 {'chainId': 10000,
                  'from': ETF_portfolio_address,
-                 'gasPrice': w3.toWei('1.05', 'gwei')
+                 'gasPrice': w3.to_wei('1.05', 'gwei')
                  })
             engine.send_transaction(
                 f"Withdrawing {amount_to_sell} SIDX LP from DEX {DEX}", withdrawal_tx, *ETF_portfolio_account)
@@ -584,10 +584,10 @@ def assets_withdrawal(share_to_withdraw, recipient_address):
             contract.functions.userInfo(SIDX_liquidity_pools[DEX]['pool_id'], ETF_portfolio_address).call()[0]
             amount_to_sell = int(pool_balance * share_to_withdraw)
             withdrawal_tx = contract.functions.withdraw(SIDX_liquidity_pools[DEX]['pool_id'],
-                                                        amount_to_sell).buildTransaction(
+                                                        amount_to_sell).build_transaction(
                 {'chainId': 10000,
                  'from': ETF_portfolio_address,
-                 'gasPrice': w3.toWei('1.05', 'gwei')
+                 'gasPrice': w3.to_wei('1.05', 'gwei')
                  })
             engine.send_transaction(f"Withdrawing {amount_to_sell} SIDX LP from DEX {DEX}", withdrawal_tx, *ETF_portfolio_account)
             token0_address, token0_amount, token1_address, token1_amount = engine.remove_liquidity(100, SIDX_liquidity_pools[DEX]['lp_CA'], routers[DEX], *ETF_portfolio_account)
@@ -604,10 +604,10 @@ def assets_withdrawal(share_to_withdraw, recipient_address):
                 contract = w3.eth.contract(address=masters[DEX], abi=abi)
                 pool_balance = contract.functions.userInfo(ETF_farms[DEX]['farms'][i]['pool_id'], ETF_portfolio_address).call()[0]
                 amount_to_sell = int(pool_balance * share_to_withdraw)
-                withdrawal_tx = contract.functions.withdraw(ETF_farms[DEX]['farms'][i]['pool_id'], amount_to_sell).buildTransaction(
+                withdrawal_tx = contract.functions.withdraw(ETF_farms[DEX]['farms'][i]['pool_id'], amount_to_sell).build_transaction(
                     {'chainId': 10000,
                      'from': ETF_portfolio_address,
-                     'gasPrice': w3.toWei('1.05', 'gwei')
+                     'gasPrice': w3.to_wei('1.05', 'gwei')
                      })
                 engine.send_transaction(f"Withdrawing {amount_to_sell} from DEX {DEX} and farm {ETF_farms[DEX]['farms'][i]['pool_id']}", withdrawal_tx,
                                         *ETF_portfolio_account)
@@ -627,16 +627,16 @@ def assets_withdrawal(share_to_withdraw, recipient_address):
                 amount_to_sell = int(pool_balance * share_to_withdraw)
                 # In the case of Kudos farms, the reward must be farmed before withdrawal or it will be lost
                 harvest_tx = contract.functions.getReward(ETF_portfolio_address,
-                                                          [ETF_assets_balances["LAW"]["CA"]]).buildTransaction(
+                                                          [ETF_assets_balances["LAW"]["CA"]]).build_transaction(
                     {'chainId': 10000,
                      'from': ETF_portfolio_address,
-                     'gasPrice': w3.toWei('1.05', 'gwei')
+                     'gasPrice': w3.to_wei('1.05', 'gwei')
                      })
                 engine.send_transaction("Harvesting BlockNG Kudos farm before withdrawal", harvest_tx, *ETF_portfolio_account)
-                withdrawal_tx = contract.functions.withdraw(amount_to_sell).buildTransaction(
+                withdrawal_tx = contract.functions.withdraw(amount_to_sell).build_transaction(
                     {'chainId': 10000,
                      'from': ETF_portfolio_address,
-                     'gasPrice': w3.toWei('1.05', 'gwei')
+                     'gasPrice': w3.to_wei('1.05', 'gwei')
                      })
                 engine.send_transaction(
                     f"Withdrawing {amount_to_sell} from DEX {DEX} and farm {ETF_farms[DEX]['farms'][i]['lp_CA']}",
@@ -774,10 +774,10 @@ def reallocate_rewards():
             ABI = open("ABIs/MIST-Master-ABI.json", "r")
             abi = json.loads(ABI.read())
             contract = w3.eth.contract(address=masters[DEX], abi=abi)
-            deposit_tx = contract.functions.deposit(SIDX_liquidity_pools[DEX]['pool_id'], 0).buildTransaction(
+            deposit_tx = contract.functions.deposit(SIDX_liquidity_pools[DEX]['pool_id'], 0).build_transaction(
                 {'chainId': 10000,
                  'from': ETF_portfolio_address,
-                 'gasPrice': w3.toWei('1.05', 'gwei')
+                 'gasPrice': w3.to_wei('1.05', 'gwei')
                  })
             engine.send_transaction(
                 f"Taking rewards in {DEX} SIDX farm", deposit_tx, *ETF_portfolio_account)
@@ -785,10 +785,10 @@ def reallocate_rewards():
             ABI = open("ABIs/EMBER_Distributor-ABI.json", 'r')
             abi = json.loads(ABI.read())
             contract = w3.eth.contract(address="0x8ecb32C33AB3f7ee3D6Ce9D4020bC53fecB36Be9", abi=abi)
-            deposit_tx = contract.functions.deposit(SIDX_liquidity_pools[DEX]['pool_id'], 0).buildTransaction(
+            deposit_tx = contract.functions.deposit(SIDX_liquidity_pools[DEX]['pool_id'], 0).build_transaction(
                 {'chainId': 10000,
                  'from': ETF_portfolio_address,
-                 'gasPrice': w3.toWei('1.05', 'gwei')
+                 'gasPrice': w3.to_wei('1.05', 'gwei')
                  })
             engine.send_transaction(f"Taking rewards in EmberSwap LP",
                                     deposit_tx, *ETF_portfolio_account)
@@ -797,10 +797,10 @@ def reallocate_rewards():
             abi = json.loads(ABI.read())
             contract = w3.eth.contract(address="0x3384d970688f7B86a8D7aE6D8670CD5f9fd5fE1E", abi=abi)
             harvest_tx = contract.functions.getReward(ETF_portfolio_address,
-                                                      [engine.assets_balances["LAW"]["CA"]]).buildTransaction(
+                                                      [engine.assets_balances["LAW"]["CA"]]).build_transaction(
                 {'chainId': 10000,
                  'from': ETF_portfolio_address,
-                 'gasPrice': w3.toWei('1.05', 'gwei')
+                 'gasPrice': w3.to_wei('1.05', 'gwei')
                  })
             engine.send_transaction("Taking rewards in BlockNG Kudos SIDX/LAW farm ", harvest_tx, *ETF_portfolio_account)
 
@@ -810,10 +810,10 @@ def reallocate_rewards():
                 ABI = open("ABIs/MIST-Master-ABI.json", "r")
                 abi = json.loads(ABI.read())
                 contract = w3.eth.contract(address=masters[DEX], abi=abi)
-                deposit_tx = contract.functions.deposit(ETF_farms[DEX]['farms'][i]['pool_id'], 0).buildTransaction(
+                deposit_tx = contract.functions.deposit(ETF_farms[DEX]['farms'][i]['pool_id'], 0).build_transaction(
                     {'chainId': 10000,
                      'from': ETF_portfolio_address,
-                     'gasPrice': w3.toWei('1.05', 'gwei')
+                     'gasPrice': w3.to_wei('1.05', 'gwei')
                      })
                 engine.send_transaction(f"Taking rewards in {DEX} farm {ETF_farms[DEX]['farms'][i]['lp_CA']}", deposit_tx, *ETF_portfolio_account)
 
@@ -824,10 +824,10 @@ def reallocate_rewards():
                 for i in range(len(ETF_farms[DEX]['farms'])):
                     contract = w3.eth.contract(address=ETF_farms[DEX]["farms"][i]["CA"], abi=abi)
                     harvest_tx = contract.functions.getReward(ETF_portfolio_address,
-                                                              [engine.assets_balances["LAW"]["CA"]]).buildTransaction(
+                                                              [engine.assets_balances["LAW"]["CA"]]).build_transaction(
                         {'chainId': 10000,
                          'from': ETF_portfolio_address,
-                         'gasPrice': w3.toWei('1.05', 'gwei')
+                         'gasPrice': w3.to_wei('1.05', 'gwei')
                          })
                     engine.send_transaction(f"Harvesting BlockNG Kudos farm {ETF_farms[DEX]['farms'][i]['lp_CA']}", harvest_tx, *ETF_portfolio_account)
 
@@ -869,10 +869,10 @@ def reallocate_rewards():
                 ABI = open("ABIs/MIST-Master-ABI.json", "r")
                 abi = json.loads(ABI.read())
                 contract = w3.eth.contract(address=masters[DEX], abi=abi)
-                deposit_tx = contract.functions.deposit(SIDX_liquidity_pools[DEX]['pool_id'], LP_balance).buildTransaction(
+                deposit_tx = contract.functions.deposit(SIDX_liquidity_pools[DEX]['pool_id'], LP_balance).build_transaction(
                     {'chainId': 10000,
                      'from': ETF_portfolio_address,
-                     'gasPrice': w3.toWei('1.05', 'gwei')
+                     'gasPrice': w3.to_wei('1.05', 'gwei')
                      })
                 engine.send_transaction(
                     f"Depositing {LP_balance} LP tokens to {DEX} SIDX farm", deposit_tx, *ETF_portfolio_account)
@@ -882,10 +882,10 @@ def reallocate_rewards():
                 ABI = open("ABIs/EMBER_Distributor-ABI.json", 'r')
                 abi = json.loads(ABI.read())
                 contract = w3.eth.contract(address="0x8ecb32C33AB3f7ee3D6Ce9D4020bC53fecB36Be9", abi=abi)
-                deposit_tx = contract.functions.deposit(SIDX_liquidity_pools[DEX]['pool_id'], LP_balance).buildTransaction(
+                deposit_tx = contract.functions.deposit(SIDX_liquidity_pools[DEX]['pool_id'], LP_balance).build_transaction(
                     {'chainId': 10000,
                      'from': ETF_portfolio_address,
-                     'gasPrice': w3.toWei('1.05', 'gwei')
+                     'gasPrice': w3.to_wei('1.05', 'gwei')
                      })
                 engine.send_transaction(f"Depositing {LP_balance / 10 ** 18} SIDX/EMBER LP tokens to EmberSwap farm",
                                         deposit_tx, *ETF_portfolio_account)
@@ -896,10 +896,10 @@ def reallocate_rewards():
                 abi = json.loads(ABI.read())
                 contract = w3.eth.contract(address="0x3384d970688f7B86a8D7aE6D8670CD5f9fd5fE1E", abi=abi)
                 tokenId = contract.functions.tokenIds(ETF_portfolio_address).call()
-                deposit_tx = contract.functions.deposit(LP_balance, int(tokenId)).buildTransaction(
+                deposit_tx = contract.functions.deposit(LP_balance, int(tokenId)).build_transaction(
                     {'chainId': 10000,
                      'from': ETF_portfolio_address,
-                     'gasPrice': w3.toWei('1.05', 'gwei')
+                     'gasPrice': w3.to_wei('1.05', 'gwei')
                      })
                 engine.send_transaction(
                     f"Depositing {LP_balance / 10 ** 18} LP tokens to BlockNG-Kudos SIDX/LAW farm", deposit_tx,
@@ -933,10 +933,10 @@ def reallocate_rewards():
                     ABI = open("ABIs/MIST-Master-ABI.json", "r")
                     abi = json.loads(ABI.read())
                     contract = w3.eth.contract(address=masters[DEX], abi=abi)
-                    deposit_tx = contract.functions.deposit(ETF_farms[DEX]['farms'][i]['pool_id'], LP_balance).buildTransaction(
+                    deposit_tx = contract.functions.deposit(ETF_farms[DEX]['farms'][i]['pool_id'], LP_balance).build_transaction(
                         {'chainId': 10000,
                          'from': ETF_portfolio_address,
-                         'gasPrice': w3.toWei('1.05', 'gwei')
+                         'gasPrice': w3.to_wei('1.05', 'gwei')
                          })
                     engine.send_transaction(f"Depositing {LP_balance} LP tokens to {DEX} farm {ETF_farms[DEX]['farms'][i]['lp_CA']}", deposit_tx, *ETF_portfolio_account)
 
@@ -964,10 +964,10 @@ def reallocate_rewards():
                     abi = json.loads(ABI.read())
                     contract = w3.eth.contract(address=ETF_farms[DEX]["farms"][i]["CA"], abi=abi)
                     tokenId = contract.functions.tokenIds(ETF_portfolio_address).call()
-                    deposit_tx = contract.functions.deposit(LP_balance, int(tokenId)).buildTransaction(
+                    deposit_tx = contract.functions.deposit(LP_balance, int(tokenId)).build_transaction(
                         {'chainId': 10000,
                          'from': ETF_portfolio_address,
-                         'gasPrice': w3.toWei('1.05', 'gwei')
+                         'gasPrice': w3.to_wei('1.05', 'gwei')
                          })
                     engine.send_transaction(
                         f"Depositing {LP_balance} LP tokens LP to {DEX} farm {ETF_farms[DEX]['farms'][i]['lp_CA']}",
@@ -1017,10 +1017,10 @@ def reallocate_rewards():
                     abi = json.loads(ABI.read())
                     contract = w3.eth.contract(address=masters[DEX], abi=abi)
                     deposit_tx = contract.functions.deposit(SIDX_liquidity_pools[DEX]['pool_id'],
-                                                            LP_balance).buildTransaction(
+                                                            LP_balance).build_transaction(
                         {'chainId': 10000,
                          'from': ETF_portfolio_address,
-                         'gasPrice': w3.toWei('1.05', 'gwei')
+                         'gasPrice': w3.to_wei('1.05', 'gwei')
                          })
                     engine.send_transaction(
                         f"Depositing {LP_balance} LP tokens to {DEX} SIDX farm", deposit_tx, *ETF_portfolio_account)
@@ -1031,10 +1031,10 @@ def reallocate_rewards():
                     abi = json.loads(ABI.read())
                     contract = w3.eth.contract(address="0x8ecb32C33AB3f7ee3D6Ce9D4020bC53fecB36Be9", abi=abi)
                     deposit_tx = contract.functions.deposit(SIDX_liquidity_pools[DEX]['pool_id'],
-                                                            LP_balance).buildTransaction(
+                                                            LP_balance).build_transaction(
                         {'chainId': 10000,
                          'from': ETF_portfolio_address,
-                         'gasPrice': w3.toWei('1.05', 'gwei')
+                         'gasPrice': w3.to_wei('1.05', 'gwei')
                          })
                     engine.send_transaction(
                         f"Depositing {LP_balance / 10 ** 18} SIDX/EMBER LP tokens to EmberSwap farm",
@@ -1046,10 +1046,10 @@ def reallocate_rewards():
                     abi = json.loads(ABI.read())
                     contract = w3.eth.contract(address="0x3384d970688f7B86a8D7aE6D8670CD5f9fd5fE1E", abi=abi)
                     tokenId = contract.functions.tokenIds(ETF_portfolio_address).call()
-                    deposit_tx = contract.functions.deposit(LP_balance, int(tokenId)).buildTransaction(
+                    deposit_tx = contract.functions.deposit(LP_balance, int(tokenId)).build_transaction(
                         {'chainId': 10000,
                          'from': ETF_portfolio_address,
-                         'gasPrice': w3.toWei('1.05', 'gwei')
+                         'gasPrice': w3.to_wei('1.05', 'gwei')
                          })
                     engine.send_transaction(
                         f"Depositing {LP_balance / 10 ** 18} LP tokens to BlockNG-Kudos SIDX/LAW farm", deposit_tx,
@@ -1094,10 +1094,10 @@ def reallocate_rewards():
                                                                    ETF_portfolio_address).call()[0]
                         amount_to_sell = int(pool_balance * withdrawal_dict[DEX][i])
                         withdrawal_tx = contract.functions.withdraw(ETF_farms[DEX]['farms'][i]['pool_id'],
-                                                                    amount_to_sell).buildTransaction(
+                                                                    amount_to_sell).build_transaction(
                             {'chainId': 10000,
                              'from': ETF_portfolio_address,
-                             'gasPrice': w3.toWei('1.05', 'gwei')
+                             'gasPrice': w3.to_wei('1.05', 'gwei')
                              })
                         engine.send_transaction(
                             f"Withdrawing {amount_to_sell} from DEX {DEX} and farm {ETF_farms[DEX]['farms'][i]['pool_id']}",
@@ -1126,17 +1126,17 @@ def reallocate_rewards():
                         amount_to_sell = int(pool_balance * withdrawal_dict[DEX][i])
                         # In the case of Kudos farms, the reward must be farmed before withdrawal, or it will be lost
                         harvest_tx = contract.functions.getReward(ETF_portfolio_address,
-                                                                  [ETF_assets_balances["LAW"]["CA"]]).buildTransaction(
+                                                                  [ETF_assets_balances["LAW"]["CA"]]).build_transaction(
                             {'chainId': 10000,
                              'from': ETF_portfolio_address,
-                             'gasPrice': w3.toWei('1.05', 'gwei')
+                             'gasPrice': w3.to_wei('1.05', 'gwei')
                              })
                         engine.send_transaction("Harvesting BlockNG Kudos farm before withdrawal", harvest_tx,
                                                 *ETF_portfolio_account)
-                        withdrawal_tx = contract.functions.withdraw(amount_to_sell).buildTransaction(
+                        withdrawal_tx = contract.functions.withdraw(amount_to_sell).build_transaction(
                             {'chainId': 10000,
                              'from': ETF_portfolio_address,
-                             'gasPrice': w3.toWei('1.05', 'gwei')
+                             'gasPrice': w3.to_wei('1.05', 'gwei')
                              })
                         engine.send_transaction(
                             f"Withdrawing {amount_to_sell} from DEX {DEX} and farm {ETF_farms[DEX]['farms'][i]['lp_CA']}",
@@ -1194,10 +1194,10 @@ def reallocate_rewards():
                                 abi = json.loads(ABI.read())
                                 contract = w3.eth.contract(address=masters[DEX], abi=abi)
                                 deposit_tx = contract.functions.deposit(SIDX_liquidity_pools[DEX]['pool_id'],
-                                                                        LP_balance).buildTransaction(
+                                                                        LP_balance).build_transaction(
                                     {'chainId': 10000,
                                      'from': ETF_portfolio_address,
-                                     'gasPrice': w3.toWei('1.05', 'gwei')
+                                     'gasPrice': w3.to_wei('1.05', 'gwei')
                                      })
                                 engine.send_transaction(
                                     f"Depositing {LP_balance} LP tokens to {DEX} SIDX farm", deposit_tx,
@@ -1210,10 +1210,10 @@ def reallocate_rewards():
                                 contract = w3.eth.contract(address="0x8ecb32C33AB3f7ee3D6Ce9D4020bC53fecB36Be9",
                                                            abi=abi)
                                 deposit_tx = contract.functions.deposit(SIDX_liquidity_pools[DEX]['pool_id'],
-                                                                        LP_balance).buildTransaction(
+                                                                        LP_balance).build_transaction(
                                     {'chainId': 10000,
                                      'from': ETF_portfolio_address,
-                                     'gasPrice': w3.toWei('1.05', 'gwei')
+                                     'gasPrice': w3.to_wei('1.05', 'gwei')
                                      })
                                 engine.send_transaction(
                                     f"Depositing {LP_balance / 10 ** 18} SIDX/EMBER LP tokens to EmberSwap farm",
@@ -1227,10 +1227,10 @@ def reallocate_rewards():
                                 contract = w3.eth.contract(address="0x3384d970688f7B86a8D7aE6D8670CD5f9fd5fE1E",
                                                            abi=abi)
                                 tokenId = contract.functions.tokenIds(ETF_portfolio_address).call()
-                                deposit_tx = contract.functions.deposit(LP_balance, int(tokenId)).buildTransaction(
+                                deposit_tx = contract.functions.deposit(LP_balance, int(tokenId)).build_transaction(
                                     {'chainId': 10000,
                                      'from': ETF_portfolio_address,
-                                     'gasPrice': w3.toWei('1.05', 'gwei')
+                                     'gasPrice': w3.to_wei('1.05', 'gwei')
                                      })
                                 engine.send_transaction(
                                     f"Depositing {LP_balance / 10 ** 18} LP tokens to BlockNG-Kudos SIDX/LAW farm",
@@ -1328,10 +1328,10 @@ def main():
                                 ETF_SIDX_minted = 1 * 10**18
                             else:
                                 ETF_SIDX_minted = investment_usd_amount * ETF_SIDX_supply / ETF_portfolio_USD_value
-                            minting_tx = contract.functions.mint(w3.to_checksum_address(investor_address), int(ETF_SIDX_minted)).buildTransaction(
+                            minting_tx = contract.functions.mint(w3.to_checksum_address(investor_address), int(ETF_SIDX_minted)).build_transaction(
                             {'chainId': 10000,
                              'from': ETF_watchdog_address,
-                             'gasPrice': w3.toWei('1.05', 'gwei')
+                             'gasPrice': w3.to_wei('1.05', 'gwei')
                              })
                             engine.send_transaction(
                                 f"Minting {ETF_SIDX_minted} SIDX_ETF tokens for {investor_address}",
@@ -1403,10 +1403,10 @@ def main():
                     ABI = open("ABIs/ERC20-ABI.json", "r")
                     abi = json.loads(ABI.read())
                     contract = w3.eth.contract(address=ETF_SIDX_CA, abi=abi)
-                    burning_tx = contract.functions.burn(int(token_amount)).buildTransaction(
+                    burning_tx = contract.functions.burn(int(token_amount)).build_transaction(
                         {'chainId': 10000,
                          'from': ETF_watchdog_address,
-                         'gasPrice': w3.toWei('1.05', 'gwei')
+                         'gasPrice': w3.to_wei('1.05', 'gwei')
                          })
                     engine.send_transaction(
                         f"{token_amount / 10**18} SIDX_ETF tokens burned, investor address is {investor_address}",

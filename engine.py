@@ -827,10 +827,10 @@ def start_celery_stake():
     ABI = open("ABIs/CLY-ABI.json", "r")  # ABI for CLY token
     abi = json.loads(ABI.read())
     contract = w3.eth.contract(address="0x7642Df81b5BEAeEb331cc5A104bd13Ba68c34B91", abi=abi)
-    stake_cly_tx = contract.functions.startStake().buildTransaction(
+    stake_cly_tx = contract.functions.startStake().build_transaction(
         {'chainId': 10000,
          'from': portfolio_address,
-         'gasPrice': w3.toWei('1.05', 'gwei')
+         'gasPrice': w3.to_wei('1.05', 'gwei')
         })
     send_transaction("Celery stacking", stake_cly_tx)
 
@@ -839,10 +839,10 @@ def start_celery_payout():
     ABI = open("ABIs/CLY-ABI.json", "r")  # ABI for CLY token
     abi = json.loads(ABI.read())
     contract = w3.eth.contract(address="0x7642Df81b5BEAeEb331cc5A104bd13Ba68c34B91", abi=abi)
-    payout_cly_tx = contract.functions.startPayout().buildTransaction(
+    payout_cly_tx = contract.functions.startPayout().build_transaction(
         {'chainId': 10000,
          'from': portfolio_address,
-         'gasPrice': w3.toWei('1.05', 'gwei')
+         'gasPrice': w3.to_wei('1.05', 'gwei')
          })
     send_transaction("Celery payout", payout_cly_tx)
 
@@ -866,10 +866,10 @@ def harvest_pools_rewards(pool_name, amount=0):
         ABI = open(f"ABIs/{assets_balances[pool_name]['harvest_ABI']}", "r")
         abi = json.loads(ABI.read())
         contract = w3.eth.contract(address=assets_balances[pool_name]["harvest_CA"], abi=abi)
-        harvest_tx = contract.functions.withdraw(assets_balances[pool_name]["harvest_pool_id"], 0).buildTransaction(
+        harvest_tx = contract.functions.withdraw(assets_balances[pool_name]["harvest_pool_id"], 0).build_transaction(
             {'chainId': 10000,
              'from': portfolio_address,
-             'gasPrice': w3.toWei('1.05', 'gwei')
+             'gasPrice': w3.to_wei('1.05', 'gwei')
              })
         send_transaction(pool_name, harvest_tx)
         if pool_name == "Green Ben":
@@ -884,10 +884,10 @@ def harvest_pools_rewards(pool_name, amount=0):
         ratio = xsushi_ratio(assets_balances[pool_name]["CA"], assets_balances[pool_name]["BAR_CA"])
         amount_to_harvest = amount / ratio
         contract = w3.eth.contract(address=assets_balances[pool_name]["BAR_CA"], abi=abi)
-        harvest_tx = contract.functions.leave(int(amount_to_harvest)).buildTransaction(
+        harvest_tx = contract.functions.leave(int(amount_to_harvest)).build_transaction(
             {'chainId': 10000,
              'from': portfolio_address,
-             'gasPrice': w3.toWei('1.05', 'gwei')
+             'gasPrice': w3.to_wei('1.05', 'gwei')
              })
         send_transaction(pool_name, harvest_tx)
     if pool_name == "GOB":
@@ -895,10 +895,10 @@ def harvest_pools_rewards(pool_name, amount=0):
         abi = json.loads(ABI.read())
         contract = w3.eth.contract(address=assets_balances[pool_name]["harvest_CA"], abi=abi)
         harvest_amount = amount / 10 ** 9  # GOB has 9 decimals
-        harvest_tx = contract.functions.unstake(int(harvest_amount), True).buildTransaction(
+        harvest_tx = contract.functions.unstake(int(harvest_amount), True).build_transaction(
             {'chainId': 10000,
              'from': portfolio_address,
-             'gasPrice': w3.toWei('1.05', 'gwei')
+             'gasPrice': w3.to_wei('1.05', 'gwei')
              })
         send_transaction(pool_name, harvest_tx)
         try:
@@ -971,10 +971,10 @@ def harvest_farms_rewards():
             abi = json.loads(ABI.read())
             contract = w3.eth.contract(address=farms[DEX]['factory'], abi=abi)
             for i in range(len(farms[DEX]['farms'])):
-                harvest_tx = contract.functions.deposit(farms[DEX]['farms'][i]['pool_id'], 0).buildTransaction(
+                harvest_tx = contract.functions.deposit(farms[DEX]['farms'][i]['pool_id'], 0).build_transaction(
                     {'chainId': 10000,
                      'from': portfolio_address,
-                     'gasPrice': w3.toWei('1.05', 'gwei')
+                     'gasPrice': w3.to_wei('1.05', 'gwei')
                      })
                 send_transaction(farms[DEX]['farms'][i]["lp_CA"], harvest_tx)
         if DEX == "BlockNG-Kudos":
@@ -982,10 +982,10 @@ def harvest_farms_rewards():
             abi = json.loads(ABI.read())
             for i in range(len(farms[DEX]['farms'])):
                 contract = w3.eth.contract(address=farms[DEX]["farms"][i]["CA"], abi=abi)
-                harvest_tx = contract.functions.getReward(portfolio_address, [assets_balances["LAW"]["CA"]]).buildTransaction(
+                harvest_tx = contract.functions.getReward(portfolio_address, [assets_balances["LAW"]["CA"]]).build_transaction(
                     {'chainId': 10000,
                      'from': portfolio_address,
-                     'gasPrice': w3.toWei('1.05', 'gwei')
+                     'gasPrice': w3.to_wei('1.05', 'gwei')
                      })
                 send_transaction(f"Harvesting BlockNG Kudos farm {farms[DEX]['farms'][i]['lp_CA']}", harvest_tx)
 
@@ -995,10 +995,10 @@ def harvest_tango_sidx_farm(*account):
     ABI = open("ABIs/MIST-Master-ABI.json", "r")
     abi = json.loads(ABI.read())
     contract = w3.eth.contract(address="0x38cC060DF3a0498e978eB756e44BD43CC4958aD9", abi=abi)
-    harvest_tx = contract.functions.deposit(32, 0).buildTransaction(
+    harvest_tx = contract.functions.deposit(32, 0).build_transaction(
         {'chainId': 10000,
          'from': address,
-         'gasPrice': w3.toWei('1.05', 'gwei')
+         'gasPrice': w3.to_wei('1.05', 'gwei')
          })
     send_transaction("Harvesting SIDX/BCH farm on Tango", harvest_tx, *account)
     # Then, get the Tango amount harvested
@@ -1020,10 +1020,10 @@ def harvest_tango_sidx_farm(*account):
     ABI = open("ABIs/MIST-Master-ABI.json", "r")
     abi = json.loads(ABI.read())
     contract = w3.eth.contract(address="0x38cC060DF3a0498e978eB756e44BD43CC4958aD9", abi=abi)
-    deposit_tx = contract.functions.deposit(32, LP_balance).buildTransaction(
+    deposit_tx = contract.functions.deposit(32, LP_balance).build_transaction(
         {'chainId': 10000,
          'from': address,
-         'gasPrice': w3.toWei('1.05', 'gwei')
+         'gasPrice': w3.to_wei('1.05', 'gwei')
          })
     send_transaction(f"Depositing {LP_balance / 10**18} SIDX/WBCH LP tokens to TangoSwap farm", deposit_tx, *account)
 
@@ -1033,10 +1033,10 @@ def harvest_sidx_ember_farm(*account):
     ABI = open("ABIs/EMBER_Distributor-ABI.json", "r")
     abi = json.loads(ABI.read())
     contract = w3.eth.contract(address="0x8ecb32C33AB3f7ee3D6Ce9D4020bC53fecB36Be9", abi=abi)
-    harvest_tx = contract.functions.deposit(31, 0).buildTransaction(
+    harvest_tx = contract.functions.deposit(31, 0).build_transaction(
         {'chainId': 10000,
          'from': address,
-         'gasPrice': w3.toWei('1.05', 'gwei')
+         'gasPrice': w3.to_wei('1.05', 'gwei')
          })
     send_transaction("Harvesting SIDX/EMBER farm on Emberswap", harvest_tx, *account)
     # Then, get the Ember amount harvested
@@ -1058,10 +1058,10 @@ def harvest_sidx_ember_farm(*account):
     ABI = open("ABIs/EMBER_Distributor-ABI.json", "r")
     abi = json.loads(ABI.read())
     contract = w3.eth.contract(address="0x8ecb32C33AB3f7ee3D6Ce9D4020bC53fecB36Be9", abi=abi)
-    deposit_tx = contract.functions.deposit(31, LP_balance).buildTransaction(
+    deposit_tx = contract.functions.deposit(31, LP_balance).build_transaction(
         {'chainId': 10000,
          'from': address,
-         'gasPrice': w3.toWei('1.05', 'gwei')
+         'gasPrice': w3.to_wei('1.05', 'gwei')
          })
     send_transaction(f"Depositing {LP_balance / 10**18} SIDX/EMBER LP tokens to EmberSwap farm", deposit_tx, *account)
 
@@ -1070,10 +1070,10 @@ def harvest_sidx_law_farm():
     ABI = open("ABIs/BlockNG-farm.json", "r")
     abi = json.loads(ABI.read())
     contract = w3.eth.contract(address="0x3384d970688f7B86a8D7aE6D8670CD5f9fd5fE1E", abi=abi)
-    harvest_tx = contract.functions.getReward(portfolio_address, [assets_balances["LAW"]["CA"]]).buildTransaction(
+    harvest_tx = contract.functions.getReward(portfolio_address, [assets_balances["LAW"]["CA"]]).build_transaction(
         {'chainId': 10000,
          'from': portfolio_address,
-         'gasPrice': w3.toWei('1.05', 'gwei')
+         'gasPrice': w3.to_wei('1.05', 'gwei')
          })
     send_transaction("Harvesting BlockNG Kudos SIDX/LAW farm ", harvest_tx)
     # Then, get the total LAW available in the account (farms have been previously farmed), swap half for SIDX and add liquidity
@@ -1095,10 +1095,10 @@ def harvest_sidx_law_farm():
     abi = json.loads(ABI.read())
     contract = w3.eth.contract(address="0x3384d970688f7B86a8D7aE6D8670CD5f9fd5fE1E", abi=abi)
     tokenId = contract.functions.tokenIds(portfolio_address).call()
-    deposit_tx = contract.functions.deposit(LP_balance, int(tokenId)).buildTransaction(
+    deposit_tx = contract.functions.deposit(LP_balance, int(tokenId)).build_transaction(
         {'chainId': 10000,
          'from': portfolio_address,
-         'gasPrice': w3.toWei('1.05', 'gwei')
+         'gasPrice': w3.to_wei('1.05', 'gwei')
          })
     send_transaction(
         f"Depositing {LP_balance / 10**18} LP tokens to BlockNG-Kudos SIDX/LAW farm", deposit_tx)
@@ -1207,10 +1207,10 @@ def swap_assets(asset_in, asset_out, amount, *account):
     # Last, we'll construct the swap TX
     deadline = round(time()) + 60  # Added 60 sec to the current time
     minAmount = int(expected_return * 0.975) #Slippage tolerance 2.5%
-    swap_tx = contract.functions.swap(asset_in, asset_out, int(amount), minAmount, distribution, 0, deadline, 500000000000000).buildTransaction(
+    swap_tx = contract.functions.swap(asset_in, asset_out, int(amount), minAmount, distribution, 0, deadline, 500000000000000).build_transaction(
         {'chainId': 10000,
          'from': address,
-         'gasPrice': w3.toWei('1.05', 'gwei')
+         'gasPrice': w3.to_wei('1.05', 'gwei')
          })
     identifier = f"Swap {amount} {asset_in} for {asset_out} in account {address}"
     receipt = send_transaction(identifier, swap_tx, *account)
@@ -1234,10 +1234,10 @@ def asset_allowance(token_CA, spender, *account, amount="all"):
     else:
         if amount == "all":
             amount = contract.functions.totalSupply().call()
-        allowance_tx = contract.functions.approve(spender, amount).buildTransaction(
+        allowance_tx = contract.functions.approve(spender, amount).build_transaction(
             {'chainId': 10000,
              'from': address,
-             'gasPrice': w3.toWei('1.05', 'gwei')
+             'gasPrice': w3.to_wei('1.05', 'gwei')
              })
         send_transaction(f"Approving {token_CA} to be spent by {spender} in account {address}", allowance_tx, *account)
 
@@ -1287,10 +1287,10 @@ def add_liquidity(tokens_dictionary, LP_CA, router, *account, min_amount_percent
     abi = json.loads(ABI.read())
     contract = w3.eth.contract(address=router, abi=abi)
     deadline = int(time()) + 60
-    add_liquidity_tx = contract.functions.addLiquidity(tokens_dictionary["token0"]["CA"], tokens_dictionary["token1"]["CA"], tokens_dictionary["token0"]["amount"], tokens_dictionary["token1"]["amount"], token0_min_amount, token1_min_amount, address, deadline).buildTransaction(
+    add_liquidity_tx = contract.functions.addLiquidity(tokens_dictionary["token0"]["CA"], tokens_dictionary["token1"]["CA"], tokens_dictionary["token0"]["amount"], tokens_dictionary["token1"]["amount"], token0_min_amount, token1_min_amount, address, deadline).build_transaction(
         {'chainId': 10000,
          'from': address,
-         'gasPrice': w3.toWei('1.05', 'gwei')
+         'gasPrice': w3.to_wei('1.05', 'gwei')
          })
     receipt = send_transaction(f"Adding liquidity: at least {token0_min_amount} of {tokens_dictionary['token0']['CA']} and {token1_min_amount} of {tokens_dictionary['token1']['CA']} in account {address}", add_liquidity_tx, *account)
     if receipt:
@@ -1330,10 +1330,10 @@ def remove_liquidity(percentage_to_withdraw, LP_CA, router, *account, min_amount
     abi = json.loads(ABI.read())
     contract = w3.eth.contract(address=router, abi=abi)
     deadline = int(time()) + 60
-    remove_liquidity_tx = contract.functions.removeLiquidity(token0_address, token1_address, int(amount_to_withdraw), token0_min_amount, token1_min_amount, address, deadline).buildTransaction(
+    remove_liquidity_tx = contract.functions.removeLiquidity(token0_address, token1_address, int(amount_to_withdraw), token0_min_amount, token1_min_amount, address, deadline).build_transaction(
         {'chainId': 10000,
          'from': address,
-         'gasPrice': w3.toWei('1.05', 'gwei')
+         'gasPrice': w3.to_wei('1.05', 'gwei')
          })
     receipt = send_transaction(f"Removing liquidity: at least {token0_min_amount} of {token0_address} and {token1_min_amount} of {token1_address} in account {address}", remove_liquidity_tx, *account)
     if receipt:
@@ -1354,11 +1354,11 @@ def wrap_BCH(amount, *account):
     ABI = open("ABIs/WBCH-ABI.json", "r")
     abi = json.loads(ABI.read())
     contract = w3.eth.contract(address=WBCH_CA, abi=abi)
-    wrap_bch_tx = contract.functions.deposit().buildTransaction(
+    wrap_bch_tx = contract.functions.deposit().build_transaction(
         {'chainId': 10000,
          'from': address,
          'value': amount,
-         'gasPrice': w3.toWei('1.05', 'gwei')
+         'gasPrice': w3.to_wei('1.05', 'gwei')
          })
     send_transaction(f'Wrapping {amount} BCH from account {address}', wrap_bch_tx, *account)
 
@@ -1372,10 +1372,10 @@ def unwrap_BCH(amount, *account):
     ABI = open("ABIs/WBCH-ABI.json", "r")
     abi = json.loads(ABI.read())
     contract = w3.eth.contract(address=WBCH_CA, abi=abi)
-    unwrap_bch_tx = contract.functions.withdraw(int(amount)).buildTransaction(
+    unwrap_bch_tx = contract.functions.withdraw(int(amount)).build_transaction(
         {'chainId': 10000,
          'from': address,
-         'gasPrice': w3.toWei('1.05', 'gwei')
+         'gasPrice': w3.to_wei('1.05', 'gwei')
          })
     send_transaction(f'Unwrapping {amount} BCH from account {address}', unwrap_bch_tx, *account)
 
@@ -1409,10 +1409,10 @@ def transfer_asset(asset, amount, destination, *account):
     ABI = open("ABIs/ERC20-ABI.json", "r")  # Standard ABI for ERC20 tokens
     abi = json.loads(ABI.read())
     contract = w3.eth.contract(address=asset, abi=abi)
-    transfer_tx = contract.functions.transfer(destination, int(amount)).buildTransaction(
+    transfer_tx = contract.functions.transfer(destination, int(amount)).build_transaction(
         {'chainId': 10000,
          'from': address,
-         'gasPrice': w3.toWei('1.05', 'gwei')
+         'gasPrice': w3.to_wei('1.05', 'gwei')
          })
     send_transaction(f'Transfer {amount} of token {asset} from account {address}', transfer_tx, *account)
 
@@ -1422,9 +1422,9 @@ def transfer_gas(amount, recipient, *account):
     transfer_tx = w3.eth.account.signTransaction(dict(
         nonce=w3.eth.getTransactionCount(address),
         to=recipient,
-        gasPrice=w3.toWei('1.05', 'gwei'),
+        gasPrice=w3.to_wei('1.05', 'gwei'),
         gas=100000,
-        value=w3.toWei(amount/10**18, 'ether')
+        value=w3.to_wei(amount/10**18, 'ether')
     ),
         private_key)
     try:
@@ -1441,7 +1441,7 @@ def transfer_gas(amount, recipient, *account):
             transfer_tx = w3.eth.account.signTransaction(dict(
                 nonce=w3.eth.getTransactionCount(address),
                 to=recipient,
-                value=w3.toWei(amount, 'ether')
+                value=w3.to_wei(amount, 'ether')
             ),
                 private_key)
             try:
