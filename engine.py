@@ -1215,7 +1215,7 @@ def swap_assets(asset_in, asset_out, amount, *account):
     identifier = f"Swap {amount} {asset_in} for {asset_out} in account {address}"
     receipt = send_transaction(identifier, swap_tx, *account)
     if receipt:
-        swapped_event = contract.events.Swapped().processReceipt(receipt)
+        swapped_event = contract.events.Swapped().process_receipt(receipt)
         logger.info(
             f'Token swap: from {swapped_event[0]["args"]["fromTokenAmount"]} of token {swapped_event[0]["args"]["fromToken"]} to {swapped_event[0]["args"]["destTokenAmount"]} of token {swapped_event[0]["args"]["destToken"]}')
         return swapped_event[0]["args"]["destTokenAmount"]
@@ -1297,7 +1297,7 @@ def add_liquidity(tokens_dictionary, LP_CA, router, *account, min_amount_percent
         ABI = open("ABIs/UniswapV2Pair.json", "r")
         abi = json.loads(ABI.read())
         contract = w3.eth.contract(address=LP_CA, abi=abi)
-        addLiquidity_event = contract.events.Mint().processReceipt(receipt)
+        addLiquidity_event = contract.events.Mint().process_receipt(receipt)
         logger.info(f'Liquidity added: {addLiquidity_event[0]["args"]["amount0"] / 10**18} of token0 and {addLiquidity_event[0]["args"]["amount1"] / 10**18} of token1')
 
 def remove_liquidity(percentage_to_withdraw, LP_CA, router, *account, min_amount_percentage=1):
@@ -1340,7 +1340,7 @@ def remove_liquidity(percentage_to_withdraw, LP_CA, router, *account, min_amount
         ABI = open("ABIs/UniswapV2Pair.json", "r")
         abi = json.loads(ABI.read())
         contract = w3.eth.contract(address=LP_CA, abi=abi)
-        burnLiquidity_event = contract.events.Burn().processReceipt(receipt)
+        burnLiquidity_event = contract.events.Burn().process_receipt(receipt)
         logger.info(f'Liquidity removed: {burnLiquidity_event[0]["args"]["amount0"]} of token0 and {burnLiquidity_event[0]["args"]["amount1"]} of token1')
         return token0_address, burnLiquidity_event[0]["args"]["amount0"], token1_address, burnLiquidity_event[0]["args"]["amount1"]
 

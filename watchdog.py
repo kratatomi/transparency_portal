@@ -1359,7 +1359,7 @@ def main():
     for i in range(len(logs)):
         tx_hash = logs[i].transactionHash
         receipt = w3.eth.getTransactionReceipt(tx_hash)
-        transfer = contract.events.Transfer().processReceipt(receipt)
+        transfer = contract.events.Transfer().process_receipt(receipt)
         if transfer[0].args.to == ETF_watchdog_address:
             if tx_hash not in ETF_investors_transfers["withdrawals"]:
                 ETF_investors_transfers["withdrawals"].append(tx_hash)

@@ -42,7 +42,7 @@ def get_liquidity_pools():
         for i in range(len(logs)):
             tx_hash = logs[i].transactionHash
             receipt = w3.eth.getTransactionReceipt(tx_hash)
-            pair = factory_contract.events.PairCreated().processReceipt(receipt)
+            pair = factory_contract.events.PairCreated().process_receipt(receipt)
             if pair[0].args.token0 == target_token_address or pair[0].args.token1 == target_token_address:
                 LP_CA_list.append(pair[0].args.pair)
 
