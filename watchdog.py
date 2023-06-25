@@ -1263,7 +1263,7 @@ def main():
         stop_watchdog()
         return
 
-    latest_block_number = w3.eth.blockNumber
+    latest_block_number = w3.eth.block_number
     new_incoming_txs = SBCH()
     new_incoming_txs.queryTxByDst(ETF_watchdog_address, ETF_investors_transfers["latest_scanned_block"], end=latest_block_number)
     if len(new_incoming_txs.response['result']) != 0:
