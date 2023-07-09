@@ -933,7 +933,7 @@ def send_transaction(identifier, tx,*account):
     signed_txn = w3.eth.account.sign_transaction(tx, private_key=private_key)
     try:
         TXID = w3.eth.send_raw_transaction(signed_txn.rawTransaction)
-    except exceptions.SolidityError as error:
+    except exceptions.ContractLogicError as error:
         logger.error(f'TX reverted. Identifier is {identifier}, error: {error}')
     except Exception as e:
         # Let's check if it's a problem related with the TX nonce
@@ -946,7 +946,7 @@ def send_transaction(identifier, tx,*account):
             signed_txn = w3.eth.account.sign_transaction(tx, private_key=private_key)
             try:
                 TXID = w3.eth.send_raw_transaction(signed_txn.rawTransaction)
-            except exceptions.SolidityError as error:
+            except exceptions.ContractLogicError as error:
                 logger.error(f'TX reverted. Identifier is {identifier}, error: {error}')
             except Exception as e:
                 logger.error(f'TX failed to sent, error is {e}. Identifier is {identifier}')
@@ -1429,7 +1429,7 @@ def transfer_gas(amount, recipient, *account):
         private_key)
     try:
         TXID = w3.eth.send_raw_transaction(transfer_tx.rawTransaction)
-    except exceptions.SolidityError as error:
+    except exceptions.ContractLogicError as error:
         logger.error(f'TX reverted when sending gas to {recipient}. Error: {error}')
     except Exception as e:
         # Let's check if it's a problem related with the TX nonce
@@ -1446,7 +1446,7 @@ def transfer_gas(amount, recipient, *account):
                 private_key)
             try:
                 TXID = w3.eth.send_raw_transaction(transfer_tx.rawTransaction)
-            except exceptions.SolidityError as error:
+            except exceptions.ContractLogicError as error:
                 logger.error(f'TX reverted while transfering gas. Error: {error}')
             except Exception as e:
                 logger.error(f'TX reverted while transfering gas. Error: {e}')
