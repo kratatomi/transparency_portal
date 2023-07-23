@@ -175,7 +175,7 @@ def login():
 
     original_message = 'Signing in to {} at {}'.format(domain, sortanow)
     message_hash = defunct_hash_message(text=original_message)
-    signer = w3.eth.account.recoverHash(message_hash, signature=signature)
+    signer = w3.eth.account._recover_hash(message_hash, signature=signature)
 
     if signer == public_address:
         if db.session.query(Users).filter(Users.public_address == signer).first() is None:
