@@ -317,11 +317,6 @@ def take_weekly_yields(stacked_assets, farms):
         logger.error(f'Function harvest_tango_sidx_farm failed. Exception: {e}')
 
     try:
-        engine.harvest_sidx_ember_farm(engine.portfolio_address, 'PORTFOLIO_PRIV_KEY')
-    except Exception as e:
-        logger.error(f'Function harvest_sidx_ember_farm failed. Exception: {e}')
-
-    try:
         engine.harvest_sidx_law_farm()
     except Exception as e:
         logger.error(f'Function harvest_sidx_law_farm failed. Exception: {e}')
