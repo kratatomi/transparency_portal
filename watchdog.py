@@ -1358,7 +1358,7 @@ def main():
     contract = w3.eth.contract(address=ETF_SIDX_CA, abi=abi)
     for i in range(len(logs)):
         tx_hash = logs[i].transactionHash
-        receipt = w3.eth.getTransactionReceipt(tx_hash)
+        receipt = w3.eth.get_transaction_receipt(tx_hash)
         transfer = contract.events.Transfer().process_receipt(receipt)
         if transfer[0].args.to == ETF_watchdog_address:
             if tx_hash not in ETF_investors_transfers["withdrawals"]:
@@ -1416,14 +1416,14 @@ def main():
                     engine.main()
                 except SingleInstanceException:
                     # This happens if the cron task is running engine.main()
-                    logger.error('Single class exception found while running the engine, trying after 90 seconds.')
+                    logger.error('Single class exception found while running the engine, trying after 300 seconds.')
                     from time import sleep
-                    sleep(90)
+                    sleep(300)
                     engine.main()
                 except Exception as e:
-                    logger.error('Exception found while the watchdog ran the engine, trying after 90 seconds.')
+                    logger.error('Exception found while the watchdog ran the engine, trying after 300 seconds.')
                     from time import sleep
-                    sleep(90)
+                    sleep(300)
                     engine.main()
 
     ETF_investors_transfers["latest_scanned_block"] = latest_block_number
