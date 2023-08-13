@@ -84,9 +84,9 @@ assets_balances = {
 }
 
 initial_pool_balances = {
-    "Mistswap": {"CA": "0x7E1B9F1e286160A80ab9B04D228C02583AeF90B5", "token0": 8.8943, "token1": 18591.01},
-    "BlockNG": {"CA": "0x1CD36D9dEd958366d17DfEdD91b5F8e682D7f914", "token0": 4044.34, "token1": 5213.92},
-    "Tangoswap": {"CA": "0x4509Ff66a56cB1b80a6184DB268AD9dFBB79DD53", "token0": 5.1156, "token1": 2318.18}
+    "Mistswap": {"CA": "0x7E1B9F1e286160A80ab9B04D228C02583AeF90B5", "token0": 8.8974, "token1": 18598.98},
+    "BlockNG": {"CA": "0x1CD36D9dEd958366d17DfEdD91b5F8e682D7f914", "token0": 4062.76, "token1": 5238.75},
+    "Tangoswap": {"CA": "0x4509Ff66a56cB1b80a6184DB268AD9dFBB79DD53", "token0": 5.1192, "token1": 2327.62}
     # Token0 is WBCH/LAW, Token1 is SIDX
 }
 
