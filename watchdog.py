@@ -833,7 +833,7 @@ def reallocate_rewards():
 
     # Next step: sell all reward tokens for WBCH
     assets_balances = engine.assets_balances
-    reward_tokens = ["MistToken", "Tango", "LAW", "Ember Token"]
+    reward_tokens = ["MistToken", "Tango", "LAW"]
     for token in reward_tokens:
         token_amount = engine.get_SEP20_balance(assets_balances[token]["CA"], ETF_portfolio_address)
         engine.swap_assets(assets_balances[token]["CA"], engine.WBCH_CA, int(token_amount),
