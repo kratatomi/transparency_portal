@@ -914,8 +914,6 @@ def send_transaction(identifier, tx,*account):
     else:
         address, priv_key_env = account
     import os
-    tx['gas'] *= 1.5
-    tx['gas'] = int(tx['gas']) # Decimals removed
     nonce = w3.eth.get_transaction_count(address)
     tx['nonce'] = nonce
     private_key = os.environ.get(priv_key_env)
