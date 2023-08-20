@@ -281,7 +281,7 @@ def generate_graphs():
     with open('data/assets_statistics.json', 'w') as file:
         json.dump(assets_statistics, file, indent=4)
 
-def take_weekly_yields(stacked_assets, farms):
+def take_weekly_yields(stacked_assets, farms, is_first_sunday):
     import engine, watchdog
     # Watchdog is stopped to avoid interferences
     watchdog.stop_watchdog()
@@ -312,8 +312,7 @@ def take_weekly_yields(stacked_assets, farms):
                            amount_to_swap)
 
     #From now, liquidity will only be added the first Sunday of the month. Other Sundays, SIDX liquidity farms will just be harvested manually.
-    today = date.today()
-    if today.weekday() == 6 and 1 <= today.day <= 7:
+    if is_first_sunday == True:
         try:
             engine.harvest_tango_sidx_farm(engine.portfolio_address, 'PORTFOLIO_PRIV_KEY')
         except Exception as e:
@@ -336,8 +335,14 @@ def manual_take_weekly_yields():
         stacked_assets = json.load(stacked_assets_file)
     with open('data/FARMS.json') as farms_file:
         farms = json.load(farms_file)
-    take_weekly_yields(stacked_assets, farms)
+    is_first_sunday = is_first_sunday()
+    take_weekly_yields(stacked_assets, farms, is_first_sunday)
 
+def is_first_sunday():
+    today = date.today()
+    if today.weekday() == 6 and 1 <= today.day <= 7:
+        return True
+    return False
 
 def main():
     with open('data/SIDX_STATS.json') as sidx_stats_file:
@@ -375,8 +380,11 @@ def main():
     from engine import portfolio_address, connect_to_smartbch
     w3 = connect_to_smartbch()
     portfolio_gas_balance = w3.eth.get_balance(portfolio_address)
-    if portfolio_gas_balance >= 8500000000000000:
-        take_weekly_yields(stacked_assets, farms)
+    is_first_sunday = is_first_sunday()
+    if is_first_sunday and portfolio_gas_balance >= 8500000000000000:
+        take_weekly_yields(stacked_assets, farms, is_first_sunday)
+    elif not is_first_sunday and portfolio_gas_balance >= 0.0027 * 10**18:
+        take_weekly_yields(stacked_assets, farms, is_first_sunday)
     else:
         logger.error(f'Cannot take weekly yields as portfolio BCH balance is {portfolio_gas_balance/10**18}. Please top-up.')
 
