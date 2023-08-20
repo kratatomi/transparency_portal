@@ -311,15 +311,18 @@ def take_weekly_yields(stacked_assets, farms):
         engine.swap_assets("0x5fA664f69c2A4A3ec94FaC3cBf7049BD9CA73129", "0xBc2F884680c95A02cea099dA2F524b366d9028Ba",
                            amount_to_swap)
 
-    try:
-        engine.harvest_tango_sidx_farm(engine.portfolio_address, 'PORTFOLIO_PRIV_KEY')
-    except Exception as e:
-        logger.error(f'Function harvest_tango_sidx_farm failed. Exception: {e}')
+    #From now, liquidity will only be added the first Sunday of the month. Other Sundays, SIDX liquidity farms will just be harvested manually.
+    today = date.today()
+    if today.weekday() == 6 and 1 <= today.day <= 7:
+        try:
+            engine.harvest_tango_sidx_farm(engine.portfolio_address, 'PORTFOLIO_PRIV_KEY')
+        except Exception as e:
+            logger.error(f'Function harvest_tango_sidx_farm failed. Exception: {e}')
 
-    try:
-        engine.harvest_sidx_law_farm()
-    except Exception as e:
-        logger.error(f'Function harvest_sidx_law_farm failed. Exception: {e}')
+        try:
+            engine.harvest_sidx_law_farm()
+        except Exception as e:
+            logger.error(f'Function harvest_sidx_law_farm failed. Exception: {e}')
 
     # Watchdog is resumed
     with open('data/ETF_investors_transfers.json') as etf_investors_transfers_file:
