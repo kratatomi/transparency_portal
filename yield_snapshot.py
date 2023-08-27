@@ -352,7 +352,7 @@ def manual_take_weekly_yields():
     with open('data/FARMS.json') as farms_file:
         farms = json.load(farms_file)
     first_sunday = is_first_sunday()
-    take_weekly_yields(stacked_assets, farms, is_first_sunday)
+    take_weekly_yields(stacked_assets, farms, first_sunday)
 
 def main():
     with open('data/SIDX_STATS.json') as sidx_stats_file:
