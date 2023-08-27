@@ -986,7 +986,7 @@ def harvest_farms_rewards():
                      })
                 send_transaction(f"Harvesting BlockNG Kudos farm {farms[DEX]['farms'][i]['lp_CA']}", harvest_tx)
 
-def harvest_tango_sidx_farm(is_first_sunday=False, *account):
+def harvest_tango_sidx_farm(*account, is_first_sunday=False):
     address, priv_key_env = account
     # Harvest SIDX/BCH farm on Tangoswap
     ABI = open("ABIs/MIST-Master-ABI.json", "r")
