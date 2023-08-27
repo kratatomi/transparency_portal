@@ -986,7 +986,7 @@ def harvest_farms_rewards():
                      })
                 send_transaction(f"Harvesting BlockNG Kudos farm {farms[DEX]['farms'][i]['lp_CA']}", harvest_tx)
 
-def harvest_tango_sidx_farm(*account):
+def harvest_tango_sidx_farm(is_first_sunday=False, *account):
     address, priv_key_env = account
     # Harvest SIDX/BCH farm on Tangoswap
     ABI = open("ABIs/MIST-Master-ABI.json", "r")
@@ -998,31 +998,33 @@ def harvest_tango_sidx_farm(*account):
          'gasPrice': w3.to_wei('1.05', 'gwei')
          })
     send_transaction("Harvesting SIDX/BCH farm on Tango", harvest_tx, *account)
-    # Then, get the Tango amount harvested
-    tango_CA = "0x73BE9c8Edf5e951c9a0762EA2b1DE8c8F38B5e91"
-    tango_amount = int(get_SEP20_balance(tango_CA, address))
-    LP_CA = "0x4509Ff66a56cB1b80a6184DB268AD9dFBB79DD53"
-    tokens_dictionary = buy_assets_for_liquidty_addition(tango_amount, tango_CA, LP_CA, *account)
-    tango_router = "0xb93184fB3eEDb4d32150763578cA305488240c8e"
-    add_liquidity(tokens_dictionary, LP_CA, tango_router, *account)
-    # Time to check the LP tokens balance
-    ABI = open("ABIs/UniswapV2Pair.json", "r")
-    abi = json.loads(ABI.read())
-    contract = w3.eth.contract(address=LP_CA, abi=abi)
-    LP_balance = int(contract.functions.balanceOf(address).call())
-    if LP_balance == 0:
-        logger.error(f'No liquidity to add to SIDX/BCH Tango farm. LP balance is 0.')
-        return
-    # Finally, LP tokens are deposited on the farm
-    ABI = open("ABIs/MIST-Master-ABI.json", "r")
-    abi = json.loads(ABI.read())
-    contract = w3.eth.contract(address="0x38cC060DF3a0498e978eB756e44BD43CC4958aD9", abi=abi)
-    deposit_tx = contract.functions.deposit(32, LP_balance).build_transaction(
-        {'chainId': 10000,
-         'from': address,
-         'gasPrice': w3.to_wei('1.05', 'gwei')
-         })
-    send_transaction(f"Depositing {LP_balance / 10**18} SIDX/WBCH LP tokens to TangoSwap farm", deposit_tx, *account)
+    if is_first_sunday == True:
+        # First Sunday of the month, liquidity is added to the pool
+        # Then, get the Tango amount harvested
+        tango_CA = "0x73BE9c8Edf5e951c9a0762EA2b1DE8c8F38B5e91"
+        tango_amount = int(get_SEP20_balance(tango_CA, address))
+        LP_CA = "0x4509Ff66a56cB1b80a6184DB268AD9dFBB79DD53"
+        tokens_dictionary = buy_assets_for_liquidty_addition(tango_amount, tango_CA, LP_CA, *account)
+        tango_router = "0xb93184fB3eEDb4d32150763578cA305488240c8e"
+        add_liquidity(tokens_dictionary, LP_CA, tango_router, *account)
+        # Time to check the LP tokens balance
+        ABI = open("ABIs/UniswapV2Pair.json", "r")
+        abi = json.loads(ABI.read())
+        contract = w3.eth.contract(address=LP_CA, abi=abi)
+        LP_balance = int(contract.functions.balanceOf(address).call())
+        if LP_balance == 0:
+            logger.error(f'No liquidity to add to SIDX/BCH Tango farm. LP balance is 0.')
+            return
+        # Finally, LP tokens are deposited on the farm
+        ABI = open("ABIs/MIST-Master-ABI.json", "r")
+        abi = json.loads(ABI.read())
+        contract = w3.eth.contract(address="0x38cC060DF3a0498e978eB756e44BD43CC4958aD9", abi=abi)
+        deposit_tx = contract.functions.deposit(32, LP_balance).build_transaction(
+            {'chainId': 10000,
+             'from': address,
+             'gasPrice': w3.to_wei('1.05', 'gwei')
+             })
+        send_transaction(f"Depositing {LP_balance / 10**18} SIDX/WBCH LP tokens to TangoSwap farm", deposit_tx, *account)
 
 def harvest_sidx_ember_farm(*account):
     address, priv_key_env = account
@@ -1062,7 +1064,7 @@ def harvest_sidx_ember_farm(*account):
          })
     send_transaction(f"Depositing {LP_balance / 10**18} SIDX/EMBER LP tokens to EmberSwap farm", deposit_tx, *account)
 
-def harvest_sidx_law_farm():
+def harvest_sidx_law_farm(is_first_sunday=False):
     # Harvest SIDX/LAW farm on BlockNG Kudos, on the portfolio wallet
     ABI = open("ABIs/BlockNG-farm.json", "r")
     abi = json.loads(ABI.read())
@@ -1073,32 +1075,34 @@ def harvest_sidx_law_farm():
          'gasPrice': w3.to_wei('1.05', 'gwei')
          })
     send_transaction("Harvesting BlockNG Kudos SIDX/LAW farm ", harvest_tx)
-    # Then, get the total LAW available in the account (farms have been previously farmed), swap half for SIDX and add liquidity
-    LAW_amount = int(get_SEP20_balance(assets_balances["LAW"]["CA"], portfolio_address))
-    LP_CA = initial_pool_balances["BlockNG"]["CA"]
-    tokens_dictionary = buy_assets_for_liquidty_addition(LAW_amount, assets_balances["LAW"]["CA"], LP_CA)
-    BlockNG_router = "0xD301b5334912190493fa798Cf796440Cd9B33DB1"
-    add_liquidity(tokens_dictionary, LP_CA, BlockNG_router)
-    # Time to check the LP tokens balance
-    ABI = open("ABIs/UniswapV2Pair.json", "r")
-    abi = json.loads(ABI.read())
-    contract = w3.eth.contract(address=LP_CA, abi=abi)
-    LP_balance = int(contract.functions.balanceOf(portfolio_address).call())
-    if LP_balance == 0:
-        logger.error(f'No liquidity to add to SIDX/LAW farm. LP balance is 0.')
-        return
-    # Finally, LP tokens are deposited on the farm
-    ABI = open("ABIs/BlockNG-farm.json", "r")
-    abi = json.loads(ABI.read())
-    contract = w3.eth.contract(address="0x3384d970688f7B86a8D7aE6D8670CD5f9fd5fE1E", abi=abi)
-    tokenId = contract.functions.tokenIds(portfolio_address).call()
-    deposit_tx = contract.functions.deposit(LP_balance, int(tokenId)).build_transaction(
-        {'chainId': 10000,
-         'from': portfolio_address,
-         'gasPrice': w3.to_wei('1.05', 'gwei')
-         })
-    send_transaction(
-        f"Depositing {LP_balance / 10**18} LP tokens to BlockNG-Kudos SIDX/LAW farm", deposit_tx)
+    if is_first_sunday == True:
+        # First Sunday of the month, liquidity is added to the pool
+        # Then, get the total LAW available in the account (farms have been previously farmed), swap half for SIDX and add liquidity
+        LAW_amount = int(get_SEP20_balance(assets_balances["LAW"]["CA"], portfolio_address))
+        LP_CA = initial_pool_balances["BlockNG"]["CA"]
+        tokens_dictionary = buy_assets_for_liquidty_addition(LAW_amount, assets_balances["LAW"]["CA"], LP_CA)
+        BlockNG_router = "0xD301b5334912190493fa798Cf796440Cd9B33DB1"
+        add_liquidity(tokens_dictionary, LP_CA, BlockNG_router)
+        # Time to check the LP tokens balance
+        ABI = open("ABIs/UniswapV2Pair.json", "r")
+        abi = json.loads(ABI.read())
+        contract = w3.eth.contract(address=LP_CA, abi=abi)
+        LP_balance = int(contract.functions.balanceOf(portfolio_address).call())
+        if LP_balance == 0:
+            logger.error(f'No liquidity to add to SIDX/LAW farm. LP balance is 0.')
+            return
+        # Finally, LP tokens are deposited on the farm
+        ABI = open("ABIs/BlockNG-farm.json", "r")
+        abi = json.loads(ABI.read())
+        contract = w3.eth.contract(address="0x3384d970688f7B86a8D7aE6D8670CD5f9fd5fE1E", abi=abi)
+        tokenId = contract.functions.tokenIds(portfolio_address).call()
+        deposit_tx = contract.functions.deposit(LP_balance, int(tokenId)).build_transaction(
+            {'chainId': 10000,
+             'from': portfolio_address,
+             'gasPrice': w3.to_wei('1.05', 'gwei')
+             })
+        send_transaction(
+            f"Depositing {LP_balance / 10**18} LP tokens to BlockNG-Kudos SIDX/LAW farm", deposit_tx)
 
 def get_ETF_assets_allocation(farms, LP_balances):
     # SIDX liquidity pools (LP balances) must make up 25% of ETF portfolio (proposal #53)

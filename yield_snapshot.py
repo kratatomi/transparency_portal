@@ -314,12 +314,12 @@ def take_weekly_yields(stacked_assets, farms, is_first_sunday):
     #From now, liquidity will only be added the first Sunday of the month. Other Sundays, SIDX liquidity farms will just be harvested manually.
     if is_first_sunday == True:
         try:
-            engine.harvest_tango_sidx_farm(engine.portfolio_address, 'PORTFOLIO_PRIV_KEY')
+            engine.harvest_tango_sidx_farm(engine.portfolio_address, 'PORTFOLIO_PRIV_KEY', is_first_sunday=True)
         except Exception as e:
             logger.error(f'Function harvest_tango_sidx_farm failed. Exception: {e}')
 
         try:
-            engine.harvest_sidx_law_farm()
+            engine.harvest_sidx_law_farm(is_first_sunday=True)
         except Exception as e:
             logger.error(f'Function harvest_sidx_law_farm failed. Exception: {e}')
 
