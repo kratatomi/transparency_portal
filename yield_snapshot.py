@@ -390,11 +390,11 @@ def main():
     from engine import portfolio_address, connect_to_smartbch
     w3 = connect_to_smartbch()
     portfolio_gas_balance = w3.eth.get_balance(portfolio_address)
-    is_first_sunday = is_first_sunday()
+    first_sunday = is_first_sunday()
     if is_first_sunday and portfolio_gas_balance >= 8500000000000000:
-        take_weekly_yields(stacked_assets, farms, is_first_sunday)
+        take_weekly_yields(stacked_assets, farms, first_sunday)
     elif not is_first_sunday and portfolio_gas_balance >= 0.0027 * 10**18:
-        take_weekly_yields(stacked_assets, farms, is_first_sunday)
+        take_weekly_yields(stacked_assets, farms, first_sunday)
     else:
         logger.error(f'Cannot take weekly yields as portfolio BCH balance is {portfolio_gas_balance/10**18}. Please top-up.')
 
