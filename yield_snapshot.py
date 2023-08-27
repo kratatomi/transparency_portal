@@ -339,6 +339,12 @@ def take_weekly_yields(stacked_assets, farms, is_first_sunday):
     start_block = ETF_investors_transfers["latest_scanned_block"] + 1
     watchdog.start_watchdog(start_block)
 
+def is_first_sunday():
+    today = date.today()
+    if today.weekday() == 6 and 1 <= today.day <= 7:
+        return True
+    return False
+
 def manual_take_weekly_yields():
     # This function is called if scheduled take_weekly_yields failed due to lack of gas.
     with open('data/STACKED_ASSETS.json') as stacked_assets_file:
@@ -347,12 +353,6 @@ def manual_take_weekly_yields():
         farms = json.load(farms_file)
     is_first_sunday = is_first_sunday()
     take_weekly_yields(stacked_assets, farms, is_first_sunday)
-
-def is_first_sunday():
-    today = date.today()
-    if today.weekday() == 6 and 1 <= today.day <= 7:
-        return True
-    return False
 
 def main():
     with open('data/SIDX_STATS.json') as sidx_stats_file:
