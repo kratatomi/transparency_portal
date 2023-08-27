@@ -345,13 +345,13 @@ def is_first_sunday():
         return True
     return False
 
-def manual_take_weekly_yields(is_first_sunday=False):
+def manual_take_weekly_yields():
     # This function is called if scheduled take_weekly_yields failed due to lack of gas.
     with open('data/STACKED_ASSETS.json') as stacked_assets_file:
         stacked_assets = json.load(stacked_assets_file)
     with open('data/FARMS.json') as farms_file:
         farms = json.load(farms_file)
-    is_first_sunday = is_first_sunday()
+    first_sunday = is_first_sunday()
     take_weekly_yields(stacked_assets, farms, is_first_sunday)
 
 def main():
