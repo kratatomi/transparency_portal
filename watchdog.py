@@ -1084,7 +1084,7 @@ def reallocate_rewards():
                                     usd_value_sold += (ETF_farms[DEX]['farms'][i]['Total LP Value'] * 0.5)
 
             # Now, the corresponding value is removed from ETF farms
-            for DEX in ETF_farms: #KeyError: 'Tangoswap'
+            for DEX in withdrawal_dict:
                 if DEX in ("Mistswap", "Tangoswap"):
                     for i in range(len(ETF_farms[DEX]['farms'])):
                         ABI = open("ABIs/MIST-Master-ABI.json", "r")
@@ -1117,7 +1117,7 @@ def reallocate_rewards():
                         engine.swap_assets(token0_address, engine.WBCH_CA, token0_amount, *ETF_portfolio_account)
                         engine.swap_assets(token1_address, engine.WBCH_CA, token1_amount, *ETF_portfolio_account)
 
-                if DEX == "BlockNG-Kudos":
+                if DEX == "BlockNG-Kudos" and DEX in withdrawal_dict:
                     for i in range(len(ETF_farms[DEX]['farms'])):
                         ABI = open("ABIs/BlockNG-farm.json", "r")
                         abi = json.loads(ABI.read())
