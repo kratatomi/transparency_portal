@@ -860,7 +860,7 @@ def check_bch_balance(account, tx=None):
             return False
 
 
-def harvest_pools_rewards(pool_name, amount=0):
+def harvest_pools_rewards(pool_name, is_first_sunday, amount=0):
     if pool_name in {"Green Ben", "DAIQUIRI"}:
         ABI = open(f"ABIs/{assets_balances[pool_name]['harvest_ABI']}", "r")
         abi = json.loads(ABI.read())
@@ -871,7 +871,7 @@ def harvest_pools_rewards(pool_name, amount=0):
              'gasPrice': w3.to_wei('1.05', 'gwei')
              })
         send_transaction(pool_name, harvest_tx)
-        if pool_name == "Green Ben":
+        if pool_name == "Green Ben" and is_first_sunday:
             try:
                 swap_assets("0x77CB87b57F54667978Eb1B199b28a0db8C8E1c0B", "0x0000000000000000000000000000000000000000",
                             "all")
@@ -882,13 +882,14 @@ def harvest_pools_rewards(pool_name, amount=0):
         abi = json.loads(ABI.read())
         ratio = xsushi_ratio(assets_balances[pool_name]["CA"], assets_balances[pool_name]["BAR_CA"])
         amount_to_harvest = amount / ratio
-        contract = w3.eth.contract(address=assets_balances[pool_name]["BAR_CA"], abi=abi)
-        harvest_tx = contract.functions.leave(int(amount_to_harvest)).build_transaction(
-            {'chainId': 10000,
-             'from': portfolio_address,
-             'gasPrice': w3.to_wei('1.05', 'gwei')
-             })
-        send_transaction(pool_name, harvest_tx)
+        if amount_to_harvest > 0:
+            contract = w3.eth.contract(address=assets_balances[pool_name]["BAR_CA"], abi=abi)
+            harvest_tx = contract.functions.leave(int(amount_to_harvest)).build_transaction(
+                {'chainId': 10000,
+                 'from': portfolio_address,
+                 'gasPrice': w3.to_wei('1.05', 'gwei')
+                 })
+            send_transaction(pool_name, harvest_tx)
     if pool_name == "GOB":
         ABI = open(f"ABIs/{assets_balances[pool_name]['harvest_ABI']}", "r")
         abi = json.loads(ABI.read())
@@ -900,10 +901,11 @@ def harvest_pools_rewards(pool_name, amount=0):
              'gasPrice': w3.to_wei('1.05', 'gwei')
              })
         send_transaction(pool_name, harvest_tx)
-        try:
-            swap_assets("0x56381cB87C8990971f3e9d948939e1a95eA113a3", "0x0000000000000000000000000000000000000000", harvest_amount)
-        except Exception as e:
-            logger.error(f'Failed to swap GOB rewards to BCH. Exception: {e}')
+        if is_first_sunday:
+            try:
+                swap_assets("0x56381cB87C8990971f3e9d948939e1a95eA113a3", "0x0000000000000000000000000000000000000000", harvest_amount)
+            except Exception as e:
+                logger.error(f'Failed to swap GOB rewards to BCH. Exception: {e}')
 
 def send_transaction(identifier, tx,*account):
     # identifier is just a string to help the admin to identify the tx if it fails.

@@ -286,13 +286,14 @@ def take_weekly_yields(stacked_assets, farms, is_first_sunday):
     # Watchdog is stopped to avoid interferences
     watchdog.stop_watchdog()
     engine.start_celery_stake() # Turning to staking mode harvest the CLY rewards
-    try:
-        engine.swap_assets("0x7642Df81b5BEAeEb331cc5A104bd13Ba68c34B91", "0x0000000000000000000000000000000000000000", "all") #Sell CLY for BCH
-    except Exception as e:
-        logger.error(f'Failed to swap CLY to BCH. Exception: {e}')
+    if is_first_sunday:
+        try:
+            engine.swap_assets("0x7642Df81b5BEAeEb331cc5A104bd13Ba68c34B91", "0x0000000000000000000000000000000000000000", "all") #Sell CLY for BCH
+        except Exception as e:
+            logger.error(f'Failed to swap CLY to BCH. Exception: {e}')
     for asset in stacked_assets:
         if isinstance(stacked_assets[asset], dict): # Don't grab Total value and Total yield value entries
-            engine.harvest_pools_rewards(asset, amount=stacked_assets[asset]["Yield"] * 10**18)
+            engine.harvest_pools_rewards(asset, is_first_sunday, amount=stacked_assets[asset]["Yield"] * 10**18)
 
     try:
         engine.harvest_farms_rewards()
