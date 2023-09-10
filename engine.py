@@ -1106,6 +1106,18 @@ def harvest_sidx_law_farm(is_first_sunday=False):
         send_transaction(
             f"Depositing {LP_balance / 10**18} LP tokens to BlockNG-Kudos SIDX/LAW farm", deposit_tx)
 
+def harvest_sidx_bch_mist_farm(is_first_sunday=False):
+    ABI = open("ABIs/MIST-Master-ABI.json", 'r')
+    abi = json.loads(ABI.read())
+    contract = w3.eth.contract(address="0x3A7B9D0ed49a90712da4E087b17eE4Ac1375a5D4", abi=abi)
+    pool_id = 44
+    harvest_tx = contract.functions.deposit(pool_id, 0).build_transaction(
+        {'chainId': 10000,
+         'from': portfolio_address,
+         'gasPrice': w3.to_wei('1.05', 'gwei')
+         })
+    send_transaction("Farming SIDX/BCH Mistswap pool", harvest_tx)
+
 def get_ETF_assets_allocation(farms, LP_balances):
     # SIDX liquidity pools (LP balances) must make up 25% of ETF portfolio (proposal #53)
     portfolio = {"Standalone assets": {}, "Farms": {}, "SIDX pools": {}}

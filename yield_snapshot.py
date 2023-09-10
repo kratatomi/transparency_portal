@@ -323,6 +323,10 @@ def take_weekly_yields(stacked_assets, farms, is_first_sunday):
             engine.harvest_sidx_law_farm(is_first_sunday=True)
         except Exception as e:
             logger.error(f'Function harvest_sidx_law_farm failed. Exception: {e}')
+        try:
+            engine.harvest_sidx_bch_mist_farm()
+        except Exception as e:
+            logger.error(f'Function harvest_sidx_bch_mist_farm failed. Exception: {e}')
     else:
         try:
             engine.harvest_tango_sidx_farm(engine.portfolio_address, 'PORTFOLIO_PRIV_KEY', is_first_sunday=False)
@@ -333,6 +337,10 @@ def take_weekly_yields(stacked_assets, farms, is_first_sunday):
             engine.harvest_sidx_law_farm(is_first_sunday=False)
         except Exception as e:
             logger.error(f'Function harvest_sidx_law_farm failed. Exception: {e}')
+        try:
+            engine.harvest_sidx_bch_mist_farm()
+        except Exception as e:
+            logger.error(f'Function harvest_sidx_bch_mist_farm failed. Exception: {e}')
 
     # Watchdog is resumed
     with open('data/ETF_investors_transfers.json') as etf_investors_transfers_file:
