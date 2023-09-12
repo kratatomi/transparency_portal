@@ -1143,7 +1143,7 @@ def harvest_sidx_bch_mist_farm(is_first_sunday=False):
              'from': portfolio_address,
              'gasPrice': w3.to_wei('1.05', 'gwei')
              })
-        send_transaction(f"Depositing {LP_balance / 10**18} SIDX/WBCH LP tokens to TangoSwap farm", deposit_tx, *account)
+        send_transaction(f"Depositing {LP_balance / 10**18} SIDX/WBCH LP tokens to Mistswap farm", deposit_tx)
 
 def get_ETF_assets_allocation(farms, LP_balances):
     # SIDX liquidity pools (LP balances) must make up 25% of ETF portfolio (proposal #53)
