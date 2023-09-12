@@ -281,7 +281,7 @@ def generate_graphs():
     with open('data/assets_statistics.json', 'w') as file:
         json.dump(assets_statistics, file, indent=4)
 
-def take_weekly_yields(stacked_assets, farms, is_first_sunday):
+def take_weekly_yields(stacked_assets, farms, is_first_sunday_var):
     import engine, watchdog
     # Watchdog is stopped to avoid interferences
     watchdog.stop_watchdog()
@@ -313,34 +313,19 @@ def take_weekly_yields(stacked_assets, farms, is_first_sunday):
                            amount_to_swap)
 
     #From now, liquidity will only be added the first Sunday of the month. Other Sundays, SIDX liquidity farms will just be harvested manually.
-    if is_first_sunday == True:
-        try:
-            engine.harvest_tango_sidx_farm(engine.portfolio_address, 'PORTFOLIO_PRIV_KEY', is_first_sunday=True)
-        except Exception as e:
-            logger.error(f'Function harvest_tango_sidx_farm failed. Exception: {e}')
+    try:
+        engine.harvest_tango_sidx_farm(engine.portfolio_address, 'PORTFOLIO_PRIV_KEY', is_first_sunday=is_first_sunday_var)
+    except Exception as e:
+        logger.error(f'Function harvest_tango_sidx_farm failed. Exception: {e}')
 
-        try:
-            engine.harvest_sidx_law_farm(is_first_sunday=True)
-        except Exception as e:
-            logger.error(f'Function harvest_sidx_law_farm failed. Exception: {e}')
-        try:
-            engine.harvest_sidx_bch_mist_farm()
-        except Exception as e:
-            logger.error(f'Function harvest_sidx_bch_mist_farm failed. Exception: {e}')
-    else:
-        try:
-            engine.harvest_tango_sidx_farm(engine.portfolio_address, 'PORTFOLIO_PRIV_KEY', is_first_sunday=False)
-        except Exception as e:
-            logger.error(f'Function harvest_tango_sidx_farm failed. Exception: {e}')
-
-        try:
-            engine.harvest_sidx_law_farm(is_first_sunday=False)
-        except Exception as e:
-            logger.error(f'Function harvest_sidx_law_farm failed. Exception: {e}')
-        try:
-            engine.harvest_sidx_bch_mist_farm()
-        except Exception as e:
-            logger.error(f'Function harvest_sidx_bch_mist_farm failed. Exception: {e}')
+    try:
+        engine.harvest_sidx_law_farm(is_first_sunday=is_first_sunday_var)
+    except Exception as e:
+        logger.error(f'Function harvest_sidx_law_farm failed. Exception: {e}')
+    try:
+        engine.harvest_sidx_bch_mist_farm(is_first_sunday=is_first_sunday_var)
+    except Exception as e:
+        logger.error(f'Function harvest_sidx_bch_mist_farm failed. Exception: {e}')
 
     # Watchdog is resumed
     with open('data/ETF_investors_transfers.json') as etf_investors_transfers_file:
