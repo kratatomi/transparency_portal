@@ -1117,6 +1117,33 @@ def harvest_sidx_bch_mist_farm(is_first_sunday=False):
          'gasPrice': w3.to_wei('1.05', 'gwei')
          })
     send_transaction("Farming SIDX/BCH Mistswap pool", harvest_tx)
+    if is_first_sunday == True:
+        # First Sunday of the month, liquidity is added to the pool
+        # Then, get the Tango amount harvested
+        mist_CA = "0x5fA664f69c2A4A3ec94FaC3cBf7049BD9CA73129"
+        mist_amount = int(get_SEP20_balance(mist_CA, portfolio_address))
+        LP_CA = "0x7E1B9F1e286160A80ab9B04D228C02583AeF90B5"
+        tokens_dictionary = buy_assets_for_liquidty_addition(mist_amount, mist_CA, LP_CA)
+        mist_router = "0x5d0bF8d8c8b054080E2131D8b260a5c6959411B8"
+        add_liquidity(tokens_dictionary, LP_CA, mist_router)
+        # Time to check the LP tokens balance
+        ABI = open("ABIs/UniswapV2Pair.json", "r")
+        abi = json.loads(ABI.read())
+        contract = w3.eth.contract(address=LP_CA, abi=abi)
+        LP_balance = int(contract.functions.balanceOf(portfolio_address).call())
+        if LP_balance == 0:
+            logger.error(f'No liquidity to add to SIDX/BCH Mistswap farm. LP balance is 0.')
+            return
+        # Finally, LP tokens are deposited on the farm
+        ABI = open("ABIs/MIST-Master-ABI.json", "r")
+        abi = json.loads(ABI.read())
+        contract = w3.eth.contract(address="0x3A7B9D0ed49a90712da4E087b17eE4Ac1375a5D4", abi=abi)
+        deposit_tx = contract.functions.deposit(pool_id, LP_balance).build_transaction(
+            {'chainId': 10000,
+             'from': portfolio_address,
+             'gasPrice': w3.to_wei('1.05', 'gwei')
+             })
+        send_transaction(f"Depositing {LP_balance / 10**18} SIDX/WBCH LP tokens to TangoSwap farm", deposit_tx, *account)
 
 def get_ETF_assets_allocation(farms, LP_balances):
     # SIDX liquidity pools (LP balances) must make up 25% of ETF portfolio (proposal #53)
