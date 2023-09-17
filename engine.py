@@ -80,7 +80,7 @@ assets_balances = {
     "FlexUSD": {"Stacked": True, "Liquid": True, "CA": "0x7b2B3C5308ab5b2a1d9a94d20D35CCDf61e05b72", "BCH pair": "0x24f011f12Ea45AfaDb1D4245bA15dCAB38B43D13", "Initial": 283.912},
     "Ember Token": {"Stacked": True, "Liquid": True, "CA": "0x6BAbf5277849265b6738e75AEC43AEfdde0Ce88D", "BCH pair": "0x52c656FaF57DCbDdDd47BCbA7b2ab79e4c232C28"},
     "WBCH": {"Stacked": False, "Liquid": True, "CA": WBCH_CA},
-    "$OX": {"Stacked": True, "Liquid": False, "Initial": 45383.75, "CA": "0x78a0A62Fba6Fb21A83FE8a3433d44C73a4017A6f"}
+    "$OX": {"Stacked": False, "Liquid": True, "Initial": 45042, "CA": "0x78a0A62Fba6Fb21A83FE8a3433d44C73a4017A6f"}
 }
 
 initial_pool_balances = {
@@ -200,6 +200,14 @@ def get_balances(bch_price, portfolio_address=portfolio_address, assets_balances
                     contract.functions.balanceOf(portfolio_address).call() / 10 ** contract.functions.decimals().call(),
                     2)
                 SEP20_tokens[asset]["Current value"] = round(SEP20_tokens[asset]["Current"] * bch_price, 2)
+                total_value_SEP20_tokens += SEP20_tokens[asset]["Current value"]
+                pie_chart_data[asset] = SEP20_tokens[asset]["Current value"]
+                total_liquid_value += SEP20_tokens[asset]["Current value"]
+            elif asset == "$OX":
+                SEP20_tokens[asset] = {}
+                SEP20_tokens[asset]["Current"] = assets_balances[asset]["Initial"]
+                OX_price = get_OX_price()
+                SEP20_tokens[asset]["Current value"] = round(SEP20_tokens[asset]["Current"] * OX_price, 2)
                 total_value_SEP20_tokens += SEP20_tokens[asset]["Current value"]
                 pie_chart_data[asset] = SEP20_tokens[asset]["Current value"]
                 total_liquid_value += SEP20_tokens[asset]["Current value"]
@@ -1566,6 +1574,18 @@ def get_pending_rewards_value(address, bch_price, ETF_farms, ETF_LP_balances):
 
     return total_value
 
+def get_OX_price():
+    url = "https://opnx.com/en/ox-token/overview"
+    opts = FirefoxOptions()
+    opts.add_argument("--headless")
+    opts.add_argument("--no-sandbox")
+    opts.add_argument("--disable-gpu")
+    driver = webdriver.Firefox(options=opts)
+    driver.get(url)
+    wait = WebDriverWait(driver, 25)
+    status = wait.until(EC.text_to_be_present_in_element((By.CLASS_NAME, "css-1kks87f"), "."))
+    element = driver.find_element(By.CLASS_NAME, 'css-1kks87f')
+    return float(element.text.split()[2])
 def main(complete_scan=True):
     main_instance = singleton.SingleInstance() # Just one instance can run to prevent race conditions
     global total_liquid_value
