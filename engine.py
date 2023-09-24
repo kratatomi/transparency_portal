@@ -911,7 +911,7 @@ def harvest_pools_rewards(pool_name, is_first_sunday, amount=0):
         send_transaction(pool_name, harvest_tx)
         if is_first_sunday:
             try:
-                swap_assets("0x56381cB87C8990971f3e9d948939e1a95eA113a3", "0x0000000000000000000000000000000000000000", harvest_amount)
+                swap_assets("0x56381cB87C8990971f3e9d948939e1a95eA113a3", "0x0000000000000000000000000000000000000000", "all")
             except Exception as e:
                 logger.error(f'Failed to swap GOB rewards to BCH. Exception: {e}')
 
