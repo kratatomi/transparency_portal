@@ -65,8 +65,6 @@ assets_balances = {
                   "harvest_ABI": "BEN-Master-ABI.json"},
     "Celery": {"Initial": 1674817.26, "Stacked": True, "CA": "0x7642Df81b5BEAeEb331cc5A104bd13Ba68c34B91",
                "BCH pair": "0x5775D98022590dc60E9c4Ae0a1c56bF1fD8fcaDC", "Liquid": False},
-    "FLEX Coin": {"Initial": 142.804, "Stacked": False, "CA": "0x98Dd7eC28FB43b3C4c770AE532417015fa939Dd3",
-                  "Liquid": True, "BCH pair": "0x1A2bdFF5bA942bF20f0db7218cdE28D19aC8dD20"},
     "LNS": {"Initial": 42.499, "Stacked": True, "CA": "0x35b3Ee79E1A7775cE0c11Bd8cd416630E07B0d6f",
             "BAR_CA": "0xBE7E034c86AC2a302f69ef3975e3D14820cC7660",
             "BCH pair": "0x7f3F57C92681c9a132660c468f9cdff456fC3Fd7", "Liquid": True, "harvest_ABI": "SushiBar.json"},
