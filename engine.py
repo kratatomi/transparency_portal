@@ -78,7 +78,8 @@ assets_balances = {
     "FlexUSD": {"Stacked": True, "Liquid": True, "CA": "0x7b2B3C5308ab5b2a1d9a94d20D35CCDf61e05b72", "BCH pair": "0x24f011f12Ea45AfaDb1D4245bA15dCAB38B43D13", "Initial": 283.912},
     "Ember Token": {"Stacked": True, "Liquid": True, "CA": "0x6BAbf5277849265b6738e75AEC43AEfdde0Ce88D", "BCH pair": "0x52c656FaF57DCbDdDd47BCbA7b2ab79e4c232C28"},
     "WBCH": {"Stacked": False, "Liquid": True, "CA": WBCH_CA},
-    "$OX": {"Stacked": False, "Liquid": True, "Initial": 45042, "CA": "0x78a0A62Fba6Fb21A83FE8a3433d44C73a4017A6f"}
+    "$OX": {"Stacked": False, "Liquid": True, "Initial": 45042, "CA": "0x78a0A62Fba6Fb21A83FE8a3433d44C73a4017A6f"},
+    "SIDX": {"Stacked": False, "Liquid": True, "CA": SIDX_CA, "BCH pair": "0x7E1B9F1e286160A80ab9B04D228C02583AeF90B5"}
 }
 
 initial_pool_balances = {
@@ -204,11 +205,14 @@ def get_balances(bch_price, portfolio_address=portfolio_address, assets_balances
             elif asset == "$OX":
                 SEP20_tokens[asset] = {}
                 SEP20_tokens[asset]["Current"] = assets_balances[asset]["Initial"]
-                OX_price = get_OX_price()
-                SEP20_tokens[asset]["Current value"] = round(SEP20_tokens[asset]["Current"] * OX_price, 2)
-                total_value_SEP20_tokens += SEP20_tokens[asset]["Current value"]
-                pie_chart_data[asset] = SEP20_tokens[asset]["Current value"]
-                total_liquid_value += SEP20_tokens[asset]["Current value"]
+                try:
+                    OX_price = get_OX_price()
+                    SEP20_tokens[asset]["Current value"] = round(SEP20_tokens[asset]["Current"] * OX_price, 2)
+                    total_value_SEP20_tokens += SEP20_tokens[asset]["Current value"]
+                    pie_chart_data[asset] = SEP20_tokens[asset]["Current value"]
+                    total_liquid_value += SEP20_tokens[asset]["Current value"]
+                except Exception as e:
+                    continue
             else:
                 ABI = open("ABIs/ERC20-ABI.json", "r")  # Standard ABI for ERC20 tokens
                 abi = json.loads(ABI.read())
