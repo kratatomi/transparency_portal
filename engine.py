@@ -212,7 +212,7 @@ def get_balances(bch_price, portfolio_address=portfolio_address, assets_balances
                     pie_chart_data[asset] = SEP20_tokens[asset]["Current value"]
                     total_liquid_value += SEP20_tokens[asset]["Current value"]
                 except Exception as e:
-                    continue
+                    logger.error(f'Failed to get OX token price. Exception: {e}')
             else:
                 ABI = open("ABIs/ERC20-ABI.json", "r")  # Standard ABI for ERC20 tokens
                 abi = json.loads(ABI.read())
