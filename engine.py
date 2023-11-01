@@ -168,7 +168,7 @@ farms = {"Mistswap": {"factory": "0x3A7B9D0ed49a90712da4E087b17eE4Ac1375a5D4",
                                     ]}
 }
 
-ETF_banned_assets = ["FLEX Coin", "FlexUSD"]
+ETF_banned_assets = ["FLEX Coin", "FlexUSD", "$OX"]
 pie_chart_data = {}
 farms_pie_chart_data = {}
 sidx_liquidity_pie_chart_data = {}
