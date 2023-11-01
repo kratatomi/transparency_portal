@@ -163,7 +163,7 @@ def generate_update_initial_files():
 
     # Just liquid assets are incorporated
     for asset in ETF_assets_balances.copy():
-        if ETF_assets_balances[asset]["Liquid"]:
+        if ETF_assets_balances[asset]["Liquid"] and asset not in engine.ETF_banned_assets:
             if "Initial" in ETF_assets_balances[asset]:
                 ETF_assets_balances[asset]["Initial"] = 0
         else:
