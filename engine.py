@@ -1522,21 +1522,32 @@ def buy_assets_for_liquidty_addition(input_amount, input_asset_CA, lp_CA, *accou
     tokens_dictionary["token1"]["CA"] = contract.functions.token1().call()
     # If the input token is one of the liquidity pool tokens, shared_token will be token0 or token1, respectively
     shared_token = None
-    # First, let's swap half of the input_amount for token0
-    amount_to_swap = int(input_amount / 2)
-    if input_asset_CA != tokens_dictionary["token0"]["CA"]:
+    # First, we check if token1 is SIDX. In that case, as the portfolio holds SIDX, all input token will be swapped to token0
+    if tokens_dictionary["token1"]["CA"] == SIDX_CA:
+        amount_to_swap = input_amount
         token0_amount = swap_assets(input_asset_CA, tokens_dictionary["token0"]["CA"], amount_to_swap, *account)
+        token0_reserves, token1_reserves = [contract.functions.getReserves().call()[i] for i in (0, 1)]
+        token1_amount = int(round((token0_amount / token0_reserves) * token1_reserves))
+        # Raise error if SIDX balance is not enough
+        SIDX_balance = get_SEP20_balance(SIDX_CA, address)
+        if SIDX_balance < token1_amount:
+            raise Exception("Not enough SIDX balance in the portfolio to add liquidity")
     else:
-        shared_token = "token0"
-    # Now, the other half or whatever is left
-    input_asset_balance = get_SEP20_balance(input_asset_CA, address)
-    if input_asset_CA != tokens_dictionary["token1"]["CA"]:
-        if input_asset_balance >= amount_to_swap:
-            token1_amount = swap_assets(input_asset_CA, tokens_dictionary["token1"]["CA"], amount_to_swap, *account)
+        # If not, let's swap half of the input_amount for token0
+        amount_to_swap = int(input_amount / 2)
+        if input_asset_CA != tokens_dictionary["token0"]["CA"]:
+            token0_amount = swap_assets(input_asset_CA, tokens_dictionary["token0"]["CA"], amount_to_swap, *account)
         else:
-            token1_amount = swap_assets(input_asset_CA, tokens_dictionary["token1"]["CA"], input_asset_balance, *account)
-    else:
-        shared_token = "token1"
+            shared_token = "token0"
+        # Now, the other half or whatever is left
+        input_asset_balance = get_SEP20_balance(input_asset_CA, address)
+        if input_asset_CA != tokens_dictionary["token1"]["CA"]:
+            if input_asset_balance >= amount_to_swap:
+                token1_amount = swap_assets(input_asset_CA, tokens_dictionary["token1"]["CA"], amount_to_swap, *account)
+            else:
+                token1_amount = swap_assets(input_asset_CA, tokens_dictionary["token1"]["CA"], input_asset_balance, *account)
+        else:
+            shared_token = "token1"
     # Finally, let's fill the tokens_dictionary with the amounts
     if shared_token == None:
         tokens_dictionary["token0"]["amount"] = token0_amount
