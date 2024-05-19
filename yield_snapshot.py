@@ -322,10 +322,6 @@ def take_weekly_yields(stacked_assets, farms, is_first_sunday_var):
         logger.error(f'Function harvest_tango_sidx_farm failed. Exception: {e}')
 
     try:
-        engine.harvest_sidx_law_farm(is_first_sunday=is_first_sunday_var)
-    except Exception as e:
-        logger.error(f'Function harvest_sidx_law_farm failed. Exception: {e}')
-    try:
         engine.harvest_sidx_bch_mist_farm(is_first_sunday=is_first_sunday_var)
     except Exception as e:
         logger.error(f'Function harvest_sidx_bch_mist_farm failed. Exception: {e}')
