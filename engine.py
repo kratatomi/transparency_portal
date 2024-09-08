@@ -899,22 +899,6 @@ def harvest_pools_rewards(pool_name, is_first_sunday, amount=0):
                  'gasPrice': w3.to_wei('1.05', 'gwei')
                  })
             send_transaction(pool_name, harvest_tx)
-    if pool_name == "GOB":
-        ABI = open(f"ABIs/{assets_balances[pool_name]['harvest_ABI']}", "r")
-        abi = json.loads(ABI.read())
-        contract = w3.eth.contract(address=assets_balances[pool_name]["harvest_CA"], abi=abi)
-        harvest_amount = amount / 10 ** 9  # GOB has 9 decimals
-        harvest_tx = contract.functions.unstake(int(harvest_amount), True).build_transaction(
-            {'chainId': 10000,
-             'from': portfolio_address,
-             'gasPrice': w3.to_wei('1.05', 'gwei')
-             })
-        send_transaction(pool_name, harvest_tx)
-        if is_first_sunday:
-            try:
-                swap_assets("0x56381cB87C8990971f3e9d948939e1a95eA113a3", "0x0000000000000000000000000000000000000000", "all")
-            except Exception as e:
-                logger.error(f'Failed to swap GOB rewards to BCH. Exception: {e}')
 
 def send_transaction(identifier, tx,*account):
     # identifier is just a string to help the admin to identify the tx if it fails.
