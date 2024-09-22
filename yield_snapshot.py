@@ -285,10 +285,6 @@ def take_weekly_yields(stacked_assets, farms, is_first_sunday_var):
     import engine, watchdog
     # Watchdog is stopped to avoid interferences
     watchdog.stop_watchdog()
-    try:
-        engine.start_celery_stake() # Turning to staking mode harvest the CLY rewards
-    except Exception as e:
-        logger.error(f'Failed to turn Celery to staking mode. Exception: {e}')
     if is_first_sunday_var:
         try:
             engine.swap_assets("0x7642Df81b5BEAeEb331cc5A104bd13Ba68c34B91", "0x0000000000000000000000000000000000000000", "all") #Sell CLY for BCH
